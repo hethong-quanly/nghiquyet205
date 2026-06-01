@@ -120,7 +120,7 @@
                 <div class="reader-title" id="render-title-text">Vui lòng chọn một mục nghiệp vụ bên trái để xem nội dung văn bản</div>
             </div>
             <div class="reader-body" id="render-body-text">
-                Chào đồng chí Kiểm sát viên, hãy nhấn chọn các đề mục hiển thị ở thanh điều hướng bên trái. Hệ thống sẽ ngay lập tức mở và hiển thị toàn văn nội dung hướng dẫn nghiệp vụ chi tiết của chương/mục đó tại đây để đồng chí nghiên cứu, rà soát hồ sơ.
+                Chào bạn, hãy nhấn chọn các đề mục hiển thị ở thanh điều hướng bên trái. Hệ thống sẽ ngay lập tức mở và hiển thị toàn văn nội dung hướng dẫn nghiệp vụ chi tiết của chương/mục đó tại đây để bạn nghiên cứu, rà soát hồ sơ.
             </div>
         </div>
         
@@ -128,7 +128,7 @@
             <div class="chat-header">💬 Trợ lý AI Hỗ trợ Soạn thảo & Công nghệ</div>
             <div class="chat-container" id="chat-box">
                 <div class="message bot-message">
-                    Chào đồng chí! Song song với việc đọc văn bản ở giữa, đồng chí có thể yêu cầu tôi trợ giúp các công việc thực chiến như:<br><br>
+                    Chào bạn! Song song với việc đọc văn bản ở giữa, bạn có thể yêu cầu tôi trợ giúp các công việc thực chiến như:<br><br>
                     - <b>"Soạn mẫu tờ trình vụ việc"</b><br>
                     - <b>"Hướng dẫn xây dựng kiên nghị"</b><br>
                     - <b>"Hướng dẫn gỡ lỗi phần mềm"</b>
@@ -254,7 +254,7 @@
             for (const item of knowledgeBase) {
                 for (const keyword of item.keywords) {
                     if (lowerQuery.includes(keyword)) {
-                        return "<b>[Hệ thống Tri thức]:</b> Tôi thấy đồng chí quan tâm đến nội dung này. Nội dung đầy đủ đã được đồng bộ ở bảng hiển thị chính giữa để đồng chí dễ xem. Tóm tắt nhanh cho đồng chí: <br><br>" + item.answer;
+                        return "<b>[Hệ thống Tri thức]:</b> Tôi thấy bạn quan tâm đến nội dung này. Nội dung đầy đủ đã được đồng bộ ở bảng hiển thị chính giữa để bạn dễ xem. Tóm tắt nhanh cho bạn: <br><br>" + item.answer;
                     }
                 }
             }
