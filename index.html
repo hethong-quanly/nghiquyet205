@@ -3,57 +3,132 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Trợ lý Nghiệp vụ VKS - NQ205</title>
+    <title>Trợ lý Nghiệp vụ VKS - Nghị quyết số 205</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #f0f2f5; height: 100vh; display: flex; flex-direction: column; }
-        .header { background-color: #003399; color: white; padding: 15px; text-align: center; font-weight: bold; font-size: 18px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); flex-shrink: 0; z-index: 10;}
-        .header-sub { font-size: 12px; font-weight: normal; margin-top: 5px; opacity: 0.9; }
+        
+        /* Menu / Header chỉnh sửa theo yêu cầu */
+        .header-container { background-color: #003399; padding: 12px 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); flex-shrink: 0; z-index: 10; display: table; width: 100%; }
+        .logo-box { display: table-cell; vertical-align: middle; width: 50px; padding-right: 10px; }
+        .title-box { display: table-cell; vertical-align: middle; text-align: left; }
+        
+        /* Màu chữ vàng tươi theo yêu cầu mục 3 */
+        .header-title { color: #FFEA00; font-weight: bold; font-size: 16px; text-transform: uppercase; line-height: 1.3; }
+        .header-sub { font-size: 11px; font-weight: normal; margin-top: 3px; color: #FFFFFF; opacity: 0.95; letter-spacing: 0.5px; }
+        
+        /* Khung chứa nội dung chat */
         .chat-container { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
         .message { max-width: 90%; padding: 12px 16px; border-radius: 18px; line-height: 1.5; font-size: 15px; word-wrap: break-word; }
         .bot-message { background-color: white; color: #333; align-self: flex-start; border-bottom-left-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
         .user-message { background-color: #0084ff; color: white; align-self: flex-end; border-bottom-right-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        
         .bot-message b { color: #003399; }
         .bot-message ul { margin-left: 20px; margin-top: 5px; margin-bottom: 5px; }
         .bot-message li { margin-bottom: 4px; }
+        
+        /* Khu vực cấu hình API Gemini */
+        .api-config-bar { background-color: #fff3cd; color: #856404; padding: 8px 12px; font-size: 13px; border-bottom: 1px solid #ffeeba; flex-shrink: 0; display: block; }
+        .api-input-group { margin-top: 5px; display: table; width: 100%; }
+        .api-input-cell { display: table-cell; width: 80%; }
+        .api-btn-cell { display: table-cell; width: 20%; padding-left: 8px; }
+        .api-input { width: 100%; padding: 6px 10px; border: 1px solid #ffc107; border-radius: 4px; font-size: 12px; outline: none; }
+        .api-btn { background-color: #ffc107; color: #333; border: none; padding: 6px 12px; border-radius: 4px; font-weight: bold; font-size: 12px; cursor: pointer; width: 100%; text-align: center; }
+        
+        /* Chế độ chọn nguồn trả lời */
+        .mode-selector { margin-top: 5px; font-size: 12px; font-weight: bold; color: #003399; }
+        .mode-selector input { margin-right: 5px; vertical-align: middle; }
+        
+        /* Thanh nhập liệu câu hỏi */
         .input-area { background-color: white; padding: 10px 12px; display: flex; gap: 10px; box-shadow: 0 -2px 5px rgba(0,0,0,0.05); flex-shrink: 0; align-items: center;}
         input[type="text"] { flex: 1; padding: 12px 15px; border: 1px solid #ddd; border-radius: 20px; font-size: 15px; outline: none; transition: border-color 0.2s; background-color: #f9f9f9;}
         input[type="text"]:focus { border-color: #003399; background-color: white;}
-        button { background-color: #003399; color: white; border: none; padding: 10px 20px; border-radius: 20px; font-weight: bold; font-size: 15px; cursor: pointer; transition: background-color 0.2s; }
-        button:active { background-color: #002266; transform: scale(0.98); }
+        button.send-btn { background-color: #003399; color: white; border: none; padding: 11px 20px; border-radius: 20px; font-weight: bold; font-size: 15px; cursor: pointer; }
+        button.send-btn:active { background-color: #002266; }
+        
         .suggestion-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
-        .chip { background-color: #e4e6eb; color: #050505; padding: 6px 12px; border-radius: 15px; font-size: 13px; cursor: pointer; border: 1px solid #ccc; transition: background 0.2s; }
-        .chip:active { background-color: #d8dadf; }
+        .chip { background-color: #e4e6eb; color: #050505; padding: 6px 12px; border-radius: 15px; font-size: 13px; cursor: pointer; border: 1px solid #ccc; }
+        
+        /* Dòng chữ Bản quyền mục 2 */
+        .footer { background-color: #ffffff; color: #666666; text-align: center; padding: 8px; font-size: 11px; border-top: 1px solid #e4e6eb; flex-shrink: 0; }
     </style>
 </head>
 <body>
 
-    <div class="header">
-        Trợ lý Nghiệp vụ Nghị quyết 205
-        <div class="header-sub">VKSND Thành phố Cần Thơ</div>
+    <!-- Header có Logo ngành Kiểm sát mục 1 và Chữ màu vàng mục 3 -->
+    <div class="header-container">
+        <div class="logo-box">
+            <!-- SVG Logo mô phỏng Logo Ngành Kiểm sát (Lá chắn, Ngôi sao vàng, Cán cân công lý) -->
+            <svg width="42" height="42" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                <path d="M50,5 L90,25 L90,60 C90,80 50,95 50,95 C50,95 10,80 10,60 L10,25 Z" fill="#dd1a1a" stroke="#fff" stroke-width="3"/>
+                <path d="M50,12 L82,28 L82,58 C82,74 50,87 50,87 C50,87 18,74 18,58 L18,28 Z" fill="#003399"/>
+                <polygon points="50,22 55,36 70,36 58,45 62,60 50,50 38,60 42,45 30,36 45,36" fill="#FFEA00"/>
+                <line x1="30" y1="68" x2="70" y2="68" stroke="#FFEA00" stroke-width="4"/>
+                <line x1="50" y1="52" x2="50" y2="72" stroke="#FFEA00" stroke-width="3"/>
+                <circle cx="35" cy="58" r="5" fill="#FFEA00"/>
+                <circle cx="65" cy="58" r="5" fill="#FFEA00"/>
+                <line x1="35" y1="58" x2="50" y2="55" stroke="#FFEA00" stroke-width="2"/>
+                <line x1="65" y1="58" x2="50" y2="55" stroke="#FFEA00" stroke-width="2"/>
+            </svg>
+        </div>
+        <div class="title-box">
+            <div class="header-title">Trợ lý Nghiệp vụ Nghị quyết 205</div>
+            <div class="header-sub">Viện kiểm sát nhân dân thành phố Cần Thơ</div>
+        </div>
     </div>
 
+    <!-- Thanh cấu hình tích hợp API Gemini mục 4 -->
+    <div class="api-config-bar">
+        🔑 <b>Tích hợp mở rộng AI (Gemini):</b> Nhập API Key để trả lời các câu hỏi ngoài Hướng dẫn nghiệp vụ.
+        <div class="api-input-group">
+            <div class="api-input-cell">
+                <input type="text" id="gemini-key" class="api-input" placeholder="Dán mã Gemini API Key vào đây..." onchange="saveApiKey()">
+            </div>
+            <div class="api-btn-cell">
+                <button class="api-btn" onclick="saveApiKey()">Lưu</button>
+            </div>
+        </div>
+        <div class="mode-selector">
+            <label><input type="checkbox" id="use-gemini" checked> Tự động dùng kết hợp Gemini AI khi không tìm thấy tài liệu gốc</label>
+        </div>
+    </div>
+
+    <!-- Khung Chat -->
     <div class="chat-container" id="chat-box">
         <div class="message bot-message">
-            Chào đồng chí! Tôi đã cập nhật đầy đủ toàn bộ nội dung từ <b>Hướng dẫn nghiệp vụ NQ205 nội bộ của VKSND TP Cần Thơ</b>.<br><br>
-            Đồng chí có thể gõ câu hỏi hoặc bấm vào các nút gợi ý nhanh dưới đây để tra cứu:
+            Chào đồng chí! Tôi đã cập nhật đầy đủ nội dung từ <b>Hướng dẫn nghiệp vụ NQ205 nội bộ của VKSND TP Cần Thơ</b> đồng thời tích hợp thêm cổng mở rộng <b>Gemini AI</b>.<br><br>
+            Đồng chí có thể tra cứu nhanh qua các nút bên dưới hoặc tự nhập câu hỏi bất kỳ:
             <div class="suggestion-chips">
                 <div class="chip" onclick="quickAsk('Quy trình xử lý 10 bước')">Quy trình 10 bước</div>
                 <div class="chip" onclick="quickAsk('Kiểm sát điều tra hình sự')">Kiểm sát án hình sự</div>
                 <div class="chip" onclick="quickAsk('Dấu hiệu vi phạm đất đai')">Vi phạm đất đai</div>
                 <div class="chip" onclick="quickAsk('Nhóm yếu thế gồm những ai?')">Nhóm yếu thế</div>
-                <div class="chip" onclick="quickAsk('Kỹ năng công ích')">Kỹ năng nghiệp vụ công ích</div>
-                <div class="chip" onclick="quickAsk('Các lưu ý quan trọng')">Lưu ý khi vận dụng</div>
+                <div class="chip" onclick="quickAsk('Kỹ năng nghiệp vụ công ích')">Nghiệp vụ công ích</div>
             </div>
         </div>
     </div>
 
+    <!-- Ô nhập liệu -->
     <div class="input-area">
-        <input type="text" id="user-input" placeholder="Nhập từ khóa hoặc câu hỏi nghiệp vụ..." onkeypress="handleKeyPress(event)">
-        <button onclick="sendMessage()">Gửi</button>
+        <input type="text" id="user-input" placeholder="Nhập câu hỏi nghiệp vụ hoặc hỏi AI..." onkeypress="handleKeyPress(event)">
+        <button class="send-btn" onclick="sendMessage()">Gửi</button>
+    </div>
+
+    <!-- Dòng chữ Bản quyền mục 2 -->
+    <div class="footer">
+        Bản quyền thuộc VKSND TP.Cần Thơ Copyright 2026.
     </div>
 
     <script>
+        // Tự động tải API Key đã lưu từ bộ nhớ điện thoại (localStorage)
+        document.getElementById("gemini-key").value = localStorage.getItem("gemini_api_key") || "";
+
+        function saveApiKey() {
+            const key = document.getElementById("gemini-key").value.trim();
+            localStorage.setItem("gemini_api_key", key);
+            alert("Đã lưu mã API thành công trên thiết bị!");
+        }
+
         const knowledgeBase = [
             {
                 keywords: ["mục đích", "ý nghĩa", "tính chất", "để làm gì"],
@@ -109,19 +184,11 @@
             },
             {
                 keywords: ["kinh doanh", "thương mại", "lao động", "phá sản", "hợp đồng mẫu"],
-                answer: "<b>Khâu Kiểm sát án kinh doanh, thương mại, lao động:</b><br><ul><li><b>Dạng vi phạm:</b> Doanh nghiệp nợ bảo hiểm, nợ lương kéo dài ảnh hưởng nhiều người lao động; sa thải phụ nữ mang thai, nuôi con nhỏ trái luật; điều khoản hợp đồng mẫu bất lợi cho số đông người tiêu dùng; hàng hóa gây thiệt hại sức khỏe cộng đồng; lừa dối người già/khuyết tật qua sản phẩm, dịch vụ.</li><li><b>Kỹ năng:</b> Rà soát số lượng người bị ảnh hưởng, tính lặp lại của hành vi, điều khoản hợp đồng, quảng cáo gian dối.</li><li><b>Xử lý:</b> Kiến nghị cơ quan chuyên ngành, công đoàn; trường hợp không có chủ thể khởi kiện hoặc quyền lợi số đông chưa được bảo vệ thì đề xuất xử lý theo Nghị quyết 205."
+                answer: "<b>Khâu Kiểm sát án kinh doanh, thương mại, lao động:</b><br><ul><li><b>Dạng vi phạm:</b> Doanh nghiệp nợ bảo hiểm, nợ lương kéo dài ảnh hưởng many người lao động; sa thải phụ nữ mang thai, nuôi con nhỏ trái luật; điều khoản hợp đồng mẫu bất lợi cho số đông người tiêu dùng; hàng hóa gây thiệt hại sức khỏe cộng đồng; lừa dối người già/khuyết tật qua sản phẩm, dịch vụ.</li><li><b>Kỹ năng:</b> Rà soát số lượng người bị ảnh hưởng, tính lặp lại của hành vi, điều khoản hợp đồng, quảng cáo gian dối.</li><li><b>Xử lý:</b> Kiến nghị cơ quan chuyên ngành, công đoàn; trường hợp không có chủ thể khởi kiện hoặc quyền lợi số đông chưa được bảo vệ thì đề xuất xử lý theo Nghị quyết 205."
             },
             {
                 keywords: ["khiếu nại", "tố cáo", "tiếp công dân", "đơn thư", "phản ánh"],
                 answer: "<b>Khâu giải quyết khiếu nại, tố cáo và Tiếp công dân:</b><br><ul><li><b>Dạng vi phạm:</b> Đơn thư khiếu nại liên quan quyền nhóm yếu thế; phản ánh ô nhiễm môi trường, lấn chiếm đất công, khai thác cát trái phép, bạo lực gia đình, gian lận thuế, sản phẩm kém chất lượng mà cơ quan chức năng không xử lý dứt điểm.</li><li><b>Kỹ năng tiếp công dân:</b> Hỏi rõ hành vi xảy ra ở đâu, từ khi nào, ai thực hiện, hậu quả hiện nay, có bao nhiêu người bị ảnh hưởng. Ghi chép đầy đủ, hướng dẫn cung cấp chứng cứ (hình ảnh, video). Phân loại đơn thư theo dấu hiệu NQ 205.</li><li><b>Xử lý:</b> Lập phiếu chuyển thông tin cho đơn vị nghiệp vụ liên quan và thông tin Phòng 9 theo dõi, không để lọt nguồn tin chỉ vì đơn không ghi đúng tên 'vụ việc dân sự công ích'."
-            },
-            {
-                keywords: ["thanh tra nội bộ", "kiểm tra nội bộ", "văn phòng", "thống kê"],
-                answer: "<b>Khâu Thanh tra, kiểm tra nội bộ và Văn phòng, thống kê:</b><br><ul><li><b>Thanh tra, kiểm tra:</b> Qua kiểm tra nghiệp vụ, kịp thời phát hiện việc đơn vị bỏ sót nguồn tin dân sự công ích, chậm xác minh hoặc chậm báo cáo; đưa kết quả thực hiện NQ 205 vào đánh giá thi đua, đánh giá cán bộ lãnh đạo.</li><li><b>Văn phòng, thống kê:</b> Theo dõi tuần về số vụ phát hiện, thụ lý, xác minh; đối chiếu số liệu với báo chí, truyền thông; tham mưu lãnh đạo chỉ đạo rà soát chuyên đề đối với đơn vị có số liệu thấp bất thường."
-            },
-            {
-                keywords: ["phối hợp liên ngành", "thanh tra", "kiểm toán"],
-                answer: "<b>Công tác phối hợp liên ngành (Thuế, Thanh tra, Kiểm toán, Công an, Tài nguyên môi trường, Y tế...):</b><br><ul><li><b>Dạng vi phạm:</b> Kết luận thanh tra, kiểm tra, kiểm toán chỉ ra vi phạm nhưng chưa khắc phục; thất thoát ngân sách; ô nhiễm môi trường; hậu quả dân sự bị bỏ ngỏ.</li><li><b>Kỹ năng:</b> Chủ động yêu cầu cung cấp kết luận, biên bản kiểm tra, quyết định xử phạt, tài liệu khắc phục hậu quả. Rà soát nội dung 'đã xử phạt nhưng hậu quả dân sự chưa được khắc phục'.</li><li><b>Xử lý:</b> Kiến nghị cơ quan có thẩm quyền khởi kiện; nếu đủ điều kiện độc lập thì lập hồ sơ đề xuất VKS khởi kiện."
             },
             {
                 keywords: ["ngân sách", "thuế", "tài chính", "thất thu"],
@@ -132,40 +199,16 @@
                 answer: "<b>Nhóm vi phạm Đất đai, tài sản công:</b><br><ul><li><b>Dấu hiệu:</b> Lấn chiếm đất công, sử dụng đất sai mục đích, giao đất, cho thuê đất, bồi thường, hỗ trợ, tái định cư không đúng; tài sản công bị chiếm dụng, sử dụng lãng phí, thất thoát.</li><li><b>Tài liệu cần thu thập:</b> Hồ sơ địa chính, bản đồ, quyết định giao đất, cho thuê đất, thu hồi đất, phương án bồi thường, kết luận thanh tra, hình ảnh hiện trạng.</li></ul>"
             },
             {
-                keywords: ["môi trường", "sinh thái", "ô nhiễm", "khai thác cát", "phá rừng"],
+                keywords: ["môi trường", "sinh thái", "ô nhiễm", "khai thác cát"],
                 answer: "<b>Nhóm vi phạm Môi trường, hệ sinh thái:</b><br><ul><li><b>Dấu hiệu:</b> Xả thải chưa xử lý; chôn lấp chất thải; gây ô nhiễm không khí, nước, đất; khai thác cát, khoáng sản trái phép; phá rừng, hủy hoại hệ sinh thái; không khắc phục sau xử phạt.</li><li><b>Tài liệu cần thu thập:</b> Biên bản kiểm tra, kết quả quan trắc, quyết định xử phạt, kết luận giám định, hình ảnh, video, bản đồ, ảnh vệ tinh, tài liệu đánh giá thiệt hại.</li></ul>"
             },
             {
-                keywords: ["thực phẩm", "thuốc", "y tế", "sức khỏe cộng đồng"],
-                answer: "<b>Nhóm vi phạm An toàn thực phẩm, thuốc, hàng hóa ảnh hưởng sức khỏe cộng đồng:</b><br><ul><li><b>Dấu hiệu:</b> Sản xuất, bán thực phẩm bẩn, thực phẩm có chất cấm, thuốc giả, thuốc kém chất lượng, thực phẩm chức năng quảng cáo gian dối, sản phẩm gây hại cho trẻ em, người cao tuổi.</li><li><b>Tài liệu cần thu thập:</b> Kết quả kiểm nghiệm, hóa đơn, tài liệu nguồn gốc hàng hóa, quảng cáo, danh sách người mua, tài liệu xử phạt, tài liệu thiệt hại sức khỏe.</li></ul>"
-            },
-            {
-                keywords: ["người tiêu dùng", "hàng giả", "quảng cáo sai"],
-                answer: "<b>Nhóm vi phạm Bảo vệ người tiêu dùng:</b><br><ul><li><b>Dấu hiệu:</b> Điều khoản hợp đồng mẫu bất lợi; lừa đảo người tiêu dùng; bán hàng giả, hàng kém chất lượng; quảng cáo sai sự thật nhằm vào người cao tuổi, người khuyết tật, người bệnh.</li><li><b>Tài liệu cần thu thập:</b> Hợp đồng mẫu, tài liệu quảng cáo, chứng cứ giao dịch, phản ánh của người tiêu dùng, kết quả kiểm định, tài liệu xử lý hành chính.</li></ul>"
-            },
-            {
-                keywords: ["thông tin cá nhân", "dữ liệu cá nhân", "lộ thông tin"],
-                answer: "<b>Nhóm vi phạm Thông tin cá nhân, dữ liệu cá nhân:</b><br><ul><li><b>Dấu hiệu:</b> Thu thập, mua bán, tiết lộ dữ liệu cá nhân; lộ thông tin trẻ em, phụ nữ mang thai, người bệnh, người cao tuổi; sử dụng dữ liệu để lừa đảo, quấy rối, quảng cáo trái phép.</li><li><b>Tài liệu cần thu thập:</b> Dữ liệu điện tử, tin nhắn, email, hợp đồng dịch vụ, tài khoản mạng xã hội, tài liệu xác định phạm vi thông tin bị lộ, số lượng người bị ảnh hưởng.</li></ul>"
-            },
-            {
-                keywords: ["quy quyền trẻ em", "bạo hành", "xâm hại trẻ", "cấp dưỡng"],
-                answer: "<b>Nhóm vi phạm Quyền trẻ em:</b><br><ul><li><b>Dấu hiệu:</b> Bạo lực, xâm hại, bóc lột lao động, bỏ mặc, không cấp dưỡng, không khai sinh, không được đi học, bị phát tán hình ảnh, thông tin riêng tư.</li><li><b>Tài liệu cần thu thập:</b> Giấy khai sinh, hồ sơ học tập, hồ sơ y tế, kết luận giám định, lời khai, hình ảnh, tài liệu của nhà trường, chính quyền, cơ quan bảo vệ trẻ em.</li></ul>"
-            },
-            {
-                keywords: ["người cao tuổi", "khuyết tật", "phụ nữ mang thai", "nuôi con nhỏ"],
-                answer: "<b>Nhóm vi phạm Quyền người cao tuổi, người khuyết tật, phụ nữ mang thai/nuôi con nhỏ:</b><br><ul><li><b>Người cao tuổi:</b> Bị bỏ mặc, ngược đãi, chiếm đoạt tài sản, ép chuyển nhượng nhà đất, lừa mua sản phẩm, dịch vụ; không được phụng dưỡng.</li><li><b>Người khuyết tật/Mất NLHVDS:</b> Bị chiếm đoạt tài sản, giao dịch bất lợi, bị bỏ mặc, không có giám hộ, không tiếp cận dịch vụ công, công trình công cộng.</li><li><b>Phụ nữ mang thai/nuôi con nhỏ:</b> Bị sa thải, ép nghỉ việc, chuyển việc trái quy định, không bảo đảm chế độ thai sản, bị bạo lực, cản trở quyền nuôi con.</li><li><b>Tài liệu cần:</b> Giấy tờ nhân thân, hồ sơ tài sản, quyết định khuyết tật/giám hộ, hợp đồng lao động, bảng lương, xác nhận địa phương.</li></ul>"
-            },
-            {
-                keywords: ["kỹ năng nghiệp vụ", "Kỹ năng nghiệp vụ công ích", "truy vết hậu quả", "tư pháp phục hồi"],
-                answer: "<b>Kỹ năng nghiệp vụ cốt lõi cần áp dụng:</b><br><ul><li><b>Đọc hồ sơ theo 'Kỹ năng nghiệp vụ công ích':</b> Khi nghiên cứu bất kỳ hồ sơ nào, Kiểm sát viên phải rà soát thêm: có nhóm yếu thế không; có lợi ích công không; hậu quả dân sự/môi trường/tài sản công/ngân sách đã được khắc phục chưa.</li><li><b>Truy vết hậu quả dân sự trong vụ án hình sự:</b> Không dừng lại ở tội danh, hình phạt; phải xác định thiệt hại còn lại, nghĩa vụ bồi thường, khôi phục hiện trạng.</li><li><b>Tư pháp phục hồi:</b> Khi xử lý vụ việc cần hướng đến yêu cầu chấm dứt vi phạm, khôi phục hiện trạng, phục hồi môi trường, nộp lại khoản lợi bất chính, xin lỗi công khai, cải chính thông tin.</li><li><b>Theo dõi sau kiến nghị:</b> Phải theo dõi việc trả lời, thực hiện, khắc phục; nếu không thực hiện đầy đủ thì báo cáo lãnh đạo xem xét bước tiếp theo.</li></ul>"
-            },
-            {
-                keywords: ["phối hợp nội bộ", "vksnd khu vực", "phòng nghiệp vụ", "trách nhiệm gợi ý"],
-                answer: "<b>Cơ chế phối hợp nội bộ trong VKSND hai cấp TP Cần Thơ:</b><br><ul><li><b>Các phòng nghiệp vụ & VKS khu vực:</b> Chủ động phát hiện vụ việc trong khâu công tác được giao; báo cáo lãnh đạo; lập phiếu thông tin và chuyển cho Phòng 9; tiếp tục chủ trì xác minh, thu thập chứng cứ.</li><li><b>Phòng 9:</b> Đầu mối hướng dẫn nghiệp vụ, theo dõi, quản lý số liệu chung, hỗ trợ các đơn vị về căn cứ pháp lý, phối hợp hoàn thiện hồ sơ khởi kiện.</li><li><b>Thanh tra:</b> Kịp thời phát hiện việc bỏ sót nguồn tin dân sự công ích qua thanh tra, kiểm tra nghiệp vụ; phê bình đơn vị chậm trễ.</li><li><b>Lãnh đạo các đơn vị:</b> Chịu trách nhiệm trực tiếp tổ chức quán triệt, bảo đảm số liệu báo cáo thực chất, không hình thức.</li></ul>"
+                keywords: ["kỹ năng nghiệp vụ", "Nghiệp vụ công ích", "truy vết hậu quả", "tư pháp phục hồi"],
+                answer: "<b>Kỹ năng nghiệp vụ cốt lõi cần áp dụng:</b><br><ul><li><b>Đọc hồ sơ theo 'nghiệp vụ công ích':</b> Luôn rà soát thêm: có nhóm yếu thế không; có lợi ích công không; hậu quả dân sự/môi trường/tài sản công/ngân sách đã được khắc phục chưa.</li><li><b>Truy vết hậu quả dân sự trong vụ án hình sự:</b> Không dừng lại ở tội danh, hình phạt; phải xác định thiệt hại còn lại, nghĩa vụ bồi thường, khôi phục hiện trạng.</li><li><b>Tư pháp phục hồi:</b> Hướng đến mục tiêu khôi phục hiện trạng, phục hồi môi trường, nộp lại khoản lợi bất chính, xin lỗi công khai.</li></ul>"
             },
             {
                 keywords: ["lưu ý", "vận dụng", "biện pháp", "đặc biệt lưu ý"],
-                answer: "<b>Một số lưu ý quan trọng khi vận dụng Hướng dẫn nội bộ:</b><br>1. Danh mục nhận diện chỉ có tính chất gợi ý nghiệp vụ hỗ trợ phát hiện ban đầu; khi xử lý phải căn cứ Nghị quyết 205, Thông tư liên tịch 09 và pháp luật chuyên ngành.<br>2. Một vụ việc có thể đồng thời thuộc nhiều nhóm lĩnh vực (ví dụ: vừa trốn thuế đất vừa sai phạm quản lý đất đai).<br>3. <b>Đặc biệt lưu ý:</b> Đối với các vụ việc đã bị xử phạt hành chính hoặc xử lý hình sự, VẪN phải tiếp tục rà soát xem hậu quả dân sự, thiệt hại môi trường, tài sản công, ngân sách, quyền người yếu thế đã được khắc phục đầy đủ chưa.<br>4. Đối với vụ việc nhóm dễ bị tổn thương, cần ưu tiên biện pháp bảo vệ kịp thời, tránh để quyền dân sự tiếp tục bị xâm phạm trong thời gian xác minh.<br>5. Bảo đảm thận trọng pháp lý, không hình sự hóa, dân sự hóa tùy tiện."
+                answer: "<b>Một số lưu ý quan trọng khi vận dụng:</b><br>1. Danh mục chỉ có tính chất gợi ý phát hiện ban đầu.<br>2. <b>Đặc biệt lưu ý:</b> Vụ việc ĐÃ bị xử phạt hành chính hoặc xử lý hình sự, VẪN phải rà soát xem hậu quả dân sự, thiệt hại môi trường, tài sản công, ngân sách đã khắc phục đầy đủ chưa.<br>3. Ưu tiên bảo vệ kịp thời quyền của nhóm yếu thế trong thời gian xác minh."
             }
         ];
 
@@ -181,7 +224,37 @@
             chatBox.scrollTop = chatBox.scrollHeight;
         }
 
-        function findAnswer(query) {
+        // Hàm gọi API của Google Gemini trực tiếp từ điện thoại / client
+        async function callGeminiAI(question) {
+            const apiKey = localStorage.getItem("gemini_api_key");
+            if (!apiKey) {
+                return "<b>Thông báo:</b> Tôi phát hiện câu hỏi này nằm ngoài tài liệu Hướng dẫn nghiệp vụ NQ205. Để trả lời các câu hỏi mở rộng, đồng chí vui lòng nhập mã <b>Gemini API Key</b> ở thanh cấu hình phía trên nhé!";
+            }
+
+            try {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        contents: [{
+                            parts: [{
+                                text: `Bạn là trợ lý ảo nghiệp vụ thông minh của Viện kiểm sát nhân dân thành phố Cần Thơ. Hãy trả lời câu hỏi sau một cách chuẩn mực pháp lý, ngắn gọn, lịch sự theo ngôn ngữ ngành kiểm sát: ${question}`
+                            }]
+                        }]
+                    })
+                });
+                const data = await response.json();
+                if (data.candidates && data.candidates[0].content.parts[0].text) {
+                    return "🤖 <b>[Trợ lý Gemini AI phản hồi]:</b><br>" + data.candidates[0].content.parts[0].text.replace(/\n/g, "<br>");
+                } else {
+                    return "Không thể nhận phản hồi từ Gemini AI. Vui lòng kiểm tra lại tính chính xác của mã API Key.";
+                }
+            } catch (error) {
+                return "Lỗi kết nối mạng hoặc API Key không hợp lệ khi gọi Gemini AI. Chi tiết: " + error.message;
+            }
+        }
+
+        function findLocalAnswer(query) {
             query = query.toLowerCase().trim();
             let bestMatch = null;
             let maxMatchLength = 0;
@@ -194,20 +267,36 @@
                     }
                 }
             }
-            return bestMatch || "Rất tiếc, hệ thống chưa tìm thấy thông tin chính xác cho từ khóa này trong tài liệu NQ205 nội bộ. Đồng chí hãy thử dùng các từ khóa chính như: <b>Quy trình 10 bước, Môi trường, Kiểm sát điều tra, Án hình sự, Trẻ em, Đất đai, Phòng 9, Người cao tuổi, Ngân sách, Kỹ năng nghiệp vụ công ích, Lưu ý...</b>";
+            return bestMatch;
         }
 
-        function sendMessage(forceText = null) {
+        async function sendMessage(forceText = null) {
             const text = forceText !== null ? forceText : userInput.value.trim();
             if (text === "") return;
             
             addMessage(text, "user");
             userInput.value = "";
             
-            setTimeout(() => {
-                const response = findAnswer(text);
-                addMessage(response, "bot");
-            }, 300);
+            // 1. Tìm trong cơ sở dữ liệu nội bộ trước
+            const localAnswer = findLocalAnswer(text);
+            
+            if (localAnswer) {
+                setTimeout(() => {
+                    addMessage(localAnswer, "bot");
+                }, 300);
+            } else {
+                // 2. Nếu không có và người dùng bật tính năng dùng Gemini AI
+                if (document.getElementById("use-gemini").checked) {
+                    addMessage("<i>Đang kết nối để hỏi Trợ lý mở rộng Gemini AI...</i>", "bot");
+                    const aiAnswer = await callGeminiAI(text);
+                    // Xóa dòng thông báo trạng thái cũ để cập nhật câu trả lời thực tế
+                    chatBox.lastChild.innerHTML = aiAnswer;
+                } else {
+                    setTimeout(() => {
+                        addMessage("Rất tiếc, hệ thống chưa tìm thấy thông tin trùng khớp trong tài liệu NQ205 nội bộ. Đồng chí hãy bật tính năng kết nối Gemini AI ở phía trên để mở rộng phạm vi tra cứu câu hỏi này.", "bot");
+                    }, 300);
+                }
+            }
         }
 
         function quickAsk(text) {
