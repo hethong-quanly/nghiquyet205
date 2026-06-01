@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Trợ lý Nghiệp vụ VKS - NQ205</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #f0f2f5; height: 100vh; display: flex; flex-direction: column; }
+        .header { background-color: #003399; color: white; padding: 15px; text-align: center; font-weight: bold; font-size: 18px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); flex-shrink: 0; z-index: 10;}
+        .header-sub { font-size: 12px; font-weight: normal; margin-top: 5px; opacity: 0.9; }
+        .chat-container { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
+        .message { max-width: 90%; padding: 12px 16px; border-radius: 18px; line-height: 1.5; font-size: 15px; word-wrap: break-word; }
+        .bot-message { background-color: white; color: #333; align-self: flex-start; border-bottom-left-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .user-message { background-color: #0084ff; color: white; align-self: flex-end; border-bottom-right-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .bot-message b { color: #003399; }
+        .bot-message ul { margin-left: 20px; margin-top: 5px; margin-bottom: 5px; }
+        .bot-message li { margin-bottom: 4px; }
+        .input-area { background-color: white; padding: 10px 12px; display: flex; gap: 10px; box-shadow: 0 -2px 5px rgba(0,0,0,0.05); flex-shrink: 0; align-items: center;}
+        input[type="text"] { flex: 1; padding: 12px 15px; border: 1px solid #ddd; border-radius: 20px; font-size: 15px; outline: none; transition: border-color 0.2s; background-color: #f9f9f9;}
+        input[type="text"]:focus { border-color: #003399; background-color: white;}
+        button { background-color: #003399; color: white; border: none; padding: 10px 20px; border-radius: 20px; font-weight: bold; font-size: 15px; cursor: pointer; transition: background-color 0.2s; }
+        button:active { background-color: #002266; transform: scale(0.98); }
+        .suggestion-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+        .chip { background-color: #e4e6eb; color: #050505; padding: 6px 12px; border-radius: 15px; font-size: 13px; cursor: pointer; border: 1px solid #ccc; transition: background 0.2s; }
+        .chip:active { background-color: #d8dadf; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        Trợ lý Nghiệp vụ Nghị quyết 205
+        <div class="header-sub">VKSND Thành phố Cần Thơ</div>
+    </div>
+
+    <div class="chat-container" id="chat-box">
+        <div class="message bot-message">
+            Chào đồng chí! Tôi đã cập nhật đầy đủ toàn bộ nội dung từ <b>Hướng dẫn nghiệp vụ NQ205 nội bộ của VKSND TP Cần Thơ</b>.<br><br>
+            Đồng chí có thể gõ câu hỏi hoặc bấm vào các nút gợi ý nhanh dưới đây để tra cứu:
+            <div class="suggestion-chips">
+                <div class="chip" onclick="quickAsk('Quy trình xử lý 10 bước')">Quy trình 10 bước</div>
+                <div class="chip" onclick="quickAsk('Kiểm sát điều tra hình sự')">Kiểm sát án hình sự</div>
+                <div class="chip" onclick="quickAsk('Dấu hiệu vi phạm đất đai')">Vi phạm đất đai</div>
+                <div class="chip" onclick="quickAsk('Nhóm yếu thế gồm những ai?')">Nhóm yếu thế</div>
+                <div class="chip" onclick="quickAsk('Kỹ năng công ích')">Kỹ năng nghiệp vụ công ích</div>
+                <div class="chip" onclick="quickAsk('Các lưu ý quan trọng')">Lưu ý khi vận dụng</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="input-area">
+        <input type="text" id="user-input" placeholder="Nhập từ khóa hoặc câu hỏi nghiệp vụ..." onkeypress="handleKeyPress(event)">
+        <button onclick="sendMessage()">Gửi</button>
+    </div>
+
+    <script>
+        const knowledgeBase = [
+            {
+                keywords: ["mục đích", "ý nghĩa", "tính chất", "để làm gì"],
+                answer: "<b>Mục đích của Hướng dẫn:</b><br>Hỗ trợ công chức, Kiểm sát viên VKSND hai cấp TP Cần Thơ chủ động nhận diện sớm các vụ việc có dấu hiệu xâm phạm lợi ích công, quyền dân sự của nhóm dễ bị tổn thương trong các khâu công tác.<br><br><b>Tính chất tài liệu:</b><br>Không đặt ra thủ tục bắt buộc mới, không thay thế quy định của pháp luật và hướng dẫn của VKSND tối cao. Đây là tài liệu gợi ý nghiệp vụ, có ý nghĩa như một <b>'bảng kiểm nhận diện'</b> để vận dụng linh hoạt, thận trọng, bảo đảm không suy diễn, không mở rộng tùy tiện phạm vi Nghị quyết số 205/2025/QH15."
+            },
+            {
+                keywords: ["nguyên tắc chung", "nguyên tắc nhận diện", "5 nguyên tắc"],
+                answer: "<b>5 Nguyên tắc nhận diện chung:</b><br><ul><li><b>Thứ nhất:</b> Chủ động phát hiện từ hồ sơ, tài liệu, hoạt động kiểm sát, tiếp công dân, báo chí, mạng xã hội... không chỉ chờ đơn thư, phản ánh.</li><li><b>Thứ hai:</b> Phân loại rõ nhóm vụ việc (bảo vệ quyền dân sự của nhóm dễ bị tổn thương; bảo vệ lợi ích công; nhóm kết hợp cả hai; hoặc vụ việc chuyển cơ quan thẩm quyền).</li><li><b>Thứ ba:</b> Mọi nhận định ban đầu phải được kiểm tra, xác minh chứng cứ khách quan. Không kiến nghị/đề xuất khởi kiện khi chưa đủ căn cứ.</li><li><b>Thứ tư:</b> Coi trọng mục tiêu chấm dứt vi phạm, khắc phục hậu quả, phục hồi lợi ích thực chất cho người yếu thế.</li><li><b>Thứ sáu:</b> Trách nhiệm phối hợp của tất cả các đơn vị trong VKSND hai cấp, Phòng 9 là đầu mối theo dõi, tổng hợp chung.</li></ul>"
+            },
+            {
+                keywords: ["bảng kiểm chung", "yếu tố nhận diện", "yếu tố cốt lõi", "4 yếu tố"],
+                answer: "<b>Bảng kiểm nhận diện chung trong mọi hồ sơ, vụ việc (4 Yếu tố cốt lõi):</b><br><ul><li><b>1. Chủ thể bị tác động:</b> Kiểm tra có trẻ em, người cao tuổi, người khuyết tật, phụ nữ mang thai/nuôi con dưới 36 tháng... bị xâm phạm quyền dân sự, tài sản, nhân phẩm hay không?</li><li><b>2. Lợi ích công bị tác động:</b> Có dấu hiệu thiệt hại đến ngân sách, đất đai, tài nguyên, môi trường, tài sản công, an toàn thực phẩm, dữ liệu cá nhân... vượt ra ngoài lợi ích cá nhân riêng lẻ không?</li><li><b>3. Hậu quả, thiệt hại:</b> Hậu quả chưa được khắc phục hoặc có nguy cơ tiếp tục gây thiệt hại? Đã được bồi thường, phục hồi hay chưa?</li><li><b>4. Chủ thể có trách nhiệm:</b> Xác định rõ ai vi phạm, cơ quan nào có quyền khởi kiện, cơ quan quản lý nhà nước nào chưa xử lý triệt để?</li></ul>"
+            },
+            {
+                keywords: ["nhóm yếu thế", "dễ bị tổn thương", "chủ thể yếu thế", "đối tượng"],
+                answer: "<b>Nhóm dễ bị tổn thương theo Nghị quyết 205 bao gồm:</b><br><ul><li>Trẻ em.</li><li>Người cao tuổi.</li><li>Người khuyết tật.</li><li>Phụ nữ mang thai hoặc đang nuôi con dưới 36 tháng tuổi.</li><li>Người mất năng lực hành vi dân sự, người có khó khăn trong nhận thức, làm chủ hành vi.</li><li>Người dân tộc thiểu số cư trú tại vùng có điều kiện kinh tế - xã hội đặc biệt khó khăn.</li></ul>"
+            },
+            {
+                keywords: ["quy trình xử lý", "10 bước", "các bước xử lý", "trình tự"],
+                answer: "<b>Quy trình xử lý 10 bước chủ động, sáng tạo tại VKSND TP Cần Thơ:</b><br><b>Bước 1:</b> Ghi nhận nguồn thông tin (tài liệu, thời điểm, địa điểm, hậu quả).<br><b>Bước 2:</b> Đối chiếu sơ bộ phạm vi Nghị quyết số 205/2025/QH15.<br><b>Bước 3:</b> Đánh giá sơ bộ 4 yếu tố cốt lõi (hành vi, quyền lợi bị xâm phạm, hậu quả, chủ thể trách nhiệm).<br><b>Bước 4:</b> Báo cáo Lãnh đạo đơn vị để phân công xác minh ban đầu.<br><b>Bước 5:</b> Chủ động liên hệ, thông tin cho Phòng 9 để phối hợp, quản lý số liệu.<br><b>Bước 6:</b> Đơn vị phát hiện tiếp tục chủ trì xác minh, thu thập tài liệu theo lĩnh vực công tác.<br><b>Bước 7:</b> Lập Phiếu thông tin vụ việc dân sự công ích gửi Phòng 9.<br><b>Bước 8:</b> Tham mưu biện pháp xử lý phù hợp (kiến nghị khắc phục, thông báo chủ thể khởi kiện...).<br><b>Bước 9:</b> Phối hợp hoàn thiện hồ sơ khi đủ điều kiện khởi kiện.<br><b>Bước 10:</b> Theo dõi kết quả khắc phục, thi hành, phục hồi lợi ích công đến cùng."
+            },
+            {
+                keywords: ["phòng 9", "trách nhiệm của phòng 9", "đầu mối"],
+                answer: "<b>Trách nhiệm phối hợp nội bộ của Phòng 9:</b><br>Làm đầu mối hướng dẫn nghiệp vụ, theo dõi, quản lý số liệu, tổng hợp kết quả và tham mưu cho lãnh đạo Viện; hỗ trợ các đơn vị về căn cứ pháp lý, biểu mẫu, trình tự thủ tục.<br><br><i>Lưu ý quan trọng:</i> Việc thông tin cho Phòng 9 nhằm quản lý chung, không làm giảm trách nhiệm chủ động xác minh và đề xuất xử lý của đơn vị phát hiện vụ việc."
+            },
+            {
+                keywords: ["nguồn tin", "tin báo", "tố giác", "kiểm sát nguồn tin"],
+                answer: "<b>Khâu Thực hành quyền công tố, kiểm sát giải quyết nguồn tin về tội phạm:</b><br><ul><li><b>Dạng vi phạm cần chú ý:</b> Trốn thuế, thất thu ngân sách; chuyển nhượng đất ghi giá thấp; khai thác tài nguyên trái phép; xả thải, chôn lấp chất thải; thực phẩm/thuốc giả; xâm hại người yếu thế nhưng hậu quả dân sự chưa được bảo vệ.</li><li><b>Kỹ năng:</b> Khi nghiên cứu nguồn tin, phải đặt câu hỏi: Ngoài trách nhiệm hình sự, có còn thiệt hại dân sự, môi trường, ngân sách nào chưa được khắc phục không? Yêu cầu cơ quan xác minh thu thập tài liệu bồi thường.</li><li><b>Xử lý:</b> Lập phiếu thông tin, sao gửi tài liệu, báo cáo lãnh đạo và thông tin Phòng 9.</li></ul>"
+            },
+            {
+                keywords: ["hình sự", "điều tra", "cáo trạng", "án hình sự"],
+                answer: "<b>Khâu Thực hành quyền công tố, kiểm sát điều tra án hình sự:</b><br><ul><li><b>Dạng vi phạm:</b> Các vụ án xâm hại trẻ em, mua bán người, bóc lột lao động, bạo lực gia đình; tội phạm môi trường, đất đai, an toàn thực phẩm, hàng giả, lừa lừa đảo người tiêu dùng, tội phạm dữ liệu cá nhân.</li><li><b>Kỹ năng rà soát:</b> Rà soát kỹ phần hậu quả dân sự: Bị hại yếu thế đã được bồi thường chưa? Môi trường, tài sản công đã phục hồi chưa? Có cần buộc thu hồi, tiêu hủy hàng hóa, khôi phục hiện trạng không?</li><li><b>Hướng xử lý:</b> Yêu cầu điều tra làm rõ thiệt hại dân sự; nếu không thể giải quyết đầy đủ trong vụ án hình sự thì thông tin Phòng 9 để tiếp tục phối hợp xác minh theo NQ 205.</li></ul>"
+            },
+            {
+                keywords: ["xét xử hình sự", "kiểm sát xét xử", "bản án hình sự"],
+                answer: "<b>Khâu Kiểm sát xét xử án hình sự (Sơ thẩm, Phúc thẩm):</b><br><ul><li><b>Dạng vi phạm:</b> Bản án chỉ xử lý hình sự mà chưa xử lý hoặc xử lý chưa đầy đủ trách nhiệm bồi thường, khắc phục thiệt hại đối với lợi ích công hoặc nhóm yếu thế (chưa buộc khắc phục ô nhiễm, phục hồi đất...).</li><li><b>Kỹ năng:</b> Khi chuẩn bị xét xử, phải rà soát phần dân sự, biện pháp tư pháp, vật chứng, tài sản thu lợi bất chính; so sánh giữa thiệt hại thực tế và nội dung Tòa tuyên.</li><li><b>Xử lý:</b> Kiến nghị, kháng nghị nếu thuộc phạm vi án hình sự; nếu không giải quyết được trong án hình sự thì lập thông tin vụ việc dân sự công ích độc lập.</li></ul>"
+            },
+            {
+                keywords: ["tạm giữ", "tạm giam", "thi hành án hình sự", "giam giữ", "phạm nhân"],
+                answer: "<b>Khâu Kiểm sát việc tạm giữ, tạm giam và thi hành án hình sự:</b><br><ul><li><b>Dạng vi phạm:</b> Người bị giam giữ thuộc nhóm yếu thế (phụ nữ mang thai, nuôi con nhỏ, người chưa thành niên, người già, người khuyết tật) không được bảo đảm chế độ ăn, ở, y tế; trẻ em theo mẹ vào cơ sở giam giữ không được chăm sóc, học tập.</li><li><b>Kỹ năng:</b> Rà soát danh sách nhóm yếu thế; kiểm tra chế độ thực tế; làm việc với cơ sở giam giữ, gia đình, cơ quan bảo trợ xã hội.</li><li><b>Xử lý:</b> Kiến nghị khắc phục vi phạm ngay; nếu quyền dân sự kéo dài chưa được bảo vệ thì thông tin Phòng 9."
+            },
+            {
+                keywords: ["thi hành án dân sự", "thi hành án hành chính", "thads", "thahc"],
+                answer: "<b>Khâu Kiểm sát thi hành án dân sự, hành chính:</b><br><ul><li><b>Dạng vi phạm:</b> Thi hành án liên quan tài sản công, đất công, ngân sách; bán đấu giá, xử lý tài sản gây thất thoát; chậm thu hồi tài sản cho Nhà nước; không thi hành bản án bảo vệ quyền trẻ em, người già, người khuyết tật.</li><li><b>Kỹ năng:</b> Kiểm tra tài sản phải thi hành, rà soát các vụ việc kéo dài có nguy cơ thất thoát hoặc xâm phạm quyền người yếu thế.</li><li><b>Xử lý:</b> Kiến nghị cơ quan THA khắc phục; yêu cầu làm rõ trách nhiệm chậm thi hành; lập phiếu thông tin báo cáo lãnh đạo và thông tin Phòng 9."
+            },
+            {
+                keywords: ["dân sự", "hôn nhân", "gia đình", "ly hôn", "cấp dưỡng", "thừa kế"],
+                answer: "<b>Khâu Kiểm sát giải quyết vụ án, việc dân sự, hôn nhân gia đình:</b><br><ul><li><b>Dạng vi phạm:</b> Trẻ em không được cấp dưỡng, chăm sóc; tranh chấp tài sản ảnh hưởng quyền người chưa thành niên, người mất năng lực hành vi; người cao tuổi bị chiếm đoạt, cưỡng ép chuyển nhượng đất; người khuyết tật bị hạn chế quyền lợi.</li><li><b>Kỹ năng:</b> Xác định chủ thể yếu thế khi nghiên cứu hồ sơ; kiểm tra tư cách người đại diện, giám hộ, quyền tài sản, cư trú; đối chiếu yêu cầu khởi kiện với quyền thực tế bị xâm phạm.</li><li><b>Xử lý:</b> Kiến nghị Tòa án thu thập bổ sung chứng cứ, đưa người có quyền lợi liên quan tham gia tố tụng; nếu phát hiện quyền của nhóm yếu thế chưa được bảo vệ bằng vụ án hiện tại thì lập thông tin dân sự công ích."
+            },
+            {
+                keywords: ["án hành chính", "quyết định hành chính", "hành vi hành chính"],
+                answer: "<b>Khâu Kiểm sát án hành chính:</b><br><ul><li><b>Dạng vi phạm:</b> Quyết định, hành vi hành chính gây thiệt hại lợi ích công; quản lý đất đai, bồi thường, tái định cư sai dẫn đến thất thoát ngân sách; chậm cấp giấy khai sinh, căn cước, trợ cấp cho nhóm yếu thế; không xử lý ô nhiễm, xây dựng trái phép, lấn chiếm đất công.</li><li><b>Kỹ năng:</b> Rà soát nguồn gốc đất, hạn mức, nghĩa vụ tài chính; kiểm tra việc cơ quan hành chính đã xử lý triệt để hậu quả chưa.</li><li><b>Xử lý:</b> Kiến nghị phòng ngừa vi phạm quản lý nhà nước; lập phiếu thông tin phối hợp với Phòng 9 xử lý phần lợi ích chưa được khắc phục."
+            },
+            {
+                keywords: ["kinh doanh", "thương mại", "lao động", "phá sản", "hợp đồng mẫu"],
+                answer: "<b>Khâu Kiểm sát án kinh doanh, thương mại, lao động:</b><br><ul><li><b>Dạng vi phạm:</b> Doanh nghiệp nợ bảo hiểm, nợ lương kéo dài ảnh hưởng nhiều người lao động; sa thải phụ nữ mang thai, nuôi con nhỏ trái luật; điều khoản hợp đồng mẫu bất lợi cho số đông người tiêu dùng; hàng hóa gây thiệt hại sức khỏe cộng đồng; lừa dối người già/khuyết tật qua sản phẩm, dịch vụ.</li><li><b>Kỹ năng:</b> Rà soát số lượng người bị ảnh hưởng, tính lặp lại của hành vi, điều khoản hợp đồng, quảng cáo gian dối.</li><li><b>Xử lý:</b> Kiến nghị cơ quan chuyên ngành, công đoàn; trường hợp không có chủ thể khởi kiện hoặc quyền lợi số đông chưa được bảo vệ thì đề xuất xử lý theo Nghị quyết 205."
+            },
+            {
+                keywords: ["khiếu nại", "tố cáo", "tiếp công dân", "đơn thư", "phản ánh"],
+                answer: "<b>Khâu giải quyết khiếu nại, tố cáo và Tiếp công dân:</b><br><ul><li><b>Dạng vi phạm:</b> Đơn thư khiếu nại liên quan quyền nhóm yếu thế; phản ánh ô nhiễm môi trường, lấn chiếm đất công, khai thác cát trái phép, bạo lực gia đình, gian lận thuế, sản phẩm kém chất lượng mà cơ quan chức năng không xử lý dứt điểm.</li><li><b>Kỹ năng tiếp công dân:</b> Hỏi rõ hành vi xảy ra ở đâu, từ khi nào, ai thực hiện, hậu quả hiện nay, có bao nhiêu người bị ảnh hưởng. Ghi chép đầy đủ, hướng dẫn cung cấp chứng cứ (hình ảnh, video). Phân loại đơn thư theo dấu hiệu NQ 205.</li><li><b>Xử lý:</b> Lập phiếu chuyển thông tin cho đơn vị nghiệp vụ liên quan và thông tin Phòng 9 theo dõi, không để lọt nguồn tin chỉ vì đơn không ghi đúng tên 'vụ việc dân sự công ích'."
+            },
+            {
+                keywords: ["thanh tra nội bộ", "kiểm tra nội bộ", "văn phòng", "thống kê"],
+                answer: "<b>Khâu Thanh tra, kiểm tra nội bộ và Văn phòng, thống kê:</b><br><ul><li><b>Thanh tra, kiểm tra:</b> Qua kiểm tra nghiệp vụ, kịp thời phát hiện việc đơn vị bỏ sót nguồn tin dân sự công ích, chậm xác minh hoặc chậm báo cáo; đưa kết quả thực hiện NQ 205 vào đánh giá thi đua, đánh giá cán bộ lãnh đạo.</li><li><b>Văn phòng, thống kê:</b> Theo dõi tuần về số vụ phát hiện, thụ lý, xác minh; đối chiếu số liệu với báo chí, truyền thông; tham mưu lãnh đạo chỉ đạo rà soát chuyên đề đối với đơn vị có số liệu thấp bất thường."
+            },
+            {
+                keywords: ["phối hợp liên ngành", "thanh tra", "kiểm toán"],
+                answer: "<b>Công tác phối hợp liên ngành (Thuế, Thanh tra, Kiểm toán, Công an, Tài nguyên môi trường, Y tế...):</b><br><ul><li><b>Dạng vi phạm:</b> Kết luận thanh tra, kiểm tra, kiểm toán chỉ ra vi phạm nhưng chưa khắc phục; thất thoát ngân sách; ô nhiễm môi trường; hậu quả dân sự bị bỏ ngỏ.</li><li><b>Kỹ năng:</b> Chủ động yêu cầu cung cấp kết luận, biên bản kiểm tra, quyết định xử phạt, tài liệu khắc phục hậu quả. Rà soát nội dung 'đã xử phạt nhưng hậu quả dân sự chưa được khắc phục'.</li><li><b>Xử lý:</b> Kiến nghị cơ quan có thẩm quyền khởi kiện; nếu đủ điều kiện độc lập thì lập hồ sơ đề xuất VKS khởi kiện."
+            },
+            {
+                keywords: ["ngân sách", "thuế", "tài chính", "thất thu"],
+                answer: "<b>Nhóm vi phạm Thất thu ngân sách, nghĩa vụ tài chính với Nhà nước:</b><br><ul><li><b>Dấu hiệu:</b> Chuyển nhượng quyền sử dụng đất ghi giá thấp hơn thực tế; nợ thuế kéo dài; trốn thuế; nghĩa vụ tài chính về đất chưa thực hiện; khoản phải thu ngân sách chưa được thu hồi.</li><li><b>Tài liệu cần thu thập:</b> Hợp đồng, chứng từ thanh toán, hồ sơ thuế, thông báo thuế, kết luận kiểm tra, tài liệu xác định giá thực tế, tài liệu về số tiền thất thu.</li></ul>"
+            },
+            {
+                keywords: ["đất đai", "tài sản công", "đất công"],
+                answer: "<b>Nhóm vi phạm Đất đai, tài sản công:</b><br><ul><li><b>Dấu hiệu:</b> Lấn chiếm đất công, sử dụng đất sai mục đích, giao đất, cho thuê đất, bồi thường, hỗ trợ, tái định cư không đúng; tài sản công bị chiếm dụng, sử dụng lãng phí, thất thoát.</li><li><b>Tài liệu cần thu thập:</b> Hồ sơ địa chính, bản đồ, quyết định giao đất, cho thuê đất, thu hồi đất, phương án bồi thường, kết luận thanh tra, hình ảnh hiện trạng.</li></ul>"
+            },
+            {
+                keywords: ["môi trường", "sinh thái", "ô nhiễm", "khai thác cát", "phá rừng"],
+                answer: "<b>Nhóm vi phạm Môi trường, hệ sinh thái:</b><br><ul><li><b>Dấu hiệu:</b> Xả thải chưa xử lý; chôn lấp chất thải; gây ô nhiễm không khí, nước, đất; khai thác cát, khoáng sản trái phép; phá rừng, hủy hoại hệ sinh thái; không khắc phục sau xử phạt.</li><li><b>Tài liệu cần thu thập:</b> Biên bản kiểm tra, kết quả quan trắc, quyết định xử phạt, kết luận giám định, hình ảnh, video, bản đồ, ảnh vệ tinh, tài liệu đánh giá thiệt hại.</li></ul>"
+            },
+            {
+                keywords: ["thực phẩm", "thuốc", "y tế", "sức khỏe cộng đồng"],
+                answer: "<b>Nhóm vi phạm An toàn thực phẩm, thuốc, hàng hóa ảnh hưởng sức khỏe cộng đồng:</b><br><ul><li><b>Dấu hiệu:</b> Sản xuất, bán thực phẩm bẩn, thực phẩm có chất cấm, thuốc giả, thuốc kém chất lượng, thực phẩm chức năng quảng cáo gian dối, sản phẩm gây hại cho trẻ em, người cao tuổi.</li><li><b>Tài liệu cần thu thập:</b> Kết quả kiểm nghiệm, hóa đơn, tài liệu nguồn gốc hàng hóa, quảng cáo, danh sách người mua, tài liệu xử phạt, tài liệu thiệt hại sức khỏe.</li></ul>"
+            },
+            {
+                keywords: ["người tiêu dùng", "hàng giả", "quảng cáo sai"],
+                answer: "<b>Nhóm vi phạm Bảo vệ người tiêu dùng:</b><br><ul><li><b>Dấu hiệu:</b> Điều khoản hợp đồng mẫu bất lợi; lừa đảo người tiêu dùng; bán hàng giả, hàng kém chất lượng; quảng cáo sai sự thật nhằm vào người cao tuổi, người khuyết tật, người bệnh.</li><li><b>Tài liệu cần thu thập:</b> Hợp đồng mẫu, tài liệu quảng cáo, chứng cứ giao dịch, phản ánh của người tiêu dùng, kết quả kiểm định, tài liệu xử lý hành chính.</li></ul>"
+            },
+            {
+                keywords: ["thông tin cá nhân", "dữ liệu cá nhân", "lộ thông tin"],
+                answer: "<b>Nhóm vi phạm Thông tin cá nhân, dữ liệu cá nhân:</b><br><ul><li><b>Dấu hiệu:</b> Thu thập, mua bán, tiết lộ dữ liệu cá nhân; lộ thông tin trẻ em, phụ nữ mang thai, người bệnh, người cao tuổi; sử dụng dữ liệu để lừa đảo, quấy rối, quảng cáo trái phép.</li><li><b>Tài liệu cần thu thập:</b> Dữ liệu điện tử, tin nhắn, email, hợp đồng dịch vụ, tài khoản mạng xã hội, tài liệu xác định phạm vi thông tin bị lộ, số lượng người bị ảnh hưởng.</li></ul>"
+            },
+            {
+                keywords: ["quy quyền trẻ em", "bạo hành", "xâm hại trẻ", "cấp dưỡng"],
+                answer: "<b>Nhóm vi phạm Quyền trẻ em:</b><br><ul><li><b>Dấu hiệu:</b> Bạo lực, xâm hại, bóc lột lao động, bỏ mặc, không cấp dưỡng, không khai sinh, không được đi học, bị phát tán hình ảnh, thông tin riêng tư.</li><li><b>Tài liệu cần thu thập:</b> Giấy khai sinh, hồ sơ học tập, hồ sơ y tế, kết luận giám định, lời khai, hình ảnh, tài liệu của nhà trường, chính quyền, cơ quan bảo vệ trẻ em.</li></ul>"
+            },
+            {
+                keywords: ["người cao tuổi", "khuyết tật", "phụ nữ mang thai", "nuôi con nhỏ"],
+                answer: "<b>Nhóm vi phạm Quyền người cao tuổi, người khuyết tật, phụ nữ mang thai/nuôi con nhỏ:</b><br><ul><li><b>Người cao tuổi:</b> Bị bỏ mặc, ngược đãi, chiếm đoạt tài sản, ép chuyển nhượng nhà đất, lừa mua sản phẩm, dịch vụ; không được phụng dưỡng.</li><li><b>Người khuyết tật/Mất NLHVDS:</b> Bị chiếm đoạt tài sản, giao dịch bất lợi, bị bỏ mặc, không có giám hộ, không tiếp cận dịch vụ công, công trình công cộng.</li><li><b>Phụ nữ mang thai/nuôi con nhỏ:</b> Bị sa thải, ép nghỉ việc, chuyển việc trái quy định, không bảo đảm chế độ thai sản, bị bạo lực, cản trở quyền nuôi con.</li><li><b>Tài liệu cần:</b> Giấy tờ nhân thân, hồ sơ tài sản, quyết định khuyết tật/giám hộ, hợp đồng lao động, bảng lương, xác nhận địa phương.</li></ul>"
+            },
+            {
+                keywords: ["kỹ năng nghiệp vụ", "Kỹ năng nghiệp vụ công ích", "truy vết hậu quả", "tư pháp phục hồi"],
+                answer: "<b>Kỹ năng nghiệp vụ cốt lõi cần áp dụng:</b><br><ul><li><b>Đọc hồ sơ theo 'Kỹ năng nghiệp vụ công ích':</b> Khi nghiên cứu bất kỳ hồ sơ nào, Kiểm sát viên phải rà soát thêm: có nhóm yếu thế không; có lợi ích công không; hậu quả dân sự/môi trường/tài sản công/ngân sách đã được khắc phục chưa.</li><li><b>Truy vết hậu quả dân sự trong vụ án hình sự:</b> Không dừng lại ở tội danh, hình phạt; phải xác định thiệt hại còn lại, nghĩa vụ bồi thường, khôi phục hiện trạng.</li><li><b>Tư pháp phục hồi:</b> Khi xử lý vụ việc cần hướng đến yêu cầu chấm dứt vi phạm, khôi phục hiện trạng, phục hồi môi trường, nộp lại khoản lợi bất chính, xin lỗi công khai, cải chính thông tin.</li><li><b>Theo dõi sau kiến nghị:</b> Phải theo dõi việc trả lời, thực hiện, khắc phục; nếu không thực hiện đầy đủ thì báo cáo lãnh đạo xem xét bước tiếp theo.</li></ul>"
+            },
+            {
+                keywords: ["phối hợp nội bộ", "vksnd khu vực", "phòng nghiệp vụ", "trách nhiệm gợi ý"],
+                answer: "<b>Cơ chế phối hợp nội bộ trong VKSND hai cấp TP Cần Thơ:</b><br><ul><li><b>Các phòng nghiệp vụ & VKS khu vực:</b> Chủ động phát hiện vụ việc trong khâu công tác được giao; báo cáo lãnh đạo; lập phiếu thông tin và chuyển cho Phòng 9; tiếp tục chủ trì xác minh, thu thập chứng cứ.</li><li><b>Phòng 9:</b> Đầu mối hướng dẫn nghiệp vụ, theo dõi, quản lý số liệu chung, hỗ trợ các đơn vị về căn cứ pháp lý, phối hợp hoàn thiện hồ sơ khởi kiện.</li><li><b>Thanh tra:</b> Kịp thời phát hiện việc bỏ sót nguồn tin dân sự công ích qua thanh tra, kiểm tra nghiệp vụ; phê bình đơn vị chậm trễ.</li><li><b>Lãnh đạo các đơn vị:</b> Chịu trách nhiệm trực tiếp tổ chức quán triệt, bảo đảm số liệu báo cáo thực chất, không hình thức.</li></ul>"
+            },
+            {
+                keywords: ["lưu ý", "vận dụng", "biện pháp", "đặc biệt lưu ý"],
+                answer: "<b>Một số lưu ý quan trọng khi vận dụng Hướng dẫn nội bộ:</b><br>1. Danh mục nhận diện chỉ có tính chất gợi ý nghiệp vụ hỗ trợ phát hiện ban đầu; khi xử lý phải căn cứ Nghị quyết 205, Thông tư liên tịch 09 và pháp luật chuyên ngành.<br>2. Một vụ việc có thể đồng thời thuộc nhiều nhóm lĩnh vực (ví dụ: vừa trốn thuế đất vừa sai phạm quản lý đất đai).<br>3. <b>Đặc biệt lưu ý:</b> Đối với các vụ việc đã bị xử phạt hành chính hoặc xử lý hình sự, VẪN phải tiếp tục rà soát xem hậu quả dân sự, thiệt hại môi trường, tài sản công, ngân sách, quyền người yếu thế đã được khắc phục đầy đủ chưa.<br>4. Đối với vụ việc nhóm dễ bị tổn thương, cần ưu tiên biện pháp bảo vệ kịp thời, tránh để quyền dân sự tiếp tục bị xâm phạm trong thời gian xác minh.<br>5. Bảo đảm thận trọng pháp lý, không hình sự hóa, dân sự hóa tùy tiện."
+            }
+        ];
+
+        const chatBox = document.getElementById("chat-box");
+        const userInput = document.getElementById("user-input");
+
+        function addMessage(text, sender) {
+            const msgDiv = document.createElement("div");
+            msgDiv.classList.add("message");
+            msgDiv.classList.add(sender === "user" ? "user-message" : "bot-message");
+            msgDiv.innerHTML = text;
+            chatBox.appendChild(msgDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function findAnswer(query) {
+            query = query.toLowerCase().trim();
+            let bestMatch = null;
+            let maxMatchLength = 0;
+            
+            for (const item of knowledgeBase) {
+                for (const keyword of item.keywords) {
+                    if (query.includes(keyword) && keyword.length > maxMatchLength) {
+                        bestMatch = item.answer;
+                        maxMatchLength = keyword.length;
+                    }
+                }
+            }
+            return bestMatch || "Rất tiếc, hệ thống chưa tìm thấy thông tin chính xác cho từ khóa này trong tài liệu NQ205 nội bộ. Đồng chí hãy thử dùng các từ khóa chính như: <b>Quy trình 10 bước, Môi trường, Kiểm sát điều tra, Án hình sự, Trẻ em, Đất đai, Phòng 9, Người cao tuổi, Ngân sách, Kỹ năng nghiệp vụ công ích, Lưu ý...</b>";
+        }
+
+        function sendMessage(forceText = null) {
+            const text = forceText !== null ? forceText : userInput.value.trim();
+            if (text === "") return;
+            
+            addMessage(text, "user");
+            userInput.value = "";
+            
+            setTimeout(() => {
+                const response = findAnswer(text);
+                addMessage(response, "bot");
+            }, 300);
+        }
+
+        function quickAsk(text) {
+            sendMessage(text);
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === "Enter") {
+                sendMessage();
+            }
+        }
+    </script>
+</body>
+</html>
