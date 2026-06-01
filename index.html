@@ -14,7 +14,7 @@
         .title-box { display: table-cell; vertical-align: middle; text-align: left; }
         
         /* Màu chữ vàng tươi theo yêu cầu mục 3 */
-        .header-title { color: #FFEA00; font-weight: bold; font-size: 16px; text-transform: uppercase; line-height: 1.3; }
+        .header-title { color: #FFEA00; font-weight: bold; font-size: 30px; text-transform: uppercase; line-height: 1.3; }
         .header-sub { font-size: 11px; font-weight: normal; margin-top: 3px; color: #FFFFFF; opacity: 0.95; letter-spacing: 0.5px; }
         
         /* Khung chứa nội dung chat */
@@ -58,21 +58,12 @@
     <!-- Header có Logo ngành Kiểm sát mục 1 và Chữ màu vàng mục 3 -->
     <div class="header-container">
         <div class="logo-box">
-            <!-- SVG Logo mô phỏng Logo Ngành Kiểm sát (Lá chắn, Ngôi sao vàng, Cán cân công lý) -->
-            <svg width="42" height="42" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                <path d="M50,5 L90,25 L90,60 C90,80 50,95 50,95 C50,95 10,80 10,60 L10,25 Z" fill="#dd1a1a" stroke="#fff" stroke-width="3"/>
-                <path d="M50,12 L82,28 L82,58 C82,74 50,87 50,87 C50,87 18,74 18,58 L18,28 Z" fill="#003399"/>
-                <polygon points="50,22 55,36 70,36 58,45 62,60 50,50 38,60 42,45 30,36 45,36" fill="#FFEA00"/>
-                <line x1="30" y1="68" x2="70" y2="68" stroke="#FFEA00" stroke-width="4"/>
-                <line x1="50" y1="52" x2="50" y2="72" stroke="#FFEA00" stroke-width="3"/>
-                <circle cx="35" cy="58" r="5" fill="#FFEA00"/>
-                <circle cx="65" cy="58" r="5" fill="#FFEA00"/>
-                <line x1="35" y1="58" x2="50" y2="55" stroke="#FFEA00" stroke-width="2"/>
-                <line x1="65" y1="58" x2="50" y2="55" stroke="#FFEA00" stroke-width="2"/>
-            </svg>
+              <div class="logo-left">
+            <img src="https://vienkiemsat.cantho.gov.vn/files/images/logo-vks.png" alt="Logo VKS">
+        </div>
         </div>
         <div class="title-box">
-            <div class="header-title">Trợ lý Nghiệp vụ Nghị quyết 205</div>
+            <div class="header-title">Trợ lý Nghiệp vụ - Nghị quyết số 205</div>
             <div class="header-sub">Viện kiểm sát nhân dân thành phố Cần Thơ</div>
         </div>
     </div>
@@ -96,8 +87,8 @@
     <!-- Khung Chat -->
     <div class="chat-container" id="chat-box">
         <div class="message bot-message">
-            Chào đồng chí! Tôi đã cập nhật đầy đủ nội dung từ <b>Hướng dẫn nghiệp vụ NQ205 nội bộ của VKSND TP Cần Thơ</b> đồng thời tích hợp thêm cổng mở rộng <b>Gemini AI</b>.<br><br>
-            Đồng chí có thể tra cứu nhanh qua các nút bên dưới hoặc tự nhập câu hỏi bất kỳ:
+             Chào bạn! Tôi là chatbot <b>Hướng dẫn nghiệp vụ về Nghị quyết số 205 nội bộ của VKSND TP Cần Thơ</b> đồng thời tích hợp thêm trợ lý ảo <b>AI VKSND TP.Cần Thơ</b>.<br><br>
+            Bạn có thể tra cứu nhanh qua các nút bên dưới hoặc tự nhập câu hỏi bất kỳ:
             <div class="suggestion-chips">
                 <div class="chip" onclick="quickAsk('Quy trình xử lý 10 bước')">Quy trình 10 bước</div>
                 <div class="chip" onclick="quickAsk('Kiểm sát điều tra hình sự')">Kiểm sát án hình sự</div>
