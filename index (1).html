@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Phần Mềm Trợ Lý Nghiệp Vụ Số VKSND - NQ205</title>
+    <style>
+        :root {
+            --primary-color: #003399;
+            --accent-color: #FFD700;
+            --bg-color: #f0f2f5;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+            --border-color: #e4e6eb;
+        }
+
+        [data-theme="dark"] {
+            --primary-color: #1a3a78;
+            --accent-color: #f1c40f;
+            --bg-color: #18191a;
+            --card-bg: #242526;
+            --text-color: #e4e6eb;
+            --border-color: #3e4042;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; transition: background-color 0.2s, color 0.2s; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: var(--bg-color); color: var(--text-color); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        
+        /* HEADER */
+        .header-container { background-color: var(--primary-color); color: white; padding: 12px 20px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 4px rgba(0,0,0,0.1); flex-shrink: 0; z-index: 10; }
+        .logo-box { display: flex; align-items: center; }
+        .logo-left img { height: 45px; width: auto; object-fit: contain; margin-right: 12px; }
+        .header-text { display: flex; flex-direction: column; }
+        .header-title { color: var(--accent-color); font-weight: bold; font-size: 18px; text-transform: uppercase; line-height: 1.2; }
+        .header-sub { font-size: 13px; opacity: 0.9; margin-top: 2px; }
+        
+        .controls { display: flex; align-items: center; gap: 10px; }
+        .toggle-btn { background: none; border: 1px solid white; color: white; padding: 6px 12px; border-radius: 15px; font-size: 12px; cursor: pointer; font-weight: bold; }
+
+        /* MAIN CONTENT LAYOUT */
+        .main-layout { flex: 1; display: flex; overflow: hidden; position: relative; }
+        
+        /* SIDEBAR (BÊN TRÁI) */
+        .sidebar { width: 320px; background-color: var(--card-bg); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; overflow: hidden; flex-shrink: 0; }
+        .search-box { padding: 12px; border-bottom: 1px solid var(--border-color); }
+        .search-box input { width: 100%; padding: 10px 15px; border: 1px solid var(--border-color); border-radius: 20px; background-color: var(--bg-color); color: var(--text-color); outline: none; }
+        .menu-list { flex: 1; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 6px; }
+        .menu-item { padding: 12px 15px; border-radius: 8px; border: 1px solid var(--border-color); cursor: pointer; background-color: var(--bg-color); font-size: 13px; font-weight: 600; line-height: 1.4; }
+        .menu-item:hover, .menu-item.active { background-color: var(--primary-color); color: white; border-color: var(--primary-color); }
+
+        /* VÙNG HIỂN THỊ NỘI DUNG ĐỌC VĂN BẢN (CHÍNH GIỮA) */
+        .content-reader { flex: 1; background-color: var(--card-bg); padding: 25px; overflow-y: auto; display: flex; flex-direction: column; border-right: 1px solid var(--border-color); }
+        .reader-header { border-bottom: 2px solid var(--primary-color); padding-bottom: 10px; margin-bottom: 15px; }
+        .reader-title { color: var(--primary-color); font-size: 20px; font-weight: bold; }
+        [data-theme="dark"] .reader-title { color: var(--accent-color); }
+        .reader-body { font-size: 15px; line-height: 1.7; color: var(--text-color); }
+        .reader-body ul, .reader-body ol { margin-left: 22px; margin-top: 8px; margin-bottom: 8px; }
+        .reader-body li { margin-bottom: 6px; }
+
+        /* KHÔNG GIAN CHATBOT AI (BÊN PHẢI) */
+        .chat-space { width: 360px; display: flex; flex-direction: column; background-color: var(--bg-color); overflow: hidden; flex-shrink: 0; }
+        .chat-header { background-color: var(--border-color); padding: 10px 15px; font-size: 13px; font-weight: bold; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid var(--border-color); }
+        .chat-container { flex: 1; padding: 12px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+        .message { max-width: 90%; padding: 10px 14px; border-radius: 15px; line-height: 1.5; font-size: 14px; word-wrap: break-word; }
+        .bot-message { background-color: var(--card-bg); color: var(--text-color); align-self: flex-start; border-bottom-left-radius: 4px; border: 1px solid var(--border-color); }
+        .user-message { background-color: #0084ff; color: white; align-self: flex-end; border-bottom-right-radius: 4px; }
+        
+        .code-block { background-color: #272822; color: #f8f8f2; padding: 10px; border-radius: 6px; font-family: 'Consolas', monospace; font-size: 12px; margin: 8px 0; overflow-x: auto; white-space: pre; }
+        
+        /* CHIPS TƯ VẤN NHANH */
+        .suggestion-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+        .chip { background-color: var(--bg-color); color: var(--text-color); padding: 4px 10px; border-radius: 12px; font-size: 12px; cursor: pointer; border: 1px solid var(--border-color); }
+        .chip:hover { background-color: var(--primary-color); color: white; }
+        
+        /* KHU VỰC NHẬP TIN NHẮN CHAT */
+        .input-area { background-color: var(--card-bg); padding: 10px; display: flex; gap: 8px; border-top: 1px solid var(--border-color); align-items: center; }
+        input[type="text"] { flex: 1; padding: 10px 15px; border: 1px solid var(--border-color); border-radius: 20px; font-size: 14px; outline: none; background-color: var(--bg-color); color: var(--text-color); }
+        .send-btn { background-color: var(--primary-color); color: white; border: none; padding: 10px 18px; border-radius: 20px; font-weight: bold; font-size: 14px; cursor: pointer; }
+        
+        .footer { background-color: var(--card-bg); color: #65676b; text-align: center; padding: 6px; font-size: 11px; border-top: 1px solid var(--border-color); flex-shrink: 0; }
+
+        /* ĐÁP ỨNG DI ĐỘNG */
+        @media (max-width: 992px) {
+            .chat-space { display: none; } /* Ẩn chat trên màn hình quá nhỏ, ưu tiên đọc văn bản */
+            .sidebar { display: none; }
+            .sidebar.active-mobile { display: flex; position: absolute; top: 0; left: 0; bottom: 0; width: 280px; z-index: 20; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header-container">
+        <div class="logo-box">
+            <div class="logo-left">
+                <img src="https://vienkiemsat.cantho.gov.vn/files/images/logo-vks.png" alt="Logo VKS">
+            </div>
+            <div class="header-text">
+                <div class="header-title">Hệ Thống Trợ Lý Số & Tra Cứu Nghiệp Vụ Nội Bộ NQ205</div>
+                <div class="header-sub">Viện kiểm sát nhân dân thành phố Cần Thơ</div>
+            </div>
+        </div>
+        <div class="controls">
+            <button class="toggle-btn" onclick="toggleSidebarMobile()">☰ Danh Mục</button>
+            <button class="toggle-btn" onclick="toggleDarkMode()">🌙 Nền Tối</button>
+        </div>
+    </div>
+
+    <div class="main-layout">
+        
+        <div class="sidebar" id="sidebar-panel">
+            <div class="search-box">
+                <input type="text" id="search-input" placeholder="Tìm nhanh danh mục..." oninput="filterMenu()">
+            </div>
+            <div class="menu-list" id="menu-items-box">
+                </div>
+        </div>
+        
+        <div class="content-reader">
+            <div class="reader-header">
+                <div class="reader-title" id="render-title-text">Vui lòng chọn một mục nghiệp vụ bên trái để xem nội dung văn bản</div>
+            </div>
+            <div class="reader-body" id="render-body-text">
+                Chào đồng chí Kiểm sát viên, hãy nhấn chọn các đề mục hiển thị ở thanh điều hướng bên trái. Hệ thống sẽ ngay lập tức mở và hiển thị toàn văn nội dung hướng dẫn nghiệp vụ chi tiết của chương/mục đó tại đây để đồng chí nghiên cứu, rà soát hồ sơ.
+            </div>
+        </div>
+        
+        <div class="chat-space">
+            <div class="chat-header">💬 Trợ lý AI Hỗ trợ Soạn thảo & Công nghệ</div>
+            <div class="chat-container" id="chat-box">
+                <div class="message bot-message">
+                    Chào đồng chí! Song song với việc đọc văn bản ở giữa, đồng chí có thể yêu cầu tôi trợ giúp các công việc thực chiến như:<br><br>
+                    - <b>"Soạn mẫu tờ trình vụ việc"</b><br>
+                    - <b>"Viết đoạn code HTML/JS mới"</b><br>
+                    - <b>"Hướng dẫn gỡ lỗi phần mềm"</b>
+                </div>
+            </div>
+            <div class="input-area">
+                <input type="text" id="user-input" placeholder="Yêu cầu soạn văn bản hoặc viết code..." onkeypress="handleKeyPress(event)">
+                <button class="send-btn" onclick="sendMessage()">Gửi</button>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="footer">
+        Bản quyền thuộc Viện kiểm sát nhân dân thành phố Cần Thơ - Copyright 2026 ®.
+    </div>
+
+    <script>
+        // CƠ SỞ DỮ LIỆU TOÀN VĂN ĐỒNG BỘ NỘI DUNG CẨM NANG NGHIỆP VỤ
+        const knowledgeBase = [
+            {
+                title: "Mục I: Mục đích, Yêu cầu & Tính chất",
+                keywords: ["mục đích", "yêu cầu", "tính chất"],
+                answer: "<b>Mục đích, yêu cầu và tính chất của Hướng dẫn:</b><br><br>Hướng dẫn này được xây dựng nhằm hỗ trợ công chức, Kiểm sát viên VKSND hai cấp thành phố Cần Thơ chủ động nhận diện sớm các vụ việc có dấu hiệu xâm phạm lợi ích công, quyền dân sự của các chủ thể thuộc nhóm dễ bị tổn thương trong quá trình thực hiện nhiệm vụ thực hành quyền công tố, kiểm sát hoạt động tư pháp và các khâu công tác khác.<br><br>Đây là tài liệu gợi ý nghiệp vụ, có ý nghĩa như một <b>“bảng kiểm nhận diện”</b> để công chức, Kiểm sát viên vận dụng linh hoạt, thận trọng, có căn cứ, bảo đảm không suy diễn, không mở rộng tùy tiện phạm vi Nghị quyết số 205/2025/QH15."
+            },
+            {
+                title: "Mục II: 5 Nguyên nguyên tắc nhận diện chung",
+                keywords: ["nguyên tắc chung", "nguyên tắc nhận diện", "5 nguyên tắc"],
+                answer: "<b>5 Nguyên tắc nhận diện chung vụ việc dân sự công ích:</b><br><br><ul><li><b>Thứ nhất:</b> Chủ động phát hiện từ hồ sơ, tài liệu, hoạt động kiểm sát, tiếp công dân, giải quyết khiếu nại, tố cáo, kết luận thanh tra, kiểm tra, kiểm toán, dữ liệu quản lý nhà nước, thông tin báo chí, mạng xã hội và nguồn tin tại địa phương, không chỉ chờ đơn thư phản ánh.</li><li><b>Thứ hai:</b> Phân loại rõ nhóm vụ việc (bảo vệ quyền dân sự của chủ thể dễ bị tổn thương; bảo vệ lợi ích công; kết hợp cả hai; hoặc chuyển cơ quan thẩm quyền).</li><li><b>Thứ ba:</b> Mọi nhận định ban đầu phải được kiểm tra, xác minh, thu thập tài liệu, chứng cứ khách quan. Không kiến nghị khi chưa đủ căn cứ.</li><li><b>Thứ tư:</b> Coi trọng mục tiêu chấm dứt vi phạm, khắc phục hậu quả, phục hồi lợi ích thực chất cho công ích và người yếu thế.</li><li><b>Thứ năm:</b> Phòng 9 là đầu mối theo dõi, hướng dẫn; tuy nhiên trách nhiệm phát hiện, xác minh ban đầu là sự phối hợp của tất cả các đơn vị nghiệp vụ.</li></ul>"
+            },
+            {
+                title: "Mục III: Bảng kiểm nhận diện 4 yếu tố cốt lõi",
+                keywords: ["bảng kiểm chung", "4 yếu tố", "yếu tố cốt lõi"],
+                answer: "<b>Bảng kiểm nhận diện chung trong mọi hồ sơ, vụ việc (4 Yếu tố cốt lõi):</b><br><br><ul><li><b>1. Chủ thể bị tác động:</b> Có trẻ em, người cao tuổi, người khuyết tật, phụ nữ mang thai hoặc nuôi con dưới 36 tháng tuổi, người mất hoặc khó khăn trong nhận thức hành vi... bị xâm phạm quyền dân sự, tài sản, nhân phẩm hay không?</li><li><b>2. Lợi ích công bị tác động:</b> Có dấu hiệu thiệt hại đến ngân sách, đất đai, tài nguyên, môi trường, hệ sinh thái, tài sản công, an toàn thực phẩm, dữ liệu cá nhân... vượt ra ngoài lợi ích cá nhân riêng lẻ không?</li><li><b>3. Hậu quả, thiệt hại:</b> Hậu quả chưa được khắc phục; có nguy cơ tiếp tục gây thiệt hại; đã được bồi thường, phục hồi, xin lỗi hay chưa?</li><li><b>4. Chủ thể có trách nhiệm:</b> Xác định rõ cá nhân, tổ chức vi phạm; cơ quan quản lý nhà nước nào lơ là, chưa xử lý triệt để?</li></ul>"
+            },
+            {
+                title: "Mục IV: Nhận diện theo từng khâu công tác",
+                keywords: ["khâu công tác", "hình sự", "dân sự", "hành chính", "thi hành án"],
+                answer: "<b>Hướng dẫn nhận diện vi phạm theo từng khâu nghiệp vụ tư pháp:</b><br><br><ul><li><b>Thực hành quyền công tố, kiểm sát nguồn tin & điều tra:</b> Chú ý tội phạm môi trường, đất đai, trốn thuế đất, thực phẩm bẩn, hàng giả, xâm hại trẻ em. Phải đặt câu hỏi ngoài xử lý hình sự thì hậu quả thiệt hại dân sự, công ích đã được khắc phục chưa?</li><li><b>Kiểm sát án Dân sự, Hôn nhân gia đình:</b> Trẻ em không được cấp dưỡng; tranh chấp tài sản ảnh hưởng quyền người chưa thành niên, người già bị cưỡng ép chuyển nhượng tài sản.</li><li><b>Kiểm sát án Hành chính & THADS:</b> Quyết định hành chính gây thất thoát đất công, ngân sách; chậm thi hành bản án thu hồi tài sản cho Nhà nước hoặc quyền lợi nhóm yếu thế.</li><li><b>Tiếp công dân & Giải quyết khiếu nại:</b> Tiếp nhận, phân loại đơn thư phản ánh ô nhiễm môi trường, lấn chiếm tài sản công công cộng kéo dài mà cơ quan chức năng không giải quyết triệt để.</li></ul>"
+            },
+            {
+                title: "Mục V: Gợi ý nhận diện theo nhóm vi phạm",
+                keywords: ["nhóm vi phạm", "tài liệu cần thu thập"],
+                answer: "<b>Gợi ý nhận diện theo nhóm vi phạm và Tài liệu cần thu thập:</b><br><br><ul><li><b>Thất thu ngân sách, nghĩa vụ tài chính:</b> Chuyển nhượng quyền sử dụng đất ghi giá thấp; trốn thuế. Tài liệu cần: Hợp đồng, chứng từ thanh toán, thông báo thuế, kết luận kiểm tra.</li><li><b>Đất đai, tài sản công:</b> Lấn chiếm đất công, sử dụng đất sai mục đích. Tài liệu cần: Hồ sơ địa chính, bản đồ, quyết định giao/thu hồi đất, phương án bồi thường.</li><li><b>Môi trường, hệ sinh thái:</b> Xả thải chưa xử lý, khai thác cát trái phép. Tài liệu cần: Biên bản kiểm tra, kết quả quan trắc, quyết định xử phạt, kết luận giám định.</li><li><b>Quyền của nhóm yếu thế (Trẻ em, người già, người khuyết tật):</b> Bị bạo lực, bỏ mặc, cưỡng ép tài sản. Tài liệu cần: Giấy tờ nhân thân, hồ sơ y tế, văn bản chứng nhận khuyết tật, giám hộ.</li></ul>"
+            },
+            {
+                title: "Mục VI: Kỹ năng nghiệp vụ cần áp dụng",
+                keywords: ["kỹ năng nghiệp vụ", "lăng kính công ích"],
+                answer: "<b>Các kỹ năng nghiệp vụ đặc thù cốt lõi:</b><br><br><ol><li><b>Đọc hồ sơ theo “lăng kính công ích”:</b> Rà soát song song xem có nhóm yếu thế không, có lợi ích công không, hậu quả dân sự/ngân sách đã xử lý chưa.</li><li><b>Truy vết hậu quả dân sự trong án hình sự:</b> Xác định trách nhiệm bồi thường, phục hồi môi trường, tiêu hủy hàng hóa độc hại.</li><li><b>Khai thác nguồn tin từ kết luận thanh tra, kiểm toán:</b> Tập trung vào mục 'vi phạm chỉ ra nhưng chưa khắc phục', số tiền phải thu hồi.</li><li><b>Tư pháp phục hồi:</b> Hướng đến yêu cầu chấm dứt hành vi vi phạm, khôi phục lại hiện trạng ban đầu, bồi thường thiệt hại thực tế.</li></ol>"
+            },
+            {
+                title: "Mục VII: Quy trình xử lý hồ sơ 10 bước",
+                keywords: ["quy trình xử lý", "10 bước", "trình tự"],
+                answer: "<b>Quy trình xử lý chủ động gồm 10 bước tại VKSND TP. Cần Thơ:</b><br><br><b>Bước 1:</b> Ghi nhận nguồn thông tin tài liệu vi phạm đầu vào.<br><b>Bước 2:</b> Đối chiếu phạm vi điều chỉnh của Nghị quyết số 205/2025/QH15.<br><b>Bước 3:</b> Đánh giá sơ bộ bốn yếu tố cốt lõi (Hành vi, Quyền lợi, Hậu quả, Trách nhiệm).<br><b>Bước 4:</b> Báo cáo ý kiến Lãnh đạo đơn vị phân công cán bộ xác minh ban đầu.<br><b>Bước 5:</b> Chủ động thông tin, liên hệ phối hợp với Phòng 9 để theo dõi số liệu chung.<br><b>Bước 6:</b> Đơn vị phát hiện tiếp tục xác minh, thu thập tài liệu chứng cứ chuyên ngành.<br><b>Bước 7:</b> Lập Phiếu thông tin vụ việc dân sự công ích chuẩn biểu mẫu chuyển Phòng 9.<br><b>Bước 8:</b> Tham mưu ban hành văn bản xử lý (kiến nghị khắc phục, thông báo khởi kiện).<br><b>Bước 9:</b> Phối hợp Phòng 9 hoàn thiện hồ sơ khi có đủ điều kiện khởi kiện ra Tòa.<br><b>Bước 10:</b> Theo dõi sát sao kết quả khắc phục hậu quả, phục hồi lợi ích công đến cùng."
+            },
+            {
+                title: "Mục VIII: Cơ chế phối hợp nội bộ các phòng",
+                keywords: ["cơ chế phối hợp", "trách nhiệm phối hợp"],
+                answer: "<b>Trách nhiệm phối hợp nội bộ trong VKSND hai cấp:</b><br><br><ul><li><b>Các phòng nghiệp vụ Viện thành phố & VKS khu vực:</b> Trực tiếp chủ động rà quét, phát hiện dấu hiệu vi phạm trong khâu công tác; tiến hành xác minh ban đầu, lập phiếu thông tin gửi Phòng 9.</li><li><b>Phòng 9:</b> Giữ vai trò đầu mối hướng dẫn nghiệp vụ, quản lý số liệu tổng hợp chung, hỗ trợ các đơn vị về căn cứ pháp lý, biểu mẫu và phối hợp xây dựng hồ sơ khởi kiện.</li><li><b>Văn phòng & Thanh tra:</b> Theo dõi tiến độ thi đua khen thưởng; thanh tra phát hiện kịp thời các trường hợp bỏ sót nguồn tin, chậm trễ xử lý thông tin.</li></ul>"
+            },
+            {
+                title: "Mục IX: Các lưu ý đặc biệt khi vận dụng",
+                keywords: ["lưu ý", "vận dụng", "lưu ý quan trọng"],
+                answer: "<b>Một số lưu ý quan trọng khi vận dụng Hướng dẫn nội bộ:</b><br><br>1. Danh mục nhận diện chỉ có tính chất gợi ý nghiệp vụ hỗ trợ phát hiện ban đầu; khi xử lý phải căn cứ văn bản pháp luật chính thức.<br><br>2. <b>Đặc biệt lưu ý:</b> Đối với các vụ việc đã bị xử phạt hành chính hoặc đã xử lý hình sự, VẪN phải tiếp tục rà soát xem hậu quả dân sự, thiệt hại môi trường, thất thoát ngân sách đã được khắc phục đầy đủ hay chưa.<br><br>3. Đối với vụ việc nhóm dễ bị tổn thương, cần ưu tiên biện pháp bảo vệ kịp thời, tránh để quyền dân sự của trẻ em, người khuyết tật tiếp tục bị xâm phạm trong thời gian xác minh."
+            }
+        ];
+
+        // LOGIC AI PHỤ TRỢ (XỬ LÝ CHAT)
+        const generalAiExtension = {
+            process: function(query) {
+                const lower = query.toLowerCase();
+                if (lower.includes("soạn") || lower.includes("văn bản") || lower.includes("báo cáo") || lower.includes("tờ trình")) {
+                    return "<b>[Trợ lý AI - Soạn văn bản]:</b> Đã dựng khung mẫu Tờ trình xử lý nghiệp vụ NQ205:<br><br><b>VIỆN KIỂM SÁT NHÂN DÂN...</b><br>Mẫu số: .../BC-NQ205<br><center><b>TỜ TRÌNH BÁO CÁO VỤ VIỆC</b></center><br>- Kính gửi: Lãnh đạo Viện chỉ đạo.<br>- Nội dung phát hiện vi phạm công ích...<br>- Đánh giá 4 yếu tố cốt lõi...<br>- Kiến nghị hướng giải quyết...";
+                }
+                if (lower.includes("code") || lower.includes("html") || lower.includes("js") || lower.includes("phần mềm")) {
+                    return "<b>[Trợ lý Lập trình]:</b> Để tạo sự kiện mở văn bản mượt mà, đồng chí dùng cấu trúc hàm JavaScript thực thi như sau:<br><div class='code-block'>function openDocument(index) {\n    document.getElementById('render-title-text').innerHTML = knowledgeBase[index].title;\n    document.getElementById('render-body-text').innerHTML = knowledgeBase[index].answer;\n}</div>";
+                }
+                return "<b>[Trợ lý AI]:</b> Hệ thống ghi nhận yêu cầu. Đồng chí có thể nhập lệnh 'Soạn mẫu tờ trình' hoặc 'Viết code HTML cấu trúc bảng' để tôi xử lý tự động.";
+            }
+        };
+
+        // KẾT XUẤT MENU 9 MỤC RA SIDEBAR BÊN TRÁI
+        const menuItemsBox = document.getElementById("menu-items-box");
+        function buildMenu() {
+            menuItemsBox.innerHTML = "";
+            knowledgeBase.forEach((item, index) => {
+                const div = document.createElement("div");
+                div.classList.add("menu-item");
+                div.id = "menu-item-" + index;
+                div.innerText = item.title;
+                div.onclick = function() {
+                    // Đổi màu chọn active
+                    document.querySelectorAll('.menu-item').forEach(el => el.classList.remove('active'));
+                    div.classList.add('active');
+                    
+                    // HIỂN THỊ TOÀN VĂN VÀO KHU CHÍNH GIỮA (ĐÃ SỬA ĐƯỢC LỖI KHÔNG MỞ ĐƯỢC)
+                    document.getElementById("render-title-text").innerHTML = item.title;
+                    document.getElementById("render-body-text").innerHTML = item.answer;
+                    
+                    // Đóng menu di động nếu đang bật
+                    document.getElementById("sidebar-panel").classList.remove("active-mobile");
+                };
+                menuItemsBox.appendChild(div);
+            });
+        }
+
+        // TÌM KIẾM NHANH DANH MỤC
+        function filterMenu() {
+            const val = document.getElementById("search-input").value.toLowerCase();
+            knowledgeBase.forEach((item, index) => {
+                const el = document.getElementById("menu-item-" + index);
+                if(item.title.toLowerCase().includes(val)) {
+                    el.style.display = "block";
+                } else {
+                    el.style.display = "none";
+                }
+            });
+        }
+
+        // CHATBOT TƯ VẤN AI BÊN PHẢI
+        function findChatAnswer(query) {
+            const lowerQuery = query.toLowerCase().trim();
+            for (const item of knowledgeBase) {
+                for (const keyword of item.keywords) {
+                    if (lowerQuery.includes(keyword)) {
+                        return "<b>[Hệ thống Tri thức]:</b> Tôi thấy đồng chí quan tâm đến nội dung này. Nội dung đầy đủ đã được đồng bộ ở bảng hiển thị chính giữa để đồng chí dễ xem. Tóm tắt nhanh cho đồng chí: <br><br>" + item.answer;
+                    }
+                }
+            }
+            return generalAiExtension.process(query);
+        }
+
+        function sendMessage() {
+            const text = userInput.value.trim();
+            if (text === "") return;
+            
+            const userMsg = document.createElement("div");
+            userMsg.classList.add("message", "user-message");
+            userMsg.innerHTML = text;
+            chatBox.appendChild(userMsg);
+            chatBox.scrollTop = chatBox.scrollHeight;
+            userInput.value = "";
+            
+            setTimeout(() => {
+                const ans = findChatAnswer(text);
+                const botMsg = document.createElement("div");
+                botMsg.classList.add("message", "bot-message");
+                botMsg.innerHTML = ans;
+                chatBox.appendChild(botMsg);
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }, 300);
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === "Enter") sendMessage();
+        }
+
+        function toggleDarkMode() {
+            if (document.body.getAttribute("data-theme") === "dark") {
+                document.body.removeAttribute("data-theme");
+            } else {
+                document.body.setAttribute("data-theme", "dark");
+            }
+        }
+
+        function toggleSidebarMobile() {
+            document.getElementById("sidebar-panel").classList.toggle("active-mobile");
+        }
+
+        // Khởi chạy khi nạp trang
+        window.onload = function() {
+            buildMenu();
+        };
+    </script>
+</body>
+</html>
