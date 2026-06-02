@@ -68,9 +68,9 @@
         .code-block { background-color: #272822; color: #f8f8f2; padding: 10px; border-radius: 6px; font-family: 'Consolas', monospace; font-size: 12px; margin: 8px 0; overflow-x: auto; white-space: pre; }
         
         /* CHIPS TƯ VẤN NHANH */
-        .suggestion-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
-        .chip { background-color: var(--bg-color); color: var(--text-color); padding: 4px 10px; border-radius: 12px; font-size: 12px; cursor: pointer; border: 1px solid var(--border-color); }
-        .chip:hover { background-color: var(--primary-color); color: white; }
+        .suggestion-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; padding-bottom: 8px; }
+        .chip { background-color: var(--bg-color); color: var(--text-color); padding: 6px 12px; border-radius: 15px; font-size: 12px; cursor: pointer; border: 1px solid var(--border-color); transition: all 0.2s; }
+        .chip:hover { background-color: var(--primary-color); color: white; border-color: var(--primary-color); }
         
         /* KHU VỰC NHẬP TIN NHẮN CHAT */
         .input-area { background-color: var(--card-bg); padding: 10px; display: flex; gap: 8px; border-top: 1px solid var(--border-color); align-items: center; }
@@ -92,7 +92,7 @@
     <div class="header-container">
         <div class="logo-box">
             <div class="logo-left">
-                <img src="https://vienkiemsat.cantho.gov.vn/files/images/logo-vks.png" alt="Logo VKS">
+                <img src="https://vienkiemsat.cantho.gov.vn/files/images/logo-vks.png" alt="Logo VKS" onerror="this.src='https://via.placeholder.com/45?text=VKS'">
             </div>
             <div class="header-text">
                 <div class="header-title">Hệ Thống Trợ Lý Số về thực hiện Nghị quyết số 205</div>
@@ -128,18 +128,17 @@
             <div class="chat-header">💬 Trợ lý AI Hỗ trợ Soạn thảo & Công nghệ</div>
             <div class="chat-container" id="chat-box">
                 <div class="message bot-message">
-                    Chào bạn! Song song với việc đọc văn bản ở giữa, bạn có thể yêu cầu tôi trợ giúp các công việc thực chiến như:<br><br>
-                    - <b>"Soạn mẫu tờ trình vụ việc"</b><br>
-                    - <b>"Mẫu kiến nghị khắc phục"</b><br>
-                    - <b>"Quy trình 10 bước"</b>
+                    Chào đồng chí! Mình là trợ lý soạn thảo tự động. Bạn có thể sử dụng các nút gợi ý bên dưới hoặc nhập trực tiếp yêu cầu để mình xuất các khung biểu mẫu chuẩn chỉnh nhé.
                 </div>
             </div>
             
-            <div style="padding: 0 10px;">
+            <div style="padding: 0 10px; background-color: var(--bg-color);">
                 <div class="suggestion-chips">
-                    <span class="chip" onclick="quickChat('Soạn mẫu tờ trình')">📝 Soạn Tờ trình</span>
-                    <span class="chip" onclick="quickChat('Mẫu kiến nghị')">⚖️ Mẫu Kiến nghị</span>
-                    <span class="chip" onclick="quickChat('Hỗ trợ lỗi phần mềm')">🆘 Báo lỗi phần mềm</span>
+                    <span class="chip" onclick="quickChat('Soạn mẫu tờ trình')">📝 Tờ trình</span>
+                    <span class="chip" onclick="quickChat('Mẫu kiến nghị')">⚖️ Kiến nghị</span>
+                    <span class="chip" onclick="quickChat('Soạn phiếu chuyển tin')">🔄 Phiếu chuyển tin</span>
+                    <span class="chip" onclick="quickChat('Soạn thông báo')">📢 Thông báo</span>
+                    <span class="chip" onclick="quickChat('Hỗ trợ lỗi phần mềm')">🆘 Báo lỗi</span>
                 </div>
             </div>
 
@@ -186,7 +185,7 @@
             {
                 title: "Mục VI: Kỹ năng nghiệp vụ cần áp dụng",
                 keywords: ["kỹ năng nghiệp vụ", "lăng kính công ích"],
-                answer: "<b>Các kỹ năng nghiệp vụ đặc thù cốt lõi:</b><br><br><ul><li><b>Đọc hồ sơ theo “lăng kính công ích”:</b> Rà soát song song xem có nhóm yếu thế không, có lợi ích công không, hậu quả dân sự/ngân sách đã xử lý chưa.</li><li><b>Truy vết hậu quả dân sự trong án hình sự:</b> Xác định trách nhiệm bồi thường, phục hồi môi trường, tiêu hủy hàng hóa độc hại.</li><li><b>Khai thác nguồn tin từ kết luận thanh tra, kiểm toán:</b> Tập trung vào mục 'vi phạm chỉ ra nhưng chưa khắc phục', số tiền phải thu hồi.</li><li><b>Tư pháp phục hồi:</b> Hướng đến yêu cầu chấm điểm dứt hành vi vi phạm, khôi phục lại hiện trạng ban đầu, bồi thường thiệt hại thực tế.</li></ul>"
+                answer: "<b>Các kỹ năng nghiệp vụ đặc thù cốt lõi:</b><br><br><ul><li><b>Đọc hồ sơ theo “lăng kính công ích”:</b> Rà soát song song xem có nhóm yếu thế không, có lợi ích công không, hậu quả dân sự/ngân sách đã xử lý chưa.</li><li><b>Truy vết hậu quả dân sự trong án hình sự:</b> Xác định trách nhiệm bồi thường, phục hồi môi trường, tiêu hủy hàng hóa độc hại.</li><li><b>Khai thác nguồn tin từ kết luận thanh tra, kiểm toán:</b> Tập trung vào mục 'vi phạm chỉ ra nhưng chưa khắc phục', số tiền phải thu hồi.</li><li><b>Tư pháp phục hồi:</b> Hướng đến yêu cầu chấm dứt hành vi vi phạm, khôi phục lại hiện trạng ban đầu, bồi thường thiệt hại thực tế.</li></ul>"
             },
             {
                 title: "Mục VII: Quy trình xử lý hồ sơ 10 bước",
@@ -205,17 +204,80 @@
             }
         ];
 
-        // LOGIC AI PHỤ TRỢ (XỬ LÝ CHAT)
+        // HÀM XỬ LÝ KHI BẤM NÚT GỢI Ý NHANH
+        function quickChat(text) {
+            document.getElementById("user-input").value = text;
+            sendMessage();
+        }
+
+        // LOGIC AI PHỤ TRỢ (SOẠN THẢO VĂN BẢN ĐỘNG)
         const generalAiExtension = {
             process: function(query) {
                 const lower = query.toLowerCase();
-                if (lower.includes("soạn") || lower.includes("văn bản") || lower.includes("báo cáo") || lower.includes("tờ trình")) {
-                    return "<b>[Trợ lý AI - Soạn văn bản]:</b> Đã dựng khung mẫu Tờ trình xử lý nghiệp vụ NQ205:<br><br><b>VIỆN KIỂM SÁT NHÂN DÂN...</b><br>Mẫu số: .../BC-NQ205<br><center><b>TỜ TRÌNH BÁO CÁO VỤ VIỆC</b></center><br>- Kính gửi: Lãnh đạo Viện chỉ đạo.<br>- Nội dung phát hiện vi phạm công ích...<br>- Đánh giá 4 yếu tố cốt lõi...<br>- Kiến nghị hướng giải quyết...";
+                
+                // Kịch bản 1: Soạn Tờ trình
+                if (lower.includes("tờ trình") || lower.includes("báo cáo")) {
+                    return "<b>[Trợ lý Soạn thảo]:</b> Đây là khung mẫu Tờ trình xử lý vụ việc theo NQ 205. Đồng chí có thể bôi đen copy đoạn này:<br><br>" +
+                           "<div style='background:var(--bg-color); padding:10px; border-left:4px solid var(--primary-color); margin-top:5px; border-radius:4px;'>" +
+                           "<b>VIỆN KIỂM SÁT NHÂN DÂN...</b><br>" +
+                           "Số: .../TTr-VKS<br><br>" +
+                           "<center><b>TỜ TRÌNH</b><br><b>V/v Đề xuất xử lý vụ việc dân sự công ích</b></center><br>" +
+                           "<b>1. Nội dung vụ việc:</b> (Tóm tắt hành vi vi phạm...)<br>" +
+                           "<b>2. Đánh giá 4 yếu tố:</b> (Chủ thể, Lợi ích công, Hậu quả, Trách nhiệm...)<br>" +
+                           "<b>3. Đề xuất, kiến nghị:</b> (Chuyển hồ sơ Phòng 9 / Ban hành kiến nghị...)<br>" +
+                           "</div>";
                 }
-                if (lower.includes("code") || lower.includes("html") || lower.includes("js") || lower.includes("phần mềm")) {
-                    return "<b>[Trợ lý Lập trình]:</b> Để tạo sự kiện mở văn bản mượt mà, bạn xài cấu trúc hàm JavaScript thực thi như sau:<br><div class='code-block'>function openDocument(index) {\n    document.getElementById('render-title-text').innerHTML = knowledgeBase[index].title;\n    document.getElementById('render-body-text').innerHTML = knowledgeBase[index].answer;\n}</div>";
+                
+                // Kịch bản 2: Soạn Kiến nghị
+                if (lower.includes("kiến nghị")) {
+                    return "<b>[Trợ lý Soạn thảo]:</b> Gửi đồng chí khung mẫu Kiến nghị yêu cầu cơ quan quản lý nhà nước khắc phục hậu quả:<br><br>" +
+                           "<div style='background:var(--bg-color); padding:10px; border-left:4px solid var(--accent-color); margin-top:5px; border-radius:4px;'>" +
+                           "<b>VIỆN KIỂM SÁT NHÂN DÂN...</b><br>" +
+                           "Số: .../KN-VKS<br><br>" +
+                           "<center><b>KIẾN NGHỊ</b><br><b>Áp dụng biện pháp phòng ngừa, khắc phục vi phạm</b></center><br>" +
+                           "<b>Kính gửi:</b> [Tên cơ quan quản lý, ví dụ: UBND phường/huyện...]<br><br>" +
+                           "- Căn cứ Luật Tổ chức VKSND năm 2014;<br>" +
+                           "- Căn cứ Nghị quyết 205/2025/QH15;<br>" +
+                           "Qua công tác kiểm sát, VKSND... nhận thấy: [Nêu hành vi vi phạm...]<br><br>" +
+                           "<b>Yêu cầu:</b> [Chấm dứt vi phạm / Khôi phục hiện trạng / Xử lý trách nhiệm...]" +
+                           "</div>";
                 }
-                return "<b>[Trợ lý AI]:</b> Hệ thống ghi nhận yêu cầu. Bạn có thể nhập lệnh 'Soạn mẫu tờ trình' để tôi xử lý tự động.";
+
+                // Kịch bản 3: Soạn Phiếu chuyển tin
+                if (lower.includes("phiếu") || lower.includes("chuyển tin")) {
+                    return "<b>[Trợ lý Soạn thảo]:</b> Mời đồng chí tham khảo mẫu <b>Phiếu thông tin vụ việc</b> gửi Phòng 9:<br><br>" +
+                           "<div style='background:var(--bg-color); padding:10px; border-left:4px solid #2ecc71; margin-top:5px; border-radius:4px;'>" +
+                           "<b>VIỆN KIỂM SÁT NHÂN DÂN...</b><br>" +
+                           "Số: .../PTT-VKS<br><br>" +
+                           "<center><b>PHIẾU THÔNG TIN</b><br><b>Vụ việc có dấu hiệu vi phạm lợi ích công/nhóm yếu thế</b></center><br>" +
+                           "<b>1. Nguồn tin phát hiện:</b> (Báo chí / Đơn thư / Kiểm sát giải quyết án...)<br>" +
+                           "<b>2. Nội dung tóm tắt:</b> (Mô tả ngắn gọn diễn biến vụ việc...)<br>" +
+                           "<b>3. Tiến độ xác minh ban đầu:</b> (Liệt kê tài liệu đã thu thập...)<br>" +
+                           "<b>4. Đề xuất phối hợp:</b> (Đề nghị Phòng 9 hướng dẫn nghiệp vụ hoặc phối hợp khởi kiện...)<br>" +
+                           "</div>";
+                }
+
+                // Kịch bản 4: Soạn Thông báo
+                if (lower.includes("thông báo")) {
+                    return "<b>[Trợ lý Soạn thảo]:</b> Gửi đồng chí khung mẫu Thông báo xử lý vụ việc:<br><br>" +
+                           "<div style='background:var(--bg-color); padding:10px; border-left:4px solid #e74c3c; margin-top:5px; border-radius:4px;'>" +
+                           "<b>VIỆN KIỂM SÁT NHÂN DÂN...</b><br>" +
+                           "Số: .../TB-VKS<br><br>" +
+                           "<center><b>THÔNG BÁO</b><br><b>V/v giải quyết nguồn tin/vụ việc dân sự công ích</b></center><br>" +
+                           "<b>Kính gửi:</b> [Cơ quan/Tổ chức/Cá nhân có liên quan]<br><br>" +
+                           "VKSND... thông báo về việc tiếp nhận và đang tiến hành xử lý vụ việc: [Tên/Nội dung vụ việc...]<br><br>" +
+                           "<b>Nội dung yêu cầu:</b> [Nêu rõ lý do thông báo, yêu cầu phối hợp cung cấp tài liệu, chứng cứ nếu có...]<br>" +
+                           "<b>Thời hạn thực hiện:</b> [Thời gian yêu cầu gửi văn bản phản hồi...]<br>" +
+                           "</div>";
+                }
+
+                // Kịch bản 5: Hỗ trợ lỗi kỹ thuật
+                if (lower.includes("lỗi") || lower.includes("phần mềm") || lower.includes("hướng dẫn")) {
+                    return "<b>[Hỗ trợ Kỹ thuật]:</b> Nếu phần mềm gặp sự cố hiển thị hoặc cần hướng dẫn chi tiết thêm, đồng chí vui lòng chụp ảnh màn hình và liên hệ bộ phận IT (Phòng Thống kê - CNTT) hoặc Phòng 9 để được hỗ trợ kịp thời nhé.";
+                }
+
+                // Kịch bản 6: Fallback (Khi không hiểu yêu cầu)
+                return "<b>[Trợ lý AI]:</b> Mình đã nhận thông tin. Đồng chí có thể dùng các phím gợi ý bên trên hoặc nhập rõ từ khóa như <b>'Soạn mẫu tờ trình'</b>, <b>'Mẫu kiến nghị'</b>, <b>'Soạn phiếu chuyển tin'</b> để mình xuất biểu mẫu chính xác nhất nhé.";
             }
         };
 
@@ -233,7 +295,7 @@
                     document.querySelectorAll('.menu-item').forEach(el => el.classList.remove('active'));
                     div.classList.add('active');
                     
-                    // HIỂN THỊ TOÀN VĂN VÀO KHU CHÍNH GIỮA (ĐÃ SỬA ĐƯỢC LỖI KHÔNG MỞ ĐƯỢC)
+                    // HIỂN THỊ TOÀN VĂN VÀO KHU CHÍNH GIỮA
                     document.getElementById("render-title-text").innerHTML = item.title;
                     document.getElementById("render-body-text").innerHTML = item.answer;
                     
@@ -257,7 +319,7 @@
             });
         }
 
-        // CHATBOT TƯ VẤN AI BÊN PHẢI
+        // XỬ LÝ SỰ KIỆN CHATBOT
         const userInput = document.getElementById("user-input");
         const chatBox = document.getElementById("chat-box");
         
@@ -266,7 +328,7 @@
             for (const item of knowledgeBase) {
                 for (const keyword of item.keywords) {
                     if (lowerQuery.includes(keyword)) {
-                        return "<b>[Hệ thống Tri thức]:</b> Tôi thấy bạn quan tâm đến nội dung này. Nội dung đầy đủ đã được đồng bộ ở bảng hiển thị chính giữa để bạn dễ xem. Tóm tắt nhanh cho bạn: <br><br>" + item.answer;
+                        return "<b>[Hệ thống Tri thức]:</b> Trích xuất nhanh dữ liệu từ cẩm nang Nghị quyết 205 cho đồng chí: <br><br>" + item.answer;
                     }
                 }
             }
@@ -277,6 +339,7 @@
             const text = userInput.value.trim();
             if (text === "") return;
             
+            // In tin nhắn của user
             const userMsg = document.createElement("div");
             userMsg.classList.add("message", "user-message");
             userMsg.innerHTML = text;
@@ -284,6 +347,7 @@
             chatBox.scrollTop = chatBox.scrollHeight;
             userInput.value = "";
             
+            // Trả lời của bot có độ trễ nhỏ tạo cảm giác thật
             setTimeout(() => {
                 const ans = findChatAnswer(text);
                 const botMsg = document.createElement("div");
@@ -291,7 +355,7 @@
                 botMsg.innerHTML = ans;
                 chatBox.appendChild(botMsg);
                 chatBox.scrollTop = chatBox.scrollHeight;
-            }, 300);
+            }, 400);
         }
 
         function handleKeyPress(event) {
