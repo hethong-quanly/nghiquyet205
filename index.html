@@ -12,6 +12,7 @@
             --card-bg: #ffffff;
             --text-color: #333333;
             --border-color: #e4e6eb;
+            --folder-bg: #e9ecf3;
         }
 
         [data-theme="dark"] {
@@ -21,6 +22,7 @@
             --card-bg: #242526;
             --text-color: #e4e6eb;
             --border-color: #3e4042;
+            --folder-bg: #2a2d33;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; transition: background-color 0.2s, color 0.2s; }
@@ -40,22 +42,36 @@
         /* MAIN CONTENT LAYOUT */
         .main-layout { flex: 1; display: flex; overflow: hidden; position: relative; }
         
-        /* SIDEBAR (BÊN TRÁI) */
-        .sidebar { width: 320px; background-color: var(--card-bg); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; overflow: hidden; flex-shrink: 0; }
+        /* SIDEBAR (BÊN TRÁI) - CÂY THƯ MỤC */
+        .sidebar { width: 340px; background-color: var(--card-bg); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; overflow: hidden; flex-shrink: 0; }
         .search-box { padding: 12px; border-bottom: 1px solid var(--border-color); }
         .search-box input { width: 100%; padding: 10px 15px; border: 1px solid var(--border-color); border-radius: 20px; background-color: var(--bg-color); color: var(--text-color); outline: none; }
         .menu-list { flex: 1; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 6px; }
-        .menu-item { padding: 12px 15px; border-radius: 8px; border: 1px solid var(--border-color); cursor: pointer; background-color: var(--bg-color); font-size: 13px; font-weight: 600; line-height: 1.4; }
-        .menu-item:hover, .menu-item.active { background-color: var(--primary-color); color: white; border-color: var(--primary-color); }
+        
+        /* FOLDER STYLES */
+        .folder-title { padding: 12px 15px; font-size: 13px; font-weight: 700; background-color: var(--folder-bg); color: var(--text-color); cursor: pointer; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; text-transform: uppercase; border-left: 4px solid var(--primary-color); }
+        .folder-title:hover { background-color: var(--border-color); }
+        .folder-title::after { content: '▼'; font-size: 10px; transition: transform 0.2s; }
+        .folder-title.collapsed::after { transform: rotate(-90deg); }
+        
+        .folder-content { display: flex; flex-direction: column; gap: 4px; padding-left: 15px; margin-top: 4px; margin-bottom: 8px; }
+        .folder-content.collapsed { display: none; }
+
+        .menu-item { padding: 10px 12px; border-radius: 6px; border: 1px solid transparent; cursor: pointer; background-color: transparent; font-size: 13px; font-weight: 500; line-height: 1.4; color: var(--text-color); position: relative; }
+        .menu-item::before { content: '📄'; margin-right: 6px; font-size: 12px; }
+        .menu-item:hover { background-color: var(--bg-color); border-color: var(--border-color); }
+        .menu-item.active { background-color: var(--primary-color); color: white; border-color: var(--primary-color); font-weight: bold; }
+        .menu-item.active::before { filter: grayscale(1) brightness(2); }
 
         /* VÙNG HIỂN THỊ NỘI DUNG ĐỌC VĂN BẢN (CHÍNH GIỮA) */
         .content-reader { flex: 1; background-color: var(--card-bg); padding: 25px; overflow-y: auto; display: flex; flex-direction: column; border-right: 1px solid var(--border-color); }
         .reader-header { border-bottom: 2px solid var(--primary-color); padding-bottom: 10px; margin-bottom: 15px; }
-        .reader-title { color: var(--primary-color); font-size: 20px; font-weight: bold; }
+        .reader-title { color: var(--primary-color); font-size: 20px; font-weight: bold; line-height: 1.4; }
         [data-theme="dark"] .reader-title { color: var(--accent-color); }
         .reader-body { font-size: 15px; line-height: 1.7; color: var(--text-color); }
         .reader-body ul, .reader-body ol { margin-left: 22px; margin-top: 8px; margin-bottom: 8px; }
-        .reader-body li { margin-bottom: 6px; }
+        .reader-body li { margin-bottom: 8px; text-align: justify; }
+        .reader-body h4 { margin-top: 15px; margin-bottom: 5px; color: var(--primary-color); }
 
         /* KHÔNG GIAN CHATBOT AI (BÊN PHẢI) */
         .chat-space { width: 360px; display: flex; flex-direction: column; background-color: var(--bg-color); overflow: hidden; flex-shrink: 0; }
@@ -64,8 +80,6 @@
         .message { max-width: 90%; padding: 10px 14px; border-radius: 15px; line-height: 1.5; font-size: 14px; word-wrap: break-word; }
         .bot-message { background-color: var(--card-bg); color: var(--text-color); align-self: flex-start; border-bottom-left-radius: 4px; border: 1px solid var(--border-color); }
         .user-message { background-color: #0084ff; color: white; align-self: flex-end; border-bottom-right-radius: 4px; }
-        
-        .code-block { background-color: #272822; color: #f8f8f2; padding: 10px; border-radius: 6px; font-family: 'Consolas', monospace; font-size: 12px; margin: 8px 0; overflow-x: auto; white-space: pre; }
         
         /* CHIPS TƯ VẤN NHANH */
         .suggestion-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; padding-bottom: 8px; }
@@ -79,11 +93,10 @@
         
         .footer { background-color: var(--card-bg); color: #65676b; text-align: center; padding: 6px; font-size: 11px; border-top: 1px solid var(--border-color); flex-shrink: 0; }
 
-        /* ĐÁP ỨNG DI ĐỘNG */
         @media (max-width: 992px) {
-            .chat-space { display: none; } /* Ẩn chat trên màn hình quá nhỏ, ưu tiên đọc văn bản */
+            .chat-space { display: none; }
             .sidebar { display: none; }
-            .sidebar.active-mobile { display: flex; position: absolute; top: 0; left: 0; bottom: 0; width: 280px; z-index: 20; }
+            .sidebar.active-mobile { display: flex; position: absolute; top: 0; left: 0; bottom: 0; width: 300px; z-index: 20; }
         }
     </style>
 </head>
@@ -109,7 +122,7 @@
         
         <div class="sidebar" id="sidebar-panel">
             <div class="search-box">
-                <input type="text" id="search-input" placeholder="Tìm nhanh danh mục..." oninput="filterMenu()">
+                <input type="text" id="search-input" placeholder="Tìm nhanh tiêu chí, danh mục..." oninput="filterMenu()">
             </div>
             <div class="menu-list" id="menu-items-box">
                 </div>
@@ -120,7 +133,7 @@
                 <div class="reader-title" id="render-title-text">Vui lòng chọn một mục nghiệp vụ bên trái để xem nội dung văn bản</div>
             </div>
             <div class="reader-body" id="render-body-text">
-                Chào ngài, hãy nhấn chọn các đề mục hiển thị ở thanh điều hướng bên trái. Hệ thống sẽ ngay lập tức mở và hiển thị toàn văn nội dung hướng dẫn nghiệp vụ chi tiết của chương/mục đó tại đây để ngài nghiên cứu, rà soát hồ sơ.
+                Kính chào Ngài, Ngài hãy nhấn chọn các đề mục hiển thị ở thanh điều hướng bên trái. Hệ thống sẽ ngay lập tức mở và hiển thị toàn văn nội dung hướng dẫn nghiệp vụ chi tiết của chương/mục đó tại đây để ngài nghiên cứu, rà soát hồ sơ..
             </div>
         </div>
         
@@ -128,7 +141,7 @@
             <div class="chat-header">💬 Trợ lý AI Hỗ trợ Soạn thảo & Công nghệ</div>
             <div class="chat-container" id="chat-box">
                 <div class="message bot-message">
-                    Chào ngài! Mình là trợ lý soạn thảo tự động. Ngài có thể sử dụng các nút gợi ý bên dưới hoặc nhập trực tiếp yêu cầu để mình xuất các khung biểu mẫu chuẩn chỉnh nhé.
+                    Kính chào Ngài! Mình là trợ lý soạn thảo tự động. Ngài có thể sử dụng các nút gợi ý bên dưới hoặc nhập trực tiếp yêu cầu để mình xuất các khung biểu mẫu chuẩn chỉnh nhé.
                 </div>
             </div>
             
@@ -155,52 +168,157 @@
     </div>
 
     <script>
-        // CƠ SỞ DỮ LIỆU TOÀN VĂN ĐỒNG BỘ NỘI DUNG CẨM NANG NGHIỆP VỤ
-        const knowledgeBase = [
+        // CƠ SỞ DỮ LIỆU ĐỦ 9 MỤC NỀN TẢNG VÀ CÁC TIÊU CHÍ PHỤ LỤC (CÔNG VĂN 468)
+        const knowledgeTree = [
             {
-                title: "Mục I: Mục đích, Yêu cầu & Tính chất",
-                keywords: ["mục đích", "yêu cầu", "tính chất"],
-                answer: "<b>Mục đích, yêu cầu và tính chất của Hướng dẫn:</b><br><br><ul><li><b>Hỗ trợ chủ động:</b> Giúp công chức, Kiểm sát viên VKSND hai cấp thành phố Cần Thơ chủ động nhận diện sớm các vụ việc có dấu hiệu xâm phạm lợi ích công, quyền dân sự của nhóm dễ bị tổn thương.</li><li><b>Áp dụng toàn diện:</b> Áp dụng trong quá trình thực hành quyền công tố, kiểm sát hoạt động tư pháp và các khâu công tác khác.</li><li><b>Tính chất tham khảo:</b> Đây là tài liệu gợi ý nghiệp vụ, đóng vai trò như một <b>“bảng nhận diện”</b> để đối chiếu thực tế.</li><li><b>Yêu cầu bắt buộc:</b> Vận dụng linh hoạt, thận trọng, có căn cứ, bảo đảm không suy diễn, không mở rộng tùy tiện phạm vi Nghị quyết số 205/2025/QH15.</li></ul>"
+                folder: "I. CẨM NANG NGHIỆP VỤ NỀN TẢNG",
+                items: [
+                    {
+                        title: "Mục I: Mục đích, Yêu cầu & Tính chất",
+                        keywords: ["mục đích", "yêu cầu", "tính chất"],
+                        answer: "<b>Mục đích, yêu cầu và tính chất của Hướng dẫn:</b><br><br><ul><li><b>Hỗ trợ chủ động:</b> Giúp công chức, Kiểm sát viên VKSND hai cấp thành phố Cần Thơ chủ động nhận diện sớm các vụ việc có dấu hiệu xâm phạm lợi ích công, quyền dân sự của nhóm dễ bị tổn thương.</li><li><b>Áp dụng toàn diện:</b> Áp dụng trong quá trình thực hành quyền công tố, kiểm sát hoạt động tư pháp và các khâu công tác khác.</li><li><b>Tính chất tham khảo:</b> Đây là tài liệu gợi ý nghiệp vụ, đóng vai trò như một <b>“bảng nhận diện”</b> để đối chiếu thực tế.</li><li><b>Yêu cầu bắt buộc:</b> Vận dụng linh hoạt, thận trọng, có căn cứ, bảo đảm không suy diễn, không mở rộng tùy tiện phạm vi Nghị quyết số 205/2025/QH15.</li></ul>"
+                    },
+                    {
+                        title: "Mục II: 5 Nguyên tắc nhận diện chung",
+                        keywords: ["nguyên tắc chung", "nguyên tắc nhận diện", "5 nguyên tắc"],
+                        answer: "<b>5 Nguyên tắc nhận diện chung vụ việc dân sự công ích:</b><br><br><ul><li><b>Thứ nhất:</b> Chủ động phát hiện từ hồ sơ, tài liệu, hoạt động kiểm sát, tiếp công dân, giải quyết khiếu nại, tố cáo, kết luận thanh tra, kiểm tra, kiểm toán, dữ liệu quản lý nhà nước, thông tin báo chí, mạng xã hội và nguồn tin tại địa phương, không chỉ chờ đơn thư phản ánh.</li><li><b>Thứ hai:</b> Phân loại rõ nhóm vụ việc (bảo vệ quyền dân sự của chủ thể dễ bị tổn thương; bảo vệ lợi ích công; kết hợp cả hai; hoặc chuyển cơ quan thẩm quyền).</li><li><b>Thứ ba:</b> Mọi nhận định ban đầu phải được kiểm tra, xác minh, thu thập tài liệu, chứng cứ khách quan. Không kiến nghị khi chưa đủ căn cứ.</li><li><b>Thứ tư:</b> Coi trọng mục tiêu chấm dứt vi phạm, khắc phục hậu quả, phục hồi lợi ích thực chất cho công ích và người yếu thế.</li><li><b>Thứ năm:</b> Phòng 9 là đầu mối theo dõi, hướng dẫn; tuy nhiên trách nhiệm phát hiện, xác minh ban đầu là sự phối hợp của tất cả các đơn vị nghiệp vụ.</li></ul>"
+                    },
+                    {
+                        title: "Mục III: Bảng nhận diện 4 yếu tố cốt lõi",
+                        keywords: ["bảng kiểm chung", "4 yếu tố", "yếu tố cốt lõi"],
+                        answer: "<b>Bảng nhận diện chung trong mọi hồ sơ, vụ việc (4 Yếu tố cốt lõi):</b><br><br><ul><li><b>1. Chủ thể bị tác động:</b> Có trẻ em, người cao tuổi, người khuyết tật, phụ nữ mang thai hoặc nuôi con dưới 36 tháng tuổi, người mất hoặc khó khăn trong nhận thức hành vi... bị xâm phạm quyền dân sự, tài sản, nhân phẩm hay không?</li><li><b>2. Lợi ích công bị tác động:</b> Có dấu hiệu thiệt hại đến ngân sách, đất đai, tài nguyên, môi trường, hệ sinh thái, tài sản công, an toàn thực phẩm, dữ liệu cá nhân... vượt ra ngoài lợi ích cá nhân riêng lẻ không?</li><li><b>3. Hậu quả, thiệt hại:</b> Hậu quả chưa được khắc phục; có nguy cơ tiếp tục gây thiệt hại; đã được bồi thường, phục hồi, xin lỗi hay chưa?</li><li><b>4. Chủ thể có trách nhiệm:</b> Xác định rõ cá nhân, tổ chức vi phạm; cơ quan quản lý nhà nước nào lơ là, chưa xử lý triệt để?</li></ul>"
+                    },
+                    {
+                        title: "Mục IV: Nhận diện theo từng khâu công tác",
+                        keywords: ["khâu công tác", "hình sự", "dân sự", "hành chính", "thi hành án"],
+                        answer: "<b>Hướng dẫn nhận diện vi phạm theo từng khâu nghiệp vụ tư pháp:</b><br><br><ul><li><b>Thực hành quyền công tố, kiểm sát nguồn tin & điều tra:</b> Chũ ý tội phạm môi trường, đất đai, trốn thuế đất, thực phẩm bẩn, hàng giả, xâm hại trẻ em. Phải đặt câu hỏi ngoài xử lý hình sự thì hậu quả thiệt hại dân sự, công ích đã được khắc phục chưa?</li><li><b>Kiểm sát án Dân sự, Hôn nhân gia đình:</b> Trẻ em không được cấp dưỡng; tranh chấp tài sản ảnh hưởng quyền người chưa thành niên, người già bị cưỡng ép chuyển nhượng tài sản.</li><li><b>Kiểm sát án Hành chính & THADS:</b> Quyết định hành chính gây thất thoát đất công, ngân sách; chậm thi hành bản án thu hồi tài sản cho Nhà nước hoặc quyền lợi nhóm yếu thế.</li><li><b>Tiếp công dân & Giải quyết khiếu nại:</b> Tiếp nhận, phân loại đơn thư phản ánh ô nhiễm môi trường, lấn chiếm tài sản công cộng kéo dài mà cơ quan chức năng không giải quyết triệt để.</li></ul>"
+                    },
+                    {
+                        title: "Mục V: Gợi ý nhận diện theo nhóm vi phạm (Tài liệu)",
+                        keywords: ["nhóm vi phạm", "tài liệu cần thu thập", "thu thập chứng cứ"],
+                        answer: "<b>Gợi ý nhận diện theo nhóm vi phạm và Tài liệu cần thu thập:</b><br><br><ul><li><b>Thất thu ngân sách, nghĩa vụ tài chính:</b> Chuyển nhượng quyền sử dụng đất ghi giá thấp; trốn thuế. Tài liệu cần: Hợp đồng, chứng từ thanh toán, thông báo thuế, kết luận kiểm tra.</li><li><b>Đất đai, tài sản công:</b> Lấn chiếm đất công, sử dụng đất sai mục đích. Tài liệu cần: Hồ sơ địa chính, bản đồ, quyết định giao/thu hồi đất, phương án bồi thường.</li><li><b>Môi trường, hệ sinh thái:</b> Xả thải chưa xử lý, khai thác cát trái phép. Tài liệu cần: Biên bản kiểm tra, kết quả quan trắc, quyết định xử phạt, kết luận giám định.</li><li><b>Quyền của nhóm yếu thế (Trẻ em, người già, người khuyết tật):</b> Bị bạo lực, bỏ mặc, cưỡng ép tài sản. Tài liệu cần: Giấy tờ nhân thân, hồ sơ y tế, văn bản chứng nhận khuyết tật, giám hộ.</li></ul>"
+                    },
+                    {
+                        title: "Mục VI: Kỹ năng nghiệp vụ cần áp dụng",
+                        keywords: ["kỹ năng nghiệp vụ", "lăng kính công ích"],
+                        answer: "<b>Các kỹ năng nghiệp vụ đặc thù cốt lõi:</b><br><br><ul><li><b>Đọc hồ sơ theo “lăng kính công ích”:</b> Rà soát song song xem có nhóm yếu thế không, có lợi ích công không, hậu quả dân sự/ngân sách đã xử lý chưa.</li><li><b>Truy vết hậu quả dân sự trong án hình sự:</b> Xác định trách nhiệm bồi thường, phục hồi môi trường, tiêu hủy hàng hóa độc hại.</li><li><b>Khai thác nguồn tin từ kết luận thanh tra, kiểm toán:</b> Tập trung vào mục 'vi phạm chỉ ra nhưng chưa khắc phục', số tiền phải thu hồi.</li><li><b>Tư pháp phục hồi:</b> Hướng đến yêu cầu chấm dứt hành vi vi phạm, khôi phục lại hiện trạng ban đầu, bồi thường thiệt hại thực tế.</li></ul>"
+                    },
+                    {
+                        title: "Mục VII: Quy trình xử lý hồ sơ 10 bước",
+                        keywords: ["quy trình xử lý", "10 bước", "trình tự", "lập phiếu", "khởi kiện", "báo cáo"],
+                        answer: "<b>Quy trình xử lý chủ động gồm 10 bước tại VKSND TP. Cần Thơ:</b><br><br><ul><li><b>Bước 1:</b> Ghi nhận nguồn thông tin tài liệu vi phạm đầu vào.</li><li><b>Bước 2:</b> Đối chiếu phạm vi điều chỉnh của Nghị quyết số 205/2025/QH15.</li><li><b>Bước 3:</b> Đánh giá sơ bộ 4 yếu tố cốt lõi (Hành vi, Quyền lợi, Hậu quả, Trách nhiệm).</li><li><b>Bước 4:</b> Báo cáo ý kiến Lãnh đạo đơn vị phân công cán bộ xác minh ban đầu.</li><li><b>Bước 5:</b> Chủ động thông tin, liên hệ phối hợp với <b>Phòng 9</b> để theo dõi số liệu chung.</li><li><b>Bước 6:</b> Đơn vị phát hiện tiếp tục xác minh, thu thập tài liệu chứng cứ chuyên ngành.</li><li><b>Bước 7:</b> Lập <b>Phiếu thông tin vụ việc dân sự công ích</b> chuẩn biểu mẫu chuyển <b>Phòng 9</b>.</li><li><b>Bước 8:</b> Tham mưu ban hành văn bản xử lý (kiến nghị khắc phục, thông báo khởi kiện).</li><li><b>Bước 9:</b> Phối hợp <b>Phòng 9</b> hoàn thiện hồ sơ khi có đủ điều kiện khởi kiện ra Tòa.</li><li><b>Bước 10:</b> Theo dõi sát sao kết quả khắc phục hậu quả, phục hồi lợi ích công đến cùng.</li></ul>"
+                    },
+                    {
+                        title: "Mục VIII: Cơ chế phối hợp nội bộ các phòng",
+                        keywords: ["cơ chế phối hợp", "trách nhiệm phối hợp", "phòng 9", "thanh tra", "vks khu vực"],
+                        answer: "<b>Trách nhiệm phối hợp nội bộ trong VKSND hai cấp:</b><br><br><ul><li><b>Các phòng nghiệp vụ Viện thành phố & VKS khu vực:</b> Trực tiếp chủ động rà quét, phát hiện dấu hiệu vi phạm trong khâu công tác; tiến hành xác minh ban đầu, lập <b>phiếu thông tin</b> gửi <b>Phòng 9</b>.</li><li><b>Phòng 9:</b> Giữ vai trò đầu mối hướng dẫn nghiệp vụ, quản lý số liệu tổng hợp chung, hỗ trợ các đơn vị về căn cứ pháp lý, biểu mẫu và phối hợp xây dựng hồ sơ khởi kiện.</li><li><b>Văn phòng & Thanh tra:</b> Theo dõi tiến độ thi đua khen thưởng; thanh tra phát hiện kịp thời các trường hợp bỏ sót nguồn tin, chậm trễ xử lý thông tin.</li></ul>"
+                    },
+                    {
+                        title: "Mục IX: Các lưu ý đặc biệt khi vận dụng",
+                        keywords: ["lưu ý", "vận dụng", "lưu ý quan trọng"],
+                        answer: "<b>Một số lưu ý quan trọng khi vận dụng Hướng dẫn nội bộ:</b><br><br><ul><li><b>Tính chất tham khảo:</b> Danh mục nhận diện chỉ có tính chất gợi ý nghiệp vụ hỗ trợ phát hiện ban đầu. Khi xử lý, cán bộ phải căn cứ vào văn bản pháp luật chính thức.</li><li><b>Đặc biệt lưu ý:</b> Đối với các vụ việc đã bị xử phạt hành chính hoặc đã xử lý hình sự, <b>VẪN</b> phải tiếp tục rà soát xem hậu quả dân sự, thiệt hại môi trường, thất thoát ngân sách đã được khắc phục đầy đủ hay chưa.</li><li><b>Ưu tiên bảo vệ:</b> Đối với vụ việc liên quan đến nhóm dễ bị tổn thương, cần ưu tiên áp dụng các biện pháp bảo vệ kịp thời, tránh để quyền dân sự của trẻ em, người khuyết tật tiếp tục bị xâm phạm trong thời gian tiến hành xác minh.</li></ul>"
+                    }
+                ]
             },
             {
-                title: "Mục II: 5 Nguyên tắc nhận diện chung",
-                keywords: ["nguyên tắc chung", "nguyên tắc nhận diện", "5 nguyên tắc"],
-                answer: "<b>5 Nguyên tắc nhận diện chung vụ việc dân sự công ích:</b><br><br><ul><li><b>Thứ nhất:</b> Chủ động phát hiện từ hồ sơ, tài liệu, hoạt động kiểm sát, tiếp công dân, giải quyết khiếu nại, tố cáo, kết luận thanh tra, kiểm tra, kiểm toán, dữ liệu quản lý nhà nước, thông tin báo chí, mạng xã hội và nguồn tin tại địa phương, không chỉ chờ đơn thư phản ánh.</li><li><b>Thứ hai:</b> Phân loại rõ nhóm vụ việc (bảo vệ quyền dân sự của chủ thể dễ bị tổn thương; bảo vệ lợi ích công; kết hợp cả hai; hoặc chuyển cơ quan thẩm quyền).</li><li><b>Thứ ba:</b> Mọi nhận định ban đầu phải được kiểm tra, xác minh, thu thập tài liệu, chứng cứ khách quan. Không kiến nghị khi chưa đủ căn cứ.</li><li><b>Thứ tư:</b> Coi trọng mục tiêu chấm dứt vi phạm, khắc phục hậu quả, phục hồi lợi ích thực chất cho công ích và người yếu thế.</li><li><b>Thứ năm:</b> Phòng 9 là đầu mối theo dõi, hướng dẫn; tuy nhiên trách nhiệm phát hiện, xác minh ban đầu là sự phối hợp của tất cả các đơn vị nghiệp vụ.</li></ul>"
+                folder: "II. NHÓM TIÊU CHÍ: DỄ BỊ TỔN THƯƠNG",
+                items: [
+                    {
+                        title: "1. Tiêu chí đối với Trẻ em",
+                        keywords: ["trẻ em", "vị thành niên", "bạo hành", "xâm hại", "tảo hôn"],
+                        answer: "<b>Tiêu chí nhận diện điển hình đối với Trẻ em [cite: 103]:</b><br><ul><li>(1) Cản trở trẻ em thực hiện quyền và bổn phận của mình (khai sinh, quốc tịch, chăm sóc y tế, sống chung với cha mẹ, nhận con nuôi...) [cite: 103].</li><li>(2) Tước đoạt quyền sống, mua bán, bắt cóc, đánh tráo, chiếm đoạt, xâm hại tình dục nhưng thiệt hại dân sự chưa được khắc phục [cite: 103].</li><li>(3) Bỏ rơi, bỏ mặc trẻ em [cite: 103].</li><li>(4) Tổ chức, hỗ trợ, xúi giục, ép buộc tảo hôn [cite: 103].</li><li>(5) Rủ rê, xúi giục, lợi dụng, dụ dỗ, ép buộc trẻ em vi phạm pháp luật, xúc phạm danh dự nhân phẩm người khác [cite: 103].</li><li>(6) Bạo lực, lạm dụng, bóc lột lao động trẻ em (lao động nặng, xin ăn, bỏ học); bạo lực gia đình [cite: 103].</li><li>(7) Xâm hại qua mạng: Nhắn tin đe dọa, xúc phạm, chế nhạo, bôi nhọ, phát tán link/video khiêu dâm, bạo lực [cite: 103].</li><li>(8) Kỳ thị, phân biệt đối xử vì hoàn cảnh, giới tính, dân tộc, tôn giáo [cite: 103].</li><li>(9) Bán/cho trẻ em sử dụng rượu, bia, thuốc lá, chất gây nghiện, thực phẩm độc hại [cite: 105].</li><li>(10) Cung cấp dịch vụ/sản phẩm, đồ chơi, xuất bản phẩm có nội dung ảnh hưởng sự phát triển lành mạnh của trẻ [cite: 105].</li><li>(11) Tiết lộ bí mật cá nhân, đời tư trẻ em khi chưa được sự đồng ý của trẻ từ 7 tuổi trở lên và người giám hộ [cite: 105].</li><li>(12) Lợi dụng chăm sóc thay thế hoặc chế độ chính sách nhà nước/tổ chức để trục lợi [cite: 105].</li><li>(13) Đặt cơ sở ô nhiễm, độc hại, nguy cơ cháy nổ gần khu vực của trẻ em, hoặc ngược lại [cite: 105].</li><li>(14) Từ chối/chậm trễ hỗ trợ, can thiệp, điều trị trẻ em đang trong tình trạng nguy hiểm, tổn hại thân thể/nhân phẩm[cite: 105].</li></ul>"
+                    },
+                    {
+                        title: "2. Tiêu chí đối với Người cao tuổi",
+                        keywords: ["người cao tuổi", "người già", "phụng dưỡng", "lừa đảo"],
+                        answer: "<b>Tiêu chí nhận diện điển hình đối với Người cao tuổi [cite: 105]:</b><br><ul><li>(1) Bỏ mặc, không chăm sóc y tế, ép lao động khi yếu, cô lập xã hội, phân biệt đối xử; xúc phạm, hành hạ, gây thiệt hại tài sản/sức khỏe nhưng chưa bồi thường [cite: 105].</li><li>(2) Xâm phạm, cản trở quyền kết hôn, quyền sở hữu tài sản và các quyền hợp pháp khác [cite: 105].</li><li>(3) Không thực hiện nghĩa vụ phụng dưỡng [cite: 105].</li><li>(4) Lợi dụng việc chăm sóc, phụng dưỡng để vụ lợi [cite: 107].</li><li>(5) Ép buộc lao động hoặc làm việc trái pháp luật [cite: 107].</li><li>(6) Ép buộc, kích động, xúi giục, giúp người khác vi phạm pháp luật đối với người cao tuổi [cite: 107].</li><li>(7) Trả thù, đe dọa người giúp đỡ, người báo tin ngăn chặn hành vi vi phạm đối với người cao tuổi [cite: 107].</li><li>(8) Quảng cáo gian dối, bán sản phẩm kém chất lượng nhằm vào người cao tuổi (ví dụ: gây nhầm lẫn thực phẩm chức năng là thuốc chữa bệnh)[cite: 107].</li></ul>"
+                    },
+                    {
+                        title: "3. Tiêu chí đối với Người khuyết tật",
+                        keywords: ["người khuyết tật", "khiếm khuyết", "kỳ thị"],
+                        answer: "<b>Tiêu chí nhận diện điển hình đối với Người khuyết tật [cite: 107]:</b><br><ul><li>(1) Kỳ thị, phân biệt đối xử người khuyết tật [cite: 107].</li><li>(2) Xâm phạm thân thể, nhân phẩm, danh dự, tài sản, quyền hợp pháp [cite: 107].</li><li>(3) Lôi kéo, dụ dỗ hoặc ép buộc người khuyết tật thực hiện hành vi vi phạm pháp luật, đạo đức xã hội [cite: 107].</li><li>(4) Lợi dụng người khuyết tật, hình ảnh, thông tin cá nhân, tổ chức của/vì người khuyết tật để trục lợi [cite: 107].</li><li>(5) Người có trách nhiệm không thực hiện đúng/đầy đủ trách nhiệm nuôi dưỡng, chăm sóc theo quy định [cite: 107].</li><li>(6) Cản trở quyền kết hôn, quyền nuôi con của người khuyết tật [cite: 107].</li><li>(7) Gian dối trong xác định mức độ khuyết tật, cấp giấy xác nhận khuyết tật [cite: 107].</li><li>(8) Công trình, dịch vụ không bảo đảm điều kiện tiếp cận, làm hạn chế quyền, từ chối dịch vụ công, phân biệt đối xử[cite: 107].</li></ul>"
+                    },
+                    {
+                        title: "4. Phụ nữ mang thai / Nuôi con nhỏ",
+                        keywords: ["phụ nữ", "mang thai", "nuôi con", "lao động", "36 tháng"],
+                        answer: "<b>Tiêu chí nhận diện (Phụ nữ mang thai / Nuôi con dưới 36 tháng) [cite: 109]:</b><br><ul><li>(1) Xâm phạm quyền lao động: Sa thải, chuyển làm công việc nặng nhọc/độc hại, không cho nghỉ giải lao (60 phút/ngày) khi nuôi con dưới 12 tháng [cite: 109].</li><li>(2) Xâm phạm sức khỏe, tính mạng: Bạo lực, đe dọa, ngược đãi, ép buộc phụ nữ có thai phải bỏ thai [cite: 109].</li><li>(3) Xâm phạm quyền nuôi con: Cưỡng ép, bỏ mặc, ngăn cản người mẹ nuôi con dưới 36 tháng tuổi[cite: 109].</li></ul>"
+                    },
+                    {
+                        title: "5. Khó khăn nhận thức / Mất NLHVDS",
+                        keywords: ["nhận thức", "mất năng lực", "hành vi dân sự", "giám hộ"],
+                        answer: "<b>Tiêu chí nhận diện (Người có khó khăn nhận thức, mất NLHVDS) [cite: 109]:</b><br><ul><li>(1) Xâm phạm tài sản: Lừa dối, ép buộc, dụ dỗ thực hiện các giao dịch dân sự (mua bán, tặng cho, vay) nhằm chiếm đoạt tài sản do họ không đủ khả năng nhận thức [cite: 109].</li><li>(2) Xâm phạm qua giao dịch: Thực hiện giao dịch khi không có người đại diện hợp pháp xác lập, hoặc trái mục đích bảo vệ lợi ích của họ [cite: 109].</li><li>(3) Lợi dụng tình trạng: Ép buộc ký các văn bản pháp lý mà không hiểu rõ nội dung, trái ý chí của họ [cite: 109].</li><li>(4) Vi phạm nghĩa vụ giám hộ: Người giám hộ không thực hiện đúng trách nhiệm, quản lý tài sản sai, trục lợi từ tài sản người được giám hộ[cite: 109].</li></ul>"
+                    },
+                    {
+                        title: "6. Người dân tộc thiểu số",
+                        keywords: ["dân tộc thiểu số", "chính sách", "đặc biệt khó khăn"],
+                        answer: "<b>Tiêu chí nhận diện (Người dân tộc thiểu số ở vùng đặc biệt khó khăn)[cite: 109]:</b><br><br>Theo QĐ số 70/QĐ-UBND ngày 10/01/2026 của UBND TP. Cần Thơ, áp dụng tại các khu vực: Xã Kế Sách, Khánh Hòa; Phường Vĩnh Châu; Phường Vĩnh Phước; xã An Ninh; xã Lai Hòa; xã Lâm Tân; xã Lịch Hội Thượng; xã Liêu Tú; Xã Long Phú; xã Mỹ Hương; xã Tài Văn; xã Thới An Hội; Xã Thuận Hòa; Xã Vĩnh Hải; xã Vĩnh Lợi; xã Lương Tâm; xã Xà Phiên; xã Phú Lộc [cite: 109, 110].<br><br><b>Hành vi nhận diện điển hình [cite: 110]:</b><br>Xâm phạm quyền thụ hưởng chính sách về giáo dục, y tế, đất ở, nước sạch, an sinh xã hội (Gian lận chiếm đoạt, sử dụng sai mục đích, không thực hiện chính sách hỗ trợ của nhà nước dành cho người dân tộc thiểu số, đặc biệt trong lĩnh vực giáo dục và trợ giúp xã hội...)[cite: 110]."
+                    }
+                ]
             },
             {
-                title: "Mục III: bảng nhận diện 4 yếu tố cốt lõi",
-                keywords: ["bảng kiểm chung", "4 yếu tố", "yếu tố cốt lõi"],
-                answer: "<b>bảng nhận diện chung trong mọi hồ sơ, vụ việc (4 Yếu tố cốt lõi):</b><br><br><ul><li><b>1. Chủ thể bị tác động:</b> Có trẻ em, người cao tuổi, người khuyết tật, phụ nữ mang thai hoặc nuôi con dưới 36 tháng tuổi, người mất hoặc khó khăn trong nhận thức hành vi... bị xâm phạm quyền dân sự, tài sản, nhân phẩm hay không?</li><li><b>2. Lợi ích công bị tác động:</b> Có dấu hiệu thiệt hại đến ngân sách, đất đai, tài nguyên, môi trường, hệ sinh thái, tài sản công, an toàn thực phẩm, dữ liệu cá nhân... vượt ra ngoài lợi ích cá nhân riêng lẻ không?</li><li><b>3. Hậu quả, thiệt hại:</b> Hậu quả chưa được khắc phục; có nguy cơ tiếp tục gây thiệt hại; đã được bồi thường, phục hồi, xin lỗi hay chưa?</li><li><b>4. Chủ thể có trách nhiệm:</b> Xác định rõ cá nhân, tổ chức vi phạm; cơ quan quản lý nhà nước nào lơ là, chưa xử lý triệt để?</li></ul>"
+                folder: "III. NHÓM TIÊU CHÍ: LỢI ÍCH CÔNG ()",
+                items: [
+                    {
+                        title: "1. Đất đai",
+                        keywords: ["đất đai", "lấn chiếm", "công trình", "quy hoạch", "kênh rạch"],
+                        answer: "<b>Tiêu chí nhận diện về Đất đai [cite: 110]:</b><br><ul><li>(1) Lấn chiếm đất công để xây nhà, công trình, hàng quán [cite: 110].</li><li>(2) Lấn chiếm đất bãi bồi ven sông [cite: 110].</li><li>(3) Xây dựng nhà, quán trên lòng kênh, rạch [cite: 110].</li><li>(4) Xây dựng trong hành lang bảo vệ kênh rạch, sông, cống thoát nước gây ngập úng, cản trở [cite: 110].</li><li>(5) Tự ý xây cầu dân sinh/cầu tạm chiếm mặt kênh [cite: 110].</li><li>(6) Tự ý xây bờ kè/bờ bao lấn lòng kênh, thu hẹp dòng chảy [cite: 110].</li><li>(7) Lấp kênh, mương, cống thoát nước để xây nhà/công trình [cite: 110].</li><li>(8) Lấn chiếm hành lang ATGT đường bộ để buôn bán, xây dựng [cite: 110].</li><li>(9) Giao đất, cho thuê đất, thu hồi đất trái pháp luật [cite: 110].</li><li>(10) Khi có vi phạm không thu hồi đất sai phạm, không khởi kiện bồi thường [cite: 110].</li><li>(11) Lập/thực hiện quy hoạch sử dụng đất không minh bạch [cite: 110].</li><li>(12) Lấn chiếm, sử dụng sai mục đích đất công, đất rừng, đất bảo tồn [cite: 110].</li><li>(13) Hủy hoại đất, làm suy thoái tài nguyên, ô nhiễm [cite: 110].</li><li>(14) Lấn chiếm khuôn viên trường học, sân chơi công cộng, nhà thi đấu... vào mục đích thương mại trái phép[cite: 110, 113].</li></ul>"
+                    },
+                    {
+                        title: "2. Tài nguyên",
+                        keywords: ["tài nguyên", "khoáng sản", "khai thác cát", "sạt lở"],
+                        answer: "<b>Tiêu chí nhận diện về Tài nguyên [cite: 113]:</b><br><ul><li>(1) Khai thác khoáng sản (cát, đất, đá...) không phép/sai phép gây sạt lở bờ sông, thay đổi dòng chảy, ảnh hưởng khu dân cư [cite: 113].</li><li>(2) Khai thác tài nguyên (nước, rừng, khoáng sản) vượt công suất, ngoài ranh giới cho phép [cite: 113].</li><li>(3) Khai thác trái phép hoặc cấp phép sai quy định gây ảnh hưởng đời sống người dân[cite: 113].</li></ul>"
+                    },
+                    {
+                        title: "3. Đầu tư công, Tài sản & Ngân sách",
+                        keywords: ["đầu tư công", "ngân sách", "đấu thầu", "thất thoát", "thuế", "trốn thuế"],
+                        answer: "<b>Tiêu chí nhận diện về Đầu tư công, Tài sản công & Tài chính [cite: 113]:</b><br><ul><li>(1) Sử dụng vốn không đúng mục đích, đối tượng, vượt định mức (cho thuê, cho mượn trái quy định) [cite: 113].</li><li>(2) Làm thất thoát, lãng phí vốn, tài sản Nhà nước trong thực hiện dự án [cite: 113].</li><li>(3) Vi phạm đấu thầu: Thông thầu, gian lận, cản trở để trục lợi [cite: 113].</li><li>(4) Chuyển nhượng cổ phần, vốn góp sai quy định Luật Đầu tư công [cite: 113].</li><li>(5) Từ chối cung cấp sản phẩm/dịch vụ công không lý do chính đáng [cite: 113].</li><li>(6) Chiếm dụng trụ sở, đất, công trình công cộng (công viên, trường học) phục vụ cá nhân hoặc sai mục đích [cite: 113].</li><li>(7) Để tài sản công bỏ hoang, xuống cấp, không khai thác hiệu quả [cite: 113].</li><li>(8) Dự án cầu đường, trường học, trạm y tế chậm tiến độ, đội vốn, lãng phí [cite: 113].</li><li>(9) Phê duyệt dự án trái quy định, chọn nhà thầu thiếu minh bạch [cite: 113].</li><li>(10) Gây thất thoát, lãng phí trong chuẩn bị, triển khai, nghiệm thu, quyết toán dự án [cite: 115].</li><li>(11) Dự án gây thất thoát ngân sách nhưng cơ quan quản lý chưa khởi kiện đòi bồi thường [cite: 115].</li><li>(12) Quản lý, cho thuê, liên doanh, liên kết tài sản công trái quy định gây thất thoát [cite: 115].</li><li>(13) Nghĩa vụ tài chính: Trốn thuế, khai giá bất động sản sai lệch làm giảm nghĩa vụ tài chính, nợ tiền thuê đất... [cite: 115]</li></ul>"
+                    }
+                ]
             },
             {
-                title: "Mục IV: Nhận diện theo từng khâu công tác",
-                keywords: ["khâu công tác", "hình sự", "dân sự", "hành chính", "thi hành án"],
-                answer: "<b>Hướng dẫn nhận diện vi phạm theo từng khâu nghiệp vụ tư pháp:</b><br><br><ul><li><b>Thực hành quyền công tố, kiểm sát nguồn tin & điều tra:</b> Chú ý tội phạm môi trường, đất đai, trốn thuế đất, thực phẩm bẩn, hàng giả, xâm hại trẻ em. Phải đặt câu hỏi ngoài xử lý hình sự thì hậu quả thiệt hại dân sự, công ích đã được khắc phục chưa?</li><li><b>Kiểm sát án Dân sự, Hôn nhân gia đình:</b> Trẻ em không được cấp dưỡng; tranh chấp tài sản ảnh hưởng quyền người chưa thành niên, người già bị cưỡng ép chuyển nhượng tài sản.</li><li><b>Kiểm sát án Hành chính & THADS:</b> Quyết định hành chính gây thất thoát đất công, ngân sách; chậm thi hành bản án thu hồi tài sản cho Nhà nước hoặc quyền lợi nhóm yếu thế.</li><li><b>Tiếp công dân & Giải quyết khiếu nại:</b> Tiếp nhận, phân loại đơn thư phản ánh ô nhiễm môi trường, lấn chiếm tài sản công cộng kéo dài mà cơ quan chức năng không giải quyết triệt để.</li></ul>"
+                folder: "IV. NHÓM TIÊU CHÍ: MÔI TRƯỜNG & HỆ SINH THÁI",
+                items: [
+                    {
+                        title: "1. Vi phạm Môi trường sinh thái",
+                        keywords: ["môi trường", "rác thải", "khí thải", "ô nhiễm", "rừng", "động vật"],
+                        answer: "<b>Tiêu chí nhận diện về Môi trường (21 hành vi) [cite: 115]:</b><br><ul><li>(1) Tập kết rác, xả nước thải gây mùi hôi quanh di tích [cite: 115].</li><li>(2) Không thu gom, xử lý rác trong khu vực di tích [cite: 115].</li><li>(3) Vứt rác sinh hoạt, xác động vật xuống sông, kênh rạch [cite: 115].</li><li>(4) Tập kết/xử lý rác sai quy định gây ô nhiễm tại khu dân cư, nơi công cộng [cite: 115].</li><li>(5) Chăn nuôi không xử lý chất thải gây ô nhiễm [cite: 115].</li><li>(6) Doanh nghiệp/cơ sở xả nước thải, khí thải chưa xử lý [cite: 115].</li><li>(7) Gây ô nhiễm tiếng ồn [cite: 115].</li><li>(8) Nuôi dắt chó, vật nuôi mất vệ sinh/an toàn nơi công cộng [cite: 115].</li><li>(9) Sử dụng phân chăn nuôi chưa ủ hoai bón trực tiếp gây mùi hôi thối, ruồi nhặng [cite: 115].</li><li>(10) Trộn lẫn rác nguy hại (dầu, pin) với rác sinh hoạt [cite: 117].</li><li>(11) Vứt/chôn lấp túi nilon, chai nhựa xuống dòng chảy/lòng đất [cite: 117].</li><li>(12) Xả chất thải công nghiệp, làng nghề vào hệ thống thủy lợi gây ảnh hưởng nuôi trồng thủy sản [cite: 117].</li><li>(13) Xả thải vượt quy chuẩn, xử lý chất thải trái phép [cite: 117].</li><li>(14) Hủy hoại rừng, khai thác gỗ trái phép trong rừng đặc dụng/phòng hộ [cite: 117].</li><li>(15) Gây cháy rừng do thiếu trách nhiệm hoặc cố ý [cite: 117].</li><li>(16) Tự ý san lấp, xây dựng trên đất rừng khi chưa được phê duyệt [cite: 117].</li><li>(17) Săn bắt, giết hại động vật hoang dã, đặc biệt loài nguy cấp (hổ, tê tê...) [cite: 117].</li><li>(18) Thu giữ, buôn bán cây dược liệu quý trong khu bảo tồn [cite: 117].</li><li>(19) Phát tán sinh vật ngoại lai xâm hại (ốc bươu vàng, rùa tai đỏ...) [cite: 117].</li><li>(20) Ô nhiễm ảnh hưởng trực tiếp đến nuôi trồng thủy sản của dân [cite: 117].</li><li>(21) Triển khai dự án không tuân thủ đánh giá tác động môi trường[cite: 117].</li></ul>"
+                    },
+                    {
+                        title: "2. Thủ tục ĐTM & Sức khỏe cộng đồng",
+                        keywords: ["đtm", "giấy phép", "thiệt hại sức khỏe", "tiếng ồn", "y tế"],
+                        answer: "<b>Hành vi vi phạm thủ tục ĐTM & Thiệt hại sức khỏe cộng đồng [cite: 118]:</b><br><ul><li><b>Vi phạm thủ tục ĐTM/Giấy phép môi trường [cite: 118]:</b><br>- Xây dựng khi chưa có Quyết định phê duyệt ĐTM [cite: 118].<br>- Vận hành dự án không có Giấy phép môi trường [cite: 118].<br>- Thực hiện sai nội dung ĐTM (thay đổi quy mô, công nghệ, phương án xử lý chất thải mà chưa được chấp thuận) [cite: 118].</li><li><b>Hành vi gây thiệt hại sức khỏe và lợi ích công cộng [cite: 118]:</b><br>- Đổ thải trực tiếp nước thải, khí thải vượt quy chuẩn vào nguồn nước/không khí [cite: 118].<br>- Quản lý chất thải y tế/nguy hại sai quy trình gây dịch bệnh hoặc nhiễm độc mãn tính [cite: 118].<br>- Gây ô nhiễm tiếng ồn, độ rung, mùi hôi vượt mức chịu đựng gây bệnh lý cho dân xung quanh[cite: 118].</li></ul>"
+                    }
+                ]
             },
             {
-                title: "Mục V: Gợi ý nhận diện theo nhóm vi phạm",
-                keywords: ["nhóm vi phạm", "tài liệu cần thu thập"],
-                answer: "<b>Gợi ý nhận diện theo nhóm vi phạm và Tài liệu cần thu thập:</b><br><br><ul><li><b>Thất thu ngân sách, nghĩa vụ tài chính:</b> Chuyển nhượng quyền sử dụng đất ghi giá thấp; trốn thuế. Tài liệu cần: Hợp đồng, chứng từ thanh toán, thông báo thuế, kết luận kiểm tra.</li><li><b>Đất đai, tài sản công:</b> Lấn chiếm đất công, sử dụng đất sai mục đích. Tài liệu cần: Hồ sơ địa chính, bản đồ, quyết định giao/thu hồi đất, phương án bồi thường.</li><li><b>Môi trường, hệ sinh thái:</b> Xả thải chưa xử lý, khai thác cát trái phép. Tài liệu cần: Biên bản kiểm tra, kết quả quan trắc, quyết định xử phạt, kết luận giám định.</li><li><b>Quyền của nhóm yếu thế (Trẻ em, người già, người khuyết tật):</b> Bị bạo lực, bỏ mặc, cưỡng ép tài sản. Tài liệu cần: Giấy tờ nhân thân, hồ sơ y tế, văn bản chứng nhận khuyết tật, giám hộ.</li></ul>"
-            },
-            {
-                title: "Mục VI: Kỹ năng nghiệp vụ cần áp dụng",
-                keywords: ["kỹ năng nghiệp vụ", "lăng kính công ích"],
-                answer: "<b>Các kỹ năng nghiệp vụ đặc thù cốt lõi:</b><br><br><ul><li><b>Đọc hồ sơ theo “lăng kính công ích”:</b> Rà soát song song xem có nhóm yếu thế không, có lợi ích công không, hậu quả dân sự/ngân sách đã xử lý chưa.</li><li><b>Truy vết hậu quả dân sự trong án hình sự:</b> Xác định trách nhiệm bồi thường, phục hồi môi trường, tiêu hủy hàng hóa độc hại.</li><li><b>Khai thác nguồn tin từ kết luận thanh tra, kiểm toán:</b> Tập trung vào mục 'vi phạm chỉ ra nhưng chưa khắc phục', số tiền phải thu hồi.</li><li><b>Tư pháp phục hồi:</b> Hướng đến yêu cầu chấm dứt hành vi vi phạm, khôi phục lại hiện trạng ban đầu, bồi thường thiệt hại thực tế.</li></ul>"
-            },
-            {
-                title: "Mục VII: Quy trình xử lý hồ sơ 10 bước",
-                keywords: ["quy trình xử lý", "10 bước", "trình tự", "lập phiếu", "khởi kiện", "báo cáo"],
-                answer: "<b>Quy trình xử lý chủ động gồm 10 bước tại VKSND TP. Cần Thơ:</b><br><br><ul><li><b>Bước 1:</b> Ghi nhận nguồn thông tin tài liệu vi phạm đầu vào.</li><li><b>Bước 2:</b> Đối chiếu phạm vi điều chỉnh của Nghị quyết số 205/2025/QH15.</li><li><b>Bước 3:</b> Đánh giá sơ bộ 4 yếu tố cốt lõi (Hành vi, Quyền lợi, Hậu quả, Trách nhiệm).</li><li><b>Bước 4:</b> Báo cáo ý kiến Lãnh đạo đơn vị phân công cán bộ xác minh ban đầu.</li><li><b>Bước 5:</b> Chủ động thông tin, liên hệ phối hợp với <b>Phòng 9</b> để theo dõi số liệu chung.</li><li><b>Bước 6:</b> Đơn vị phát hiện tiếp tục xác minh, thu thập tài liệu chứng cứ chuyên ngành.</li><li><b>Bước 7:</b> Lập <b>Phiếu thông tin vụ việc dân sự công ích</b> chuẩn biểu mẫu chuyển <b>Phòng 9</b>.</li><li><b>Bước 8:</b> Tham mưu ban hành văn bản xử lý (kiến nghị khắc phục, thông báo khởi kiện).</li><li><b>Bước 9:</b> Phối hợp <b>Phòng 9</b> hoàn thiện hồ sơ khi có đủ điều kiện khởi kiện ra Tòa.</li><li><b>Bước 10:</b> Theo dõi sát sao kết quả khắc phục hậu quả, phục hồi lợi ích công đến cùng.</li></ul>"
-            },
-            {
-                title: "Mục VIII: Cơ chế phối hợp nội bộ các phòng",
-                keywords: ["cơ chế phối hợp", "trách nhiệm phối hợp", "phòng 9", "thanh tra", "vks khu vực"],
-                answer: "<b>Trách nhiệm phối hợp nội bộ trong VKSND hai cấp:</b><br><br><ul><li><b>Các phòng nghiệp vụ Viện thành phố & VKS khu vực:</b> Trực tiếp chủ động rà quét, phát hiện dấu hiệu vi phạm trong khâu công tác; tiến hành xác minh ban đầu, lập <b>phiếu thông tin</b> gửi <b>Phòng 9</b>.</li><li><b>Phòng 9:</b> Giữ vai trò đầu mối hướng dẫn nghiệp vụ, quản lý số liệu tổng hợp chung, hỗ trợ các đơn vị về căn cứ pháp lý, biểu mẫu và phối hợp xây dựng hồ sơ khởi kiện.</li><li><b>Văn phòng & Thanh tra:</b> Theo dõi tiến độ thi đua khen thưởng; thanh tra phát hiện kịp thời các trường hợp bỏ sót nguồn tin, chậm trễ xử lý thông tin.</li></ul>"
-            },
-            {
-                title: "Mục IX: Các lưu ý đặc biệt khi vận dụng",
-                keywords: ["lưu ý", "vận dụng", "lưu ý quan trọng"],
-                answer: "<b>Một số lưu ý quan trọng khi vận dụng Hướng dẫn nội bộ:</b><br><br><ul><li><b>Tính chất tham khảo:</b> Danh mục nhận diện chỉ có tính chất gợi ý nghiệp vụ hỗ trợ phát hiện ban đầu. Khi xử lý, cán bộ phải căn cứ vào văn bản pháp luật chính thức.</li><li><b>Đặc biệt lưu ý:</b> Đối với các vụ việc đã bị xử phạt hành chính hoặc đã xử lý hình sự, <b>VẪN</b> phải tiếp tục rà soát xem hậu quả dân sự, thiệt hại môi trường, thất thoát ngân sách đã được khắc phục đầy đủ hay chưa.</li><li><b>Ưu tiên bảo vệ:</b> Đối với vụ việc liên quan đến nhóm dễ bị tổn thương, cần ưu tiên áp dụng các biện pháp bảo vệ kịp thời, tránh để quyền dân sự của trẻ em, người khuyết tật tiếp tục bị xâm phạm trong thời gian tiến hành xác minh.</li></ul>"
+                folder: "V. NHÓM TIÊU CHÍ: CÁC LĨNH VỰC KHÁC ()",
+                items: [
+                    {
+                        title: "1. Di sản văn hóa",
+                        keywords: ["di sản", "văn hóa", "di tích", "trùng tu", "tôn tạo"],
+                        answer: "<b>Tiêu chí nhận diện về Di sản văn hóa [cite: 118]:</b><br><ul><li>(1) Trùng tu, tôn tạo di tích không đúng thiết kế, hồ sơ khoa học được duyệt [cite: 118].</li><li>(2) Thực hiện trùng tu khi chưa được cơ quan thẩm quyền cho phép [cite: 118].</li><li>(3) Thay đổi kết cấu, vật liệu, kiến trúc, màu sắc không phù hợp giá trị gốc [cite: 118].</li><li>(4) Đập phá, tháo dỡ, làm mất hoặc làm biến dạng kiến trúc gốc [cite: 118].</li><li>(5) Phá bỏ, thay thế các hạng mục gốc (mái, cột, tường, nền...) [cite: 120].</li><li>(6) Xây dựng mới làm mất dấu tích nguyên trạng [cite: 120].</li><li>(7) Cơi nới, xây trái phép trong khu vực bảo vệ di tích [cite: 120].</li><li>(8) Xây nhà ở, hàng quán, công trình phụ trong khu vực bảo vệ di tích [cite: 120].</li><li>(9) Làm thay đổi cảnh quan, không gian văn hóa di tích [cite: 120].</li><li>(10) Sử dụng, khai thác di tích sai mục đích hoặc kinh doanh trái quy định [cite: 120].</li><li>(11) Làm mất tính tôn nghiêm, giá trị lịch sử của di tích [cite: 120].</li><li>(12) Gây ô nhiễm môi trường, xâm hại cảnh quan di tích [cite: 120].</li><li>(13) Xâm phạm không gian văn hóa, tín ngưỡng, lễ hội truyền thống[cite: 120].</li></ul>"
+                    },
+                    {
+                        title: "2. An toàn thực phẩm",
+                        keywords: ["thực phẩm", "an toàn", "vệ sinh", "bếp ăn", "thực phẩm bẩn"],
+                        answer: "<b>Tiêu chí nhận diện về An toàn thực phẩm [cite: 120]:</b><br><ul><li>(1) Chất lượng không bảo đảm (thực phẩm bẩn, ôi thiu, hết hạn, chứa phụ gia cấm, ghi sai công dụng) gây ảnh hưởng sức khỏe [cite: 120].</li><li>(2) Điều kiện kinh doanh/chế biến kém (bếp ăn tập thể không vệ sinh, giết mổ không kiểm dịch) [cite: 120].</li><li>(3) Quảng cáo, công bố sai sự thật (thổi phồng công dụng TPCN, che giấu chất cấm) [cite: 120].</li><li>(4) Gian lận nhãn mác, nguồn gốc (giả mạo nhập khẩu, nhãn mác gây hiểu nhầm) [cite: 120].</li><li>(5) Làm giả báo cáo kiểm nghiệm, giả hồ sơ truy xuất, giả giấy phép [cite: 122].</li><li>(6) Cung cấp thực phẩm mất an toàn cho bếp ăn trường học/bệnh viện; ghi cảnh báo quá nhỏ không rõ [cite: 122].</li><li>(7) Sai phạm quản lý nhà nước (cấp phép trái quy định, bao che vi phạm)[cite: 122].</li></ul>"
+                    },
+                    {
+                        title: "3. An toàn dược phẩm",
+                        keywords: ["dược phẩm", "thuốc", "bảo hiểm", "khám chữa bệnh", "bhyt"],
+                        answer: "<b>Tiêu chí nhận diện về An toàn dược phẩm [cite: 122]:</b><br><ul><li>(1) Vi phạm chất lượng thuốc (giả, kém chất lượng, hết hạn, nhập lậu) gây thiệt hại người bệnh [cite: 122].</li><li>(2) Kinh doanh & bảo quản sai (bán không phép, sai điều kiện bảo quản) [cite: 122].</li><li>(3) Quảng cáo sai sự thật (thổi phồng công dụng TPCN thành thuốc chữa bệnh) [cite: 122].</li><li>(4) Trục lợi Bảo hiểm y tế (kê đơn/xét nghiệm không cần thiết, giả hóa đơn, xâm hại quỹ BHYT) [cite: 122].</li><li>(5) Vi phạm đạo đức nghề nghiệp (kê đơn thuốc lấy hoa hồng, chỉ định xét nghiệm thừa) [cite: 122].</li><li>(6) Tài chính & Thuế (lập hóa đơn khống, hợp thức hóa chi phí trục lợi) [cite: 122].</li><li>(7) Sản xuất thuốc khi chưa được cấp phép hoặc bán thuốc kê đơn không có đơn [cite: 122].</li><li>(8) Buông lỏng quản lý nhà nước dẫn đến thuốc giả lưu hành, chậm thu hồi gây hậu quả[cite: 122].</li></ul>"
+                    },
+                    {
+                        title: "4. Bảo vệ người tiêu dùng",
+                        keywords: ["người tiêu dùng", "khách hàng", "quảng cáo", "đa cấp", "shopee", "lazada"],
+                        answer: "<b>Tiêu chí nhận diện Bảo vệ quyền lợi người tiêu dùng [cite: 122]:</b><br><ul><li>(1) Cung cấp thông tin gian dối, quảng cáo gian dối gây nhầm lẫn xuất xứ, công dụng [cite: 122].</li><li>(2) Hợp đồng bất lợi (bẫy phí, ép mua kèm kiểu 'bia kèm lạc', loại trừ trách nhiệm doanh nghiệp) [cite: 124].</li><li>(3) Bán hàng giả/kém chất lượng, không cảnh báo nguy cơ, không thu hồi hàng lỗi [cite: 124].</li><li>(4) Lừa đảo thương mại, bán hàng đa cấp bất chính [cite: 124].</li><li>(5) Vi phạm bảo mật dữ liệu cá nhân (thu thập không phép, bán data cho bên thứ ba) [cite: 124].</li><li>(6) Dịch vụ & thanh toán sai (thu phí trái phép, tự ý tăng giá, không hoàn tiền) [cite: 124].</li><li>(7) Né tránh, kéo dài thời gian giải quyết khiếu nại và bồi thường [cite: 124].</li><li>(8) Cạnh tranh không lành mạnh (gièm pha, so sánh gian dối, bán phá giá kèm chất lượng kém) [cite: 124].</li><li>(9) Quảng cáo sai sự thật qua Livestream/KOLs (người nổi tiếng thổi phồng công dụng) [cite: 124].</li><li>(10) Sàn TMĐT buông lỏng quản lý để hàng giả tràn lan trên Shopee, Lazada, TikTok Shop[cite: 124].</li></ul>"
+                    },
+                    {
+                        title: "5. Nguồn thông tin ưu tiên",
+                        keywords: ["nguồn tin", "ưu tiên", "thanh tra", "kiểm toán"],
+                        answer: "<b>Nguồn thông tin ưu tiên phát hiện vi phạm [cite: 124]:</b><br><ul><li>(1) Các vụ việc đã có Kết luận thanh tra, kiểm toán, xử phạt nhưng chưa khắc phục hậu quả [cite: 124].</li><li>(2) Đối tượng vi phạm đã chấp hành phạt tiền nhưng chưa thực hiện hậu quả dân sự (không bồi thường, không khôi phục tình trạng ban đầu) [cite: 124].</li><li>(3) Cơ quan, tổ chức có thẩm quyền không tổ chức thi hành hoặc thi hành không đầy đủ [cite: 124].</li><li>(4) Kéo dài, né tránh trách nhiệm gây thiệt hại tiếp diễn đối với lợi ích công[cite: 124].</li></ul>"
+                    }
+                ]
             }
         ];
 
@@ -215,7 +333,6 @@
             process: function(query) {
                 const lower = query.toLowerCase();
                 
-                // Kịch bản 1: Soạn Tờ trình
                 if (lower.includes("tờ trình") || lower.includes("báo cáo")) {
                     return "<b>[Trợ lý Soạn thảo]:</b> Đây là khung mẫu Tờ trình xử lý vụ việc theo NQ 205. Ngài có thể bôi đen copy đoạn này:<br><br>" +
                            "<div style='background:var(--bg-color); padding:10px; border-left:4px solid var(--primary-color); margin-top:5px; border-radius:4px;'>" +
@@ -228,14 +345,13 @@
                            "</div>";
                 }
                 
-                // Kịch bản 2: Soạn Kiến nghị
                 if (lower.includes("kiến nghị")) {
                     return "<b>[Trợ lý Soạn thảo]:</b> Kính gửi ngài khung mẫu Kiến nghị yêu cầu cơ quan quản lý nhà nước khắc phục hậu quả:<br><br>" +
                            "<div style='background:var(--bg-color); padding:10px; border-left:4px solid var(--accent-color); margin-top:5px; border-radius:4px;'>" +
                            "<b>VIỆN KIỂM SÁT NHÂN DÂN...</b><br>" +
                            "Số: .../KN-VKS<br><br>" +
                            "<center><b>KIẾN NGHỊ</b><br><b>Áp dụng biện pháp phòng ngừa, khắc phục vi phạm</b></center><br>" +
-                           "<b>Kính gửi:</b> [Tên cơ quan quản lý, ví dụ: UBND phường/huyện...]<br><br>" +
+                           "<b>Kính gửi:</b> [Tên cơ quan quản lý]<br><br>" +
                            "- Căn cứ Luật Tổ chức VKSND năm 2014;<br>" +
                            "- Căn cứ Nghị quyết 205/2025/QH15;<br>" +
                            "Qua công tác kiểm sát, VKSND... nhận thấy: [Nêu hành vi vi phạm...]<br><br>" +
@@ -243,78 +359,114 @@
                            "</div>";
                 }
 
-                // Kịch bản 3: Soạn Phiếu chuyển tin
                 if (lower.includes("phiếu") || lower.includes("chuyển tin")) {
                     return "<b>[Trợ lý Soạn thảo]:</b> Kính mời ngài tham khảo mẫu <b>Phiếu thông tin vụ việc</b> gửi Phòng 9:<br><br>" +
                            "<div style='background:var(--bg-color); padding:10px; border-left:4px solid #2ecc71; margin-top:5px; border-radius:4px;'>" +
                            "<b>VIỆN KIỂM SÁT NHÂN DÂN...</b><br>" +
                            "Số: .../PTT-VKS<br><br>" +
                            "<center><b>PHIẾU THÔNG TIN</b><br><b>Vụ việc có dấu hiệu vi phạm lợi ích công/nhóm yếu thế</b></center><br>" +
-                           "<b>1. Nguồn tin phát hiện:</b> (Báo chí / Đơn thư / Kiểm sát giải quyết án...)<br>" +
-                           "<b>2. Nội dung tóm tắt:</b> (Mô tả ngắn gọn diễn biến vụ việc...)<br>" +
-                           "<b>3. Tiến độ xác minh ban đầu:</b> (Liệt kê tài liệu đã thu thập...)<br>" +
-                           "<b>4. Đề xuất phối hợp:</b> (Đề nghị Phòng 9 hướng dẫn nghiệp vụ hoặc phối hợp khởi kiện...)<br>" +
+                           "<b>1. Nguồn tin phát hiện:</b> (Báo chí / Đơn thư...)<br>" +
+                           "<b>2. Nội dung tóm tắt:</b> (Mô tả ngắn gọn diễn biến...)<br>" +
+                           "<b>3. Tiến độ xác minh:</b> (Liệt kê tài liệu...)<br>" +
+                           "<b>4. Đề xuất:</b> (Đề nghị Phòng 9 hướng dẫn hoặc khởi kiện...)<br>" +
                            "</div>";
                 }
 
-                // Kịch bản 4: Soạn Thông báo
                 if (lower.includes("thông báo")) {
                     return "<b>[Trợ lý Soạn thảo]:</b> Kính gửi ngài khung mẫu Thông báo xử lý vụ việc:<br><br>" +
                            "<div style='background:var(--bg-color); padding:10px; border-left:4px solid #e74c3c; margin-top:5px; border-radius:4px;'>" +
                            "<b>VIỆN KIỂM SÁT NHÂN DÂN...</b><br>" +
                            "Số: .../TB-VKS<br><br>" +
                            "<center><b>THÔNG BÁO</b><br><b>V/v giải quyết nguồn tin/vụ việc dân sự công ích</b></center><br>" +
-                           "<b>Kính gửi:</b> [Cơ quan/Tổ chức/Cá nhân có liên quan]<br><br>" +
-                           "VKSND... thông báo về việc tiếp nhận và đang tiến hành xử lý vụ việc: [Tên/Nội dung vụ việc...]<br><br>" +
-                           "<b>Nội dung yêu cầu:</b> [Nêu rõ lý do thông báo, yêu cầu phối hợp cung cấp tài liệu, chứng cứ nếu có...]<br>" +
-                           "<b>Thời hạn thực hiện:</b> [Thời gian yêu cầu gửi văn bản phản hồi...]<br>" +
+                           "<b>Kính gửi:</b> [Cơ quan/Tổ chức/Cá nhân liên quan]<br><br>" +
+                           "VKSND... thông báo về việc tiếp nhận và xử lý vụ việc: [Nội dung...]<br><br>" +
+                           "<b>Nội dung yêu cầu:</b> [Yêu cầu phối hợp cung cấp tài liệu...]<br>" +
+                           "<b>Thời hạn:</b> [Thời gian...]<br>" +
                            "</div>";
                 }
 
-                // Kịch bản 5: Hỗ trợ lỗi kỹ thuật
                 if (lower.includes("lỗi") || lower.includes("phần mềm") || lower.includes("hướng dẫn")) {
-                    return "<b>[Hỗ trợ Kỹ thuật]:</b> Nếu phần mềm gặp sự cố hiển thị hoặc cần hướng dẫn chi tiết thêm, ngài vui lòng chụp ảnh màn hình và liên hệ bộ phận IT (Phòng Thống kê - CNTT) hoặc Phòng 9 để được hỗ trợ kịp thời nhé.";
+                    return "<b>[Hỗ trợ Kỹ thuật]:</b> Nếu phần mềm gặp sự cố hiển thị, ngài vui lòng chụp ảnh màn hình và liên hệ bộ phận IT (Phòng Thống kê - CNTT) hoặc Phòng 9 để được hỗ trợ kịp thời nhé.";
                 }
 
-                // Kịch bản 6: Fallback (Khi không hiểu yêu cầu)
-                return "<b>[Trợ lý AI]:</b> Mình đã nhận thông tin. Ngài có thể dùng các phím gợi ý bên trên hoặc nhập rõ từ khóa như <b>'Soạn mẫu tờ trình'</b>, <b>'Mẫu kiến nghị'</b>, <b>'Soạn phiếu chuyển tin'</b> để mình xuất biểu mẫu chính xác nhất nhé.";
+                return "<b>[Trợ lý AI]:</b> Mình đã nhận thông tin. Ngài có thể dùng các phím gợi ý bên trên hoặc nhập rõ từ khóa như <b>'Soạn mẫu tờ trình'</b>, <b>'Mẫu kiến nghị'</b> để mình xuất biểu mẫu chính xác nhất nhé.";
             }
         };
 
-        // KẾT XUẤT MENU 9 MỤC RA SIDEBAR BÊN TRÁI
+        // KẾT XUẤT CÂY THƯ MỤC RA SIDEBAR BÊN TRÁI
         const menuItemsBox = document.getElementById("menu-items-box");
         function buildMenu() {
             menuItemsBox.innerHTML = "";
-            knowledgeBase.forEach((item, index) => {
-                const div = document.createElement("div");
-                div.classList.add("menu-item");
-                div.id = "menu-item-" + index;
-                div.innerText = item.title;
-                div.onclick = function() {
-                    // Đổi màu chọn active
-                    document.querySelectorAll('.menu-item').forEach(el => el.classList.remove('active'));
-                    div.classList.add('active');
-                    
-                    // HIỂN THỊ TOÀN VĂN VÀO KHU CHÍNH GIỮA
-                    document.getElementById("render-title-text").innerHTML = item.title;
-                    document.getElementById("render-body-text").innerHTML = item.answer;
-                    
-                    // Đóng menu di động nếu đang bật
-                    document.getElementById("sidebar-panel").classList.remove("active-mobile");
+            knowledgeTree.forEach((folderObj, fIndex) => {
+                // Tạo tiêu đề thư mục lớn
+                const folderTitle = document.createElement("div");
+                folderTitle.classList.add("folder-title", "collapsed");
+                folderTitle.id = "folder-title-" + fIndex;
+                folderTitle.innerText = folderObj.folder;
+                
+                // Tạo khung chứa nội dung con bên trong
+                const folderContent = document.createElement("div");
+                folderContent.classList.add("folder-content", "collapsed");
+                folderContent.id = "folder-content-" + fIndex;
+
+                // Sự kiện Đóng/Mở thư mục khi nhấn
+                folderTitle.onclick = function() {
+                    folderTitle.classList.toggle("collapsed");
+                    folderContent.classList.toggle("collapsed");
                 };
-                menuItemsBox.appendChild(div);
+
+                // Đổ các bài viết chi tiết vào thư mục tương ứng
+                folderObj.items.forEach((item, iIndex) => {
+                    const menuItem = document.createElement("div");
+                    menuItem.classList.add("menu-item");
+                    menuItem.id = "menu-item-" + fIndex + "-" + iIndex;
+                    menuItem.innerText = item.title;
+                    
+                    menuItem.onclick = function() {
+                        document.querySelectorAll('.menu-item').forEach(el => el.classList.remove('active'));
+                        menuItem.classList.add('active');
+                        
+                        // HIỂN THỊ NỘI DUNG VĂN BẢN VÀO KHU CHÍNH GIỮA
+                        document.getElementById("render-title-text").innerHTML = item.title;
+                        document.getElementById("render-body-text").innerHTML = item.answer;
+                        
+                        document.getElementById("sidebar-panel").classList.remove("active-mobile");
+                    };
+                    folderContent.appendChild(menuItem);
+                });
+
+                menuItemsBox.appendChild(folderTitle);
+                menuItemsBox.appendChild(folderContent);
             });
         }
 
-        // TÌM KIẾM NHANH DANH MỤC
+        // TÌM KIẾM TỰ ĐỘNG BUNG MỞ THƯ MỤC CHỨA TỪ KHÓA
         function filterMenu() {
             const val = document.getElementById("search-input").value.toLowerCase();
-            knowledgeBase.forEach((item, index) => {
-                const el = document.getElementById("menu-item-" + index);
-                if(item.title.toLowerCase().includes(val)) {
-                    el.style.display = "block";
+            
+            knowledgeTree.forEach((folderObj, fIndex) => {
+                const folderTitle = document.getElementById("folder-title-" + fIndex);
+                const folderContent = document.getElementById("folder-content-" + fIndex);
+                let folderHasMatch = false;
+
+                folderObj.items.forEach((item, iIndex) => {
+                    const el = document.getElementById("menu-item-" + fIndex + "-" + iIndex);
+                    if(item.title.toLowerCase().includes(val) || folderObj.folder.toLowerCase().includes(val)) {
+                        el.style.display = "block";
+                        folderHasMatch = true;
+                    } else {
+                        el.style.display = "none";
+                    }
+                });
+
+                if (folderHasMatch || val === "") {
+                    folderTitle.style.display = "flex";
+                    if (val !== "") {
+                        folderTitle.classList.remove("collapsed");
+                        folderContent.classList.remove("collapsed");
+                    }
                 } else {
-                    el.style.display = "none";
+                    folderTitle.style.display = "none";
                 }
             });
         }
@@ -325,10 +477,12 @@
         
         function findChatAnswer(query) {
             const lowerQuery = query.toLowerCase().trim();
-            for (const item of knowledgeBase) {
-                for (const keyword of item.keywords) {
-                    if (lowerQuery.includes(keyword)) {
-                        return "<b>[Hệ thống Tri thức]:</b> Trích xuất nhanh dữ liệu từ cẩm nang Nghị quyết 205 cho Ngài: <br><br>" + item.answer;
+            for (const folderObj of knowledgeTree) {
+                for (const item of folderObj.items) {
+                    for (const keyword of item.keywords) {
+                        if (lowerQuery.includes(keyword)) {
+                            return "<b>[Hệ thống Tri thức]:</b> Trích xuất nhanh dữ liệu từ hệ thống cho Ngài: <br><br>" + item.answer;
+                        }
                     }
                 }
             }
@@ -339,7 +493,6 @@
             const text = userInput.value.trim();
             if (text === "") return;
             
-            // In tin nhắn của user
             const userMsg = document.createElement("div");
             userMsg.classList.add("message", "user-message");
             userMsg.innerHTML = text;
@@ -347,7 +500,6 @@
             chatBox.scrollTop = chatBox.scrollHeight;
             userInput.value = "";
             
-            // Trả lời của bot có độ trễ nhỏ tạo cảm giác thật
             setTimeout(() => {
                 const ans = findChatAnswer(text);
                 const botMsg = document.createElement("div");
@@ -374,7 +526,6 @@
             document.getElementById("sidebar-panel").classList.toggle("active-mobile");
         }
 
-        // Khởi chạy khi nạp trang
         window.onload = function() {
             buildMenu();
         };
