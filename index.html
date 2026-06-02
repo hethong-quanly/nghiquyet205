@@ -128,7 +128,7 @@
             <div class="chat-header">💬 Trợ lý AI Hỗ trợ Soạn thảo & Công nghệ</div>
             <div class="chat-container" id="chat-box">
                 <div class="message bot-message">
-                    Chào đồng chí! Mình là trợ lý soạn thảo tự động. Bạn có thể sử dụng các nút gợi ý bên dưới hoặc nhập trực tiếp yêu cầu để mình xuất các khung biểu mẫu chuẩn chỉnh nhé.
+                    Chào ngài! Mình là trợ lý soạn thảo tự động. Ngài có thể sử dụng các nút gợi ý bên dưới hoặc nhập trực tiếp yêu cầu để mình xuất các khung biểu mẫu chuẩn chỉnh nhé.
                 </div>
             </div>
             
@@ -217,7 +217,7 @@
                 
                 // Kịch bản 1: Soạn Tờ trình
                 if (lower.includes("tờ trình") || lower.includes("báo cáo")) {
-                    return "<b>[Trợ lý Soạn thảo]:</b> Đây là khung mẫu Tờ trình xử lý vụ việc theo NQ 205. Đồng chí có thể bôi đen copy đoạn này:<br><br>" +
+                    return "<b>[Trợ lý Soạn thảo]:</b> Đây là khung mẫu Tờ trình xử lý vụ việc theo NQ 205. Ngài có thể bôi đen copy đoạn này:<br><br>" +
                            "<div style='background:var(--bg-color); padding:10px; border-left:4px solid var(--primary-color); margin-top:5px; border-radius:4px;'>" +
                            "<b>VIỆN KIỂM SÁT NHÂN DÂN...</b><br>" +
                            "Số: .../TTr-VKS<br><br>" +
@@ -230,7 +230,7 @@
                 
                 // Kịch bản 2: Soạn Kiến nghị
                 if (lower.includes("kiến nghị")) {
-                    return "<b>[Trợ lý Soạn thảo]:</b> Gửi đồng chí khung mẫu Kiến nghị yêu cầu cơ quan quản lý nhà nước khắc phục hậu quả:<br><br>" +
+                    return "<b>[Trợ lý Soạn thảo]:</b> Kính gửi ngài khung mẫu Kiến nghị yêu cầu cơ quan quản lý nhà nước khắc phục hậu quả:<br><br>" +
                            "<div style='background:var(--bg-color); padding:10px; border-left:4px solid var(--accent-color); margin-top:5px; border-radius:4px;'>" +
                            "<b>VIỆN KIỂM SÁT NHÂN DÂN...</b><br>" +
                            "Số: .../KN-VKS<br><br>" +
@@ -245,7 +245,7 @@
 
                 // Kịch bản 3: Soạn Phiếu chuyển tin
                 if (lower.includes("phiếu") || lower.includes("chuyển tin")) {
-                    return "<b>[Trợ lý Soạn thảo]:</b> Mời đồng chí tham khảo mẫu <b>Phiếu thông tin vụ việc</b> gửi Phòng 9:<br><br>" +
+                    return "<b>[Trợ lý Soạn thảo]:</b> Kính mời ngài tham khảo mẫu <b>Phiếu thông tin vụ việc</b> gửi Phòng 9:<br><br>" +
                            "<div style='background:var(--bg-color); padding:10px; border-left:4px solid #2ecc71; margin-top:5px; border-radius:4px;'>" +
                            "<b>VIỆN KIỂM SÁT NHÂN DÂN...</b><br>" +
                            "Số: .../PTT-VKS<br><br>" +
@@ -259,7 +259,7 @@
 
                 // Kịch bản 4: Soạn Thông báo
                 if (lower.includes("thông báo")) {
-                    return "<b>[Trợ lý Soạn thảo]:</b> Gửi đồng chí khung mẫu Thông báo xử lý vụ việc:<br><br>" +
+                    return "<b>[Trợ lý Soạn thảo]:</b> Kính gửi ngài khung mẫu Thông báo xử lý vụ việc:<br><br>" +
                            "<div style='background:var(--bg-color); padding:10px; border-left:4px solid #e74c3c; margin-top:5px; border-radius:4px;'>" +
                            "<b>VIỆN KIỂM SÁT NHÂN DÂN...</b><br>" +
                            "Số: .../TB-VKS<br><br>" +
@@ -273,11 +273,11 @@
 
                 // Kịch bản 5: Hỗ trợ lỗi kỹ thuật
                 if (lower.includes("lỗi") || lower.includes("phần mềm") || lower.includes("hướng dẫn")) {
-                    return "<b>[Hỗ trợ Kỹ thuật]:</b> Nếu phần mềm gặp sự cố hiển thị hoặc cần hướng dẫn chi tiết thêm, đồng chí vui lòng chụp ảnh màn hình và liên hệ bộ phận IT (Phòng Thống kê - CNTT) hoặc Phòng 9 để được hỗ trợ kịp thời nhé.";
+                    return "<b>[Hỗ trợ Kỹ thuật]:</b> Nếu phần mềm gặp sự cố hiển thị hoặc cần hướng dẫn chi tiết thêm, ngài vui lòng chụp ảnh màn hình và liên hệ bộ phận IT (Phòng Thống kê - CNTT) hoặc Phòng 9 để được hỗ trợ kịp thời nhé.";
                 }
 
                 // Kịch bản 6: Fallback (Khi không hiểu yêu cầu)
-                return "<b>[Trợ lý AI]:</b> Mình đã nhận thông tin. Đồng chí có thể dùng các phím gợi ý bên trên hoặc nhập rõ từ khóa như <b>'Soạn mẫu tờ trình'</b>, <b>'Mẫu kiến nghị'</b>, <b>'Soạn phiếu chuyển tin'</b> để mình xuất biểu mẫu chính xác nhất nhé.";
+                return "<b>[Trợ lý AI]:</b> Mình đã nhận thông tin. Ngài có thể dùng các phím gợi ý bên trên hoặc nhập rõ từ khóa như <b>'Soạn mẫu tờ trình'</b>, <b>'Mẫu kiến nghị'</b>, <b>'Soạn phiếu chuyển tin'</b> để mình xuất biểu mẫu chính xác nhất nhé.";
             }
         };
 
@@ -328,7 +328,7 @@
             for (const item of knowledgeBase) {
                 for (const keyword of item.keywords) {
                     if (lowerQuery.includes(keyword)) {
-                        return "<b>[Hệ thống Tri thức]:</b> Trích xuất nhanh dữ liệu từ cẩm nang Nghị quyết 205 cho đồng chí: <br><br>" + item.answer;
+                        return "<b>[Hệ thống Tri thức]:</b> Trích xuất nhanh dữ liệu từ cẩm nang Nghị quyết 205 cho Ngài: <br><br>" + item.answer;
                     }
                 }
             }
