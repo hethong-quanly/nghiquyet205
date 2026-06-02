@@ -125,19 +125,30 @@
         </div>
         
         <div class="chat-space">
+            <div class="chat-space">
             <div class="chat-header">💬 Trợ lý AI Hỗ trợ Soạn thảo & Công nghệ</div>
             <div class="chat-container" id="chat-box">
                 <div class="message bot-message">
                     Chào bạn! Song song với việc đọc văn bản ở giữa, bạn có thể yêu cầu tôi trợ giúp các công việc thực chiến như:<br><br>
                     - <b>"Soạn mẫu tờ trình vụ việc"</b><br>
-                    - <b>"Hướng dẫn xây dựng kiên nghị"</b><br>
-                    - <b>"Hướng dẫn gỡ lỗi phần mềm"</b>
+                    - <b>"Mẫu kiến nghị khắc phục"</b><br>
+                    - <b>"Quy trình 10 bước"</b>
                 </div>
             </div>
+            
+            <div style="padding: 0 10px;">
+                <div class="suggestion-chips">
+                    <span class="chip" onclick="quickChat('Soạn mẫu tờ trình')">📝 Soạn Tờ trình</span>
+                    <span class="chip" onclick="quickChat('Mẫu kiến nghị')">⚖️ Mẫu Kiến nghị</span>
+                    <span class="chip" onclick="quickChat('Hỗ trợ lỗi phần mềm')">🆘 Báo lỗi phần mềm</span>
+                </div>
+            </div>
+
             <div class="input-area">
-                <input type="text" id="user-input" placeholder="Yêu cầu soạn văn bản hoặc viết code..." onkeypress="handleKeyPress(event)">
+                <input type="text" id="user-input" placeholder="Yêu cầu soạn văn bản..." onkeypress="handleKeyPress(event)">
                 <button class="send-btn" onclick="sendMessage()">Gửi</button>
             </div>
+        </div>
         </div>
 
     </div>
@@ -198,18 +209,54 @@
 
         // LOGIC AI PHỤ TRỢ (XỬ LÝ CHAT)
         const generalAiExtension = {
+           // HÀM MỚI: XỬ LÝ KHI BẤM NÚT GỢI Ý NHANH
+        function quickChat(text) {
+            document.getElementById("user-input").value = text;
+            sendMessage();
+        }
+
+        // CẢI TIẾN LOGIC AI PHỤ TRỢ (SOẠN THẢO VĂN BẢN ĐỘNG)
+        const generalAiExtension = {
             process: function(query) {
                 const lower = query.toLowerCase();
-                if (lower.includes("soạn") || lower.includes("văn bản") || lower.includes("báo cáo") || lower.includes("tờ trình")) {
-                    return "<b>[Trợ lý AI - Soạn văn bản]:</b> Đã dựng khung mẫu Tờ trình xử lý nghiệp vụ NQ205:<br><br><b>VIỆN KIỂM SÁT NHÂN DÂN...</b><br>Mẫu số: .../BC-NQ205<br><center><b>TỜ TRÌNH BÁO CÁO VỤ VIỆC</b></center><br>- Kính gửi: Lãnh đạo Viện chỉ đạo.<br>- Nội dung phát hiện vi phạm công ích...<br>- Đánh giá 4 yếu tố cốt lõi...<br>- Kiến nghị hướng giải quyết...";
+                
+                // Kịch bản 1: Soạn Tờ trình
+                if (lower.includes("tờ trình") || lower.includes("báo cáo")) {
+                    return "<b>[Trợ lý Soạn thảo]:</b> Đây là khung mẫu Tờ trình xử lý vụ việc theo NQ 205. Đồng chí có thể copy đoạn này:<br><br>" +
+                           "<div style='background:#f9f9f9; padding:10px; border-left:4px solid var(--primary-color); margin-top:5px; border-radius:4px;'>" +
+                           "<b>VIỆN KIỂM SÁT NHÂN DÂN...</b><br>" +
+                           "Số: .../TTr-VKS<br><br>" +
+                           "<center><b>TỜ TRÌNH</b><br><b>V/v Đề xuất xử lý vụ việc dân sự công ích</b></center><br>" +
+                           "<b>1. Nội dung vụ việc:</b> (Tóm tắt hành vi vi phạm...)<br>" +
+                           "<b>2. Đánh giá 4 yếu tố:</b> (Chủ thể, Lợi ích công, Hậu quả, Trách nhiệm...)<br>" +
+                           "<b>3. Đề xuất, kiến nghị:</b> (Chuyển hồ sơ Phòng 9 / Ban hành kiến nghị...)<br>" +
+                           "</div>";
                 }
-                if (lower.includes("code") || lower.includes("html") || lower.includes("js") || lower.includes("phần mềm")) {
-                    return "<b>[Trợ lý Lập trình]:</b> Để tạo sự kiện mở văn bản mượt mà, bạn xài cấu trúc hàm JavaScript thực thi như sau:<br><div class='code-block'>function openDocument(index) {\n    document.getElementById('render-title-text').innerHTML = knowledgeBase[index].title;\n    document.getElementById('render-body-text').innerHTML = knowledgeBase[index].answer;\n}</div>";
+                
+                // Kịch bản 2: Soạn Kiến nghị
+                if (lower.includes("kiến nghị")) {
+                    return "<b>[Trợ lý Soạn thảo]:</b> Gửi đồng chí khung mẫu Kiến nghị yêu cầu cơ quan quản lý nhà nước khắc phục hậu quả:<br><br>" +
+                           "<div style='background:#f9f9f9; padding:10px; border-left:4px solid var(--accent-color); margin-top:5px; border-radius:4px;'>" +
+                           "<b>VIỆN KIỂM SÁT NHÂN DÂN...</b><br>" +
+                           "Số: .../KN-VKS<br><br>" +
+                           "<center><b>KIẾN NGHỊ</b><br><b>Áp dụng biện pháp phòng ngừa, khắc phục vi phạm</b></center><br>" +
+                           "<b>Kính gửi:</b> [Tên cơ quan quản lý, ví dụ: UBND phường/huyện...]<br><br>" +
+                           "- Căn cứ Luật Tổ chức VKSND năm 2014;<br>" +
+                           "- Căn cứ Nghị quyết 205/2025/QH15;<br>" +
+                           "Qua công tác kiểm sát, VKSND... nhận thấy: [Nêu hành vi vi phạm...]<br><br>" +
+                           "<b>Yêu cầu:</b> [Chấm dứt vi phạm / Khôi phục hiện trạng / Xử lý trách nhiệm...]" +
+                           "</div>";
                 }
-                return "<b>[Trợ lý AI]:</b> Hệ thống ghi nhận yêu cầu. Bạn có thể nhập lệnh 'Soạn mẫu tờ trình' để tôi xử lý tự động.";
+
+                // Kịch bản 3: Hỗ trợ lỗi kỹ thuật
+                if (lower.includes("lỗi") || lower.includes("phần mềm") || lower.includes("hướng dẫn")) {
+                    return "<b>[Hỗ trợ Kỹ thuật]:</b> Nếu phần mềm gặp sự cố hiển thị hoặc cần hướng dẫn chi tiết thêm, đồng chí vui lòng chụp màn hình và liên hệ bộ phận IT (Phòng Thống kê - CNTT) hoặc Phòng 9 để được hỗ trợ kịp thời nhé.";
+                }
+
+                // Kịch bản 4: Fallback (Khi không hiểu yêu cầu)
+                return "<b>[Trợ lý AI]:</b> Mình đã nhận thông tin. Đồng chí có thể dùng các phím gợi ý bên trên hoặc nhập rõ từ khóa như <b>'Soạn mẫu tờ trình'</b>, <b>'Mẫu kiến nghị'</b> để mình xuất biểu mẫu chính xác nhất nhé.";
             }
         };
-
         // KẾT XUẤT MENU 9 MỤC RA SIDEBAR BÊN TRÁI
         const menuItemsBox = document.getElementById("menu-items-box");
         function buildMenu() {
