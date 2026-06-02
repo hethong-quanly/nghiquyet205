@@ -113,8 +113,8 @@
             </div>
         </div>
         <div class="controls">
-            <button class="toggle-btn" onclick="toggleSidebarMobile">☰ Danh Mục</button>
-            <button class="toggle-btn" onclick="toggleDarkMode">🌙 Nền Tối</button>
+            <button class="toggle-btn" onclick="toggleSidebarMobile()">☰ Danh Mục</button>
+            <button class="toggle-btn" onclick="toggleDarkMode()">🌙 Nền Tối</button>
         </div>
     </div>
 
@@ -122,7 +122,7 @@
         
         <div class="sidebar" id="sidebar-panel">
             <div class="search-box">
-                <input type="text" id="search-input" placeholder="Tìm nhanh tiêu chí, danh mục..." oninput="filterMenu">
+                <input type="text" id="search-input" placeholder="Tìm nhanh tiêu chí, danh mục..." oninput="filterMenu()">
             </div>
             <div class="menu-list" id="menu-items-box">
                 </div>
@@ -157,7 +157,7 @@
 
             <div class="input-area">
                 <input type="text" id="user-input" placeholder="Yêu cầu soạn văn bản..." onkeypress="handleKeyPress(event)">
-                <button class="send-btn" onclick="sendMessage">Gửi</button>
+                <button class="send-btn" onclick="sendMessage()">Gửi</button>
             </div>
         </div>
 
@@ -256,7 +256,7 @@
                 ]
             },
             {
-                folder: "III. NHÓM TIÊU CHÍ: LỢI ÍCH CÔNG ",
+                folder: "III. NHÓM TIÊU CHÍ: LỢI ÍCH CÔNG",
                 items: [
                     {
                         title: "1. Đất đai",
@@ -291,7 +291,7 @@
                 ]
             },
             {
-                folder: "V. NHÓM TIÊU CHÍ: CÁC LĨNH VỰC KHÁC ",
+                folder: "V. NHÓM TIÊU CHÍ: CÁC LĨNH VỰC KHÁC",
                 items: [
                     {
                         title: "1. Di sản văn hóa",
@@ -325,13 +325,13 @@
         // HÀM XỬ LÝ KHI BẤM NÚT GỢI Ý NHANH
         function quickChat(text) {
             document.getElementById("user-input").value = text;
-            sendMessage;
+            sendMessage();
         }
 
         // LOGIC AI PHỤ TRỢ (SOẠN THẢO VĂN BẢN ĐỘNG)
         const generalAiExtension = {
             process: function(query) {
-                const lower = query.toLowerCase;
+                const lower = query.toLowerCase();
                 
                 if (lower.includes("tờ trình") || lower.includes("báo cáo")) {
                     return "<b>[Trợ lý Soạn thảo]:</b> Đây là khung mẫu Tờ trình xử lý vụ việc theo NQ 205. Ngài có thể bôi đen copy đoạn này:<br><br>" +
@@ -395,7 +395,7 @@
 
         // KẾT XUẤT CÂY THƯ MỤC RA SIDEBAR BÊN TRÁI
         const menuItemsBox = document.getElementById("menu-items-box");
-        function buildMenu {
+        function buildMenu() {
             menuItemsBox.innerHTML = "";
             knowledgeTree.forEach((folderObj, fIndex) => {
                 // Tạo tiêu đề thư mục lớn
@@ -410,7 +410,7 @@
                 folderContent.id = "folder-content-" + fIndex;
 
                 // Sự kiện Đóng/Mở thư mục khi nhấn
-                folderTitle.onclick = function {
+                folderTitle.onclick = function() {
                     folderTitle.classList.toggle("collapsed");
                     folderContent.classList.toggle("collapsed");
                 };
@@ -422,7 +422,7 @@
                     menuItem.id = "menu-item-" + fIndex + "-" + iIndex;
                     menuItem.innerText = item.title;
                     
-                    menuItem.onclick = function {
+                    menuItem.onclick = function() {
                         document.querySelectorAll('.menu-item').forEach(el => el.classList.remove('active'));
                         menuItem.classList.add('active');
                         
@@ -441,8 +441,8 @@
         }
 
         // TÌM KIẾM TỰ ĐỘNG BUNG MỞ THƯ MỤC CHỨA TỪ KHÓA
-        function filterMenu {
-            const val = document.getElementById("search-input").value.toLowerCase;
+        function filterMenu() {
+            const val = document.getElementById("search-input").value.toLowerCase();
             
             knowledgeTree.forEach((folderObj, fIndex) => {
                 const folderTitle = document.getElementById("folder-title-" + fIndex);
@@ -451,7 +451,7 @@
 
                 folderObj.items.forEach((item, iIndex) => {
                     const el = document.getElementById("menu-item-" + fIndex + "-" + iIndex);
-                    if(item.title.toLowerCase.includes(val) || folderObj.folder.toLowerCase.includes(val)) {
+                    if(item.title.toLowerCase().includes(val) || folderObj.folder.toLowerCase().includes(val)) {
                         el.style.display = "block";
                         folderHasMatch = true;
                     } else {
@@ -476,7 +476,7 @@
         const chatBox = document.getElementById("chat-box");
         
         function findChatAnswer(query) {
-            const lowerQuery = query.toLowerCase.trim;
+            const lowerQuery = query.toLowerCase().trim();
             for (const folderObj of knowledgeTree) {
                 for (const item of folderObj.items) {
                     for (const keyword of item.keywords) {
@@ -489,8 +489,8 @@
             return generalAiExtension.process(query);
         }
 
-        function sendMessage {
-            const text = userInput.value.trim;
+        function sendMessage() {
+            const text = userInput.value.trim();
             if (text === "") return;
             
             const userMsg = document.createElement("div");
@@ -500,7 +500,7 @@
             chatBox.scrollTop = chatBox.scrollHeight;
             userInput.value = "";
             
-            setTimeout( => {
+            setTimeout(() => {
                 const ans = findChatAnswer(text);
                 const botMsg = document.createElement("div");
                 botMsg.classList.add("message", "bot-message");
@@ -511,10 +511,10 @@
         }
 
         function handleKeyPress(event) {
-            if (event.key === "Enter") sendMessage;
+            if (event.key === "Enter") sendMessage();
         }
 
-        function toggleDarkMode {
+        function toggleDarkMode() {
             if (document.body.getAttribute("data-theme") === "dark") {
                 document.body.removeAttribute("data-theme");
             } else {
@@ -522,12 +522,12 @@
             }
         }
 
-        function toggleSidebarMobile {
+        function toggleSidebarMobile() {
             document.getElementById("sidebar-panel").classList.toggle("active-mobile");
         }
 
-        window.onload = function {
-            buildMenu;
+        window.onload = function() {
+            buildMenu();
         };
     </script>
 </body>
