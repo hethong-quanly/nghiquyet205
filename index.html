@@ -64,14 +64,25 @@
         .menu-item.active::before { filter: grayscale(1) brightness(2); }
 
         /* VÙNG HIỂN THỊ NỘI DUNG ĐỌC VĂN BẢN (CHÍNH GIỮA) */
-        .content-reader { flex: 1; background-color: var(--card-bg); padding: 25px; overflow-y: auto; display: flex; flex-direction: column; border-right: 1px solid var(--border-color); }
-        .reader-header { border-bottom: 2px solid var(--primary-color); padding-bottom: 10px; margin-bottom: 15px; }
-        .reader-title { color: var(--primary-color); font-size: 20px; font-weight: bold; line-height: 1.4; }
+        .content-reader { flex: 1; background-color: var(--card-bg); padding: 25px; overflow-y: auto; display: flex; flex-direction: column; border-right: 1px solid var(--border-color); position: relative;}
+        .reader-header { border-bottom: 2px solid var(--primary-color); padding-bottom: 10px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
+        .reader-title { color: var(--primary-color); font-size: 20px; font-weight: bold; line-height: 1.4; flex: 1; padding-right: 15px; }
         [data-theme="dark"] .reader-title { color: var(--accent-color); }
+        
+        /* CỤM NÚT TẢI VỀ */
+        .reader-header-actions { display: flex; gap: 10px; flex-shrink: 0; }
+        .download-btn { background-color: #28a745; color: white; border: none; padding: 8px 16px; border-radius: 20px; font-weight: bold; font-size: 13px; cursor: pointer; display: none; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+        .download-btn:hover { background-color: #218838; }
+        .download-btn-pdf { background-color: #dc3545; color: white; border: none; padding: 8px 16px; border-radius: 20px; font-weight: bold; font-size: 13px; cursor: pointer; display: none; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+        .download-btn-pdf:hover { background-color: #c82333; }
+
         .reader-body { font-size: 15px; line-height: 1.7; color: var(--text-color); }
         .reader-body ul, .reader-body ol { margin-left: 22px; margin-top: 8px; margin-bottom: 8px; }
         .reader-body li { margin-bottom: 8px; text-align: justify; }
-        .reader-body h4 { margin-top: 15px; margin-bottom: 5px; color: var(--primary-color); }
+        
+        /* BẢN CHUẨN FORM WORD MÔ PHỎNG */
+        .word-form { background: #fff; color: #000; padding: 30px; border: 1px solid #ccc; box-shadow: 0 0 10px rgba(0,0,0,0.05); margin-top: 15px; font-family: 'Times New Roman', Times, serif; font-size: 16px;}
+        [data-theme="dark"] .word-form { background: #e0e0e0; }
 
         /* KHÔNG GIAN CHATBOT AI (BÊN PHẢI) */
         .chat-space { width: 360px; display: flex; flex-direction: column; background-color: var(--bg-color); overflow: hidden; flex-shrink: 0; }
@@ -98,6 +109,14 @@
             .sidebar { display: none; }
             .sidebar.active-mobile { display: flex; position: absolute; top: 0; left: 0; bottom: 0; width: 300px; z-index: 20; }
         }
+
+        /* CHỈ IN NỘI DUNG VĂN BẢN KHI XUẤT PDF */
+        @media print {
+            body * { visibility: hidden; }
+            #render-body-text, #render-body-text * { visibility: visible; }
+            #render-body-text { position: absolute; left: 0; top: 0; width: 100%; padding: 20px; background: white; color: black; }
+            .reader-header { display: none; }
+        }
     </style>
 </head>
 <body>
@@ -122,18 +141,23 @@
         
         <div class="sidebar" id="sidebar-panel">
             <div class="search-box">
-                <input type="text" id="search-input" placeholder="Tìm nhanh tiêu chí, danh mục..." oninput="filterMenu()">
+                <input type="text" id="search-input" placeholder="Tìm nhanh tiêu chí, biểu mẫu..." oninput="filterMenu()">
             </div>
             <div class="menu-list" id="menu-items-box">
-                </div>
+                <!-- Nội dung sẽ được render bằng JS -->
+            </div>
         </div>
         
         <div class="content-reader">
             <div class="reader-header">
                 <div class="reader-title" id="render-title-text">Vui lòng chọn một mục nghiệp vụ bên trái để xem nội dung văn bản</div>
+                <div class="reader-header-actions">
+                    <button class="download-btn-pdf" id="btn-download-pdf" onclick="exportToPDF()">📥 Tải về máy (.pdf)</button>
+                    <button class="download-btn" id="btn-download" onclick="exportToWord()">📥 Tải file Word</button>
+                </div>
             </div>
             <div class="reader-body" id="render-body-text">
-                Kính chào Ngài, Ngài hãy nhấn chọn các đề mục hiển thị ở thanh điều hướng bên trái. Hệ thống sẽ ngay lập tức mở và hiển thị toàn văn nội dung hướng dẫn nghiệp vụ chi tiết của chương/mục đó tại đây để ngài nghiên cứu, rà soát hồ sơ..
+                Kính chào Ngài, Ngài hãy nhấn Danh mục để chọn các đề mục. Hệ thống sẽ ngay lập tức mở và hiển thị toàn văn nội dung hướng dẫn nghiệp vụ chi tiết của chương/mục đó tại đây để ngài nghiên cứu, rà soát hồ sơ..
             </div>
         </div>
         
@@ -141,17 +165,16 @@
             <div class="chat-header">💬 Trợ lý AI Hỗ trợ Soạn thảo & Công nghệ</div>
             <div class="chat-container" id="chat-box">
                 <div class="message bot-message">
-                    Kính chào Ngài! Mình là trợ lý soạn thảo tự động. Ngài có thể sử dụng các nút gợi ý bên dưới hoặc nhập trực tiếp yêu cầu để mình xuất các khung biểu mẫu chuẩn chỉnh nhé.
+                    Kính chào Ngài! Mình là trợ lý soạn thảo tự động. Ngài có thể sử dụng các nút gợi ý bên dưới hoặc tìm kiếm ở menu bên trái để <b>Tải về toàn bộ 32 biểu mẫu chuẩn chỉnh theo TTLT số 09/2025</b> nhé.
                 </div>
             </div>
             
             <div style="padding: 0 10px; background-color: var(--bg-color);">
                 <div class="suggestion-chips">
-                    <span class="chip" onclick="quickChat('Soạn mẫu tờ trình')">📝 Tờ trình</span>
-                    <span class="chip" onclick="quickChat('Mẫu kiến nghị')">⚖️ Kiến nghị</span>
-                    <span class="chip" onclick="quickChat('Soạn phiếu chuyển tin')">🔄 Phiếu chuyển tin</span>
-                    <span class="chip" onclick="quickChat('Soạn thông báo')">📢 Thông báo</span>
-                    <span class="chip" onclick="quickChat('Hỗ trợ lỗi phần mềm')">🆘 Báo lỗi</span>
+                    <span class="chip" onclick="quickChat('Mẫu 01')">📝 Mẫu 01 (Tiếp nhận)</span>
+                    <span class="chip" onclick="quickChat('Mẫu 03')">📂 Mẫu 03 (Thu thập)</span>
+                    <span class="chip" onclick="quickChat('Mẫu 24')">⚖️ Mẫu 24 (Kiến nghị)</span>
+                    <span class="chip" onclick="quickChat('Mẫu 27')">⚖️ Mẫu 27 (Khởi kiện)</span>
                 </div>
             </div>
 
@@ -168,7 +191,29 @@
     </div>
 
     <script>
-        // CƠ SỞ DỮ LIỆU ĐỦ 9 MỤC NỀN TẢNG VÀ CÁC TIÊU CHÍ PHỤ LỤC (CÔNG VĂN 468)
+        // Hàm tạo nội dung HTML mô phỏng form Word chuẩn cho các biểu mẫu
+        function generateStandardForm(formNumber, formTitle) {
+            return "<div class='word-form'>" +
+                   "<table style='width: 100%; border: none; text-align: center;'>" +
+                   "<tr><td style='width: 40%;'><b>VIỆN KIỂM SÁT NHÂN DÂN...</b><br>-------</td>" +
+                   "<td style='width: 60%;'><b>CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM<br>Độc lập - Tự do - Hạnh phúc</b><br>-------</td></tr>" +
+                   "<tr><td style='width: 40%;'>Số: ......./...-VKS</td>" +
+                   "<td style='width: 60%; font-style: italic;'>........, ngày ..... tháng ..... năm ........</td></tr>" +
+                   "</table><br>" +
+                   "<div style='text-align: center; font-weight: bold; margin-bottom: 20px; font-size: 18px; text-transform: uppercase;'>" + formTitle + "</div>" +
+                   "<b>Căn cứ Nghị quyết số 205/2025/QH15 của Quốc hội;</b><br>" +
+                   "<b>Căn cứ Thông tư liên tịch số 09/2025/TTLT...;</b><br><br>" +
+                   "Nội dung chi tiết theo quy định tại Mẫu số " + formNumber + "/DSCI ban hành kèm theo Thông tư liên tịch số 09/2025/TTLT-VKSNDTC-TANDTC-KTNN-TTCP-BCA-BTP-BTC-BCT-BXD-BYT-BNNMT-BVHTTDL-BDTTG.<br><br>" +
+                   "...........................................................................................................................<br>" +
+                   "...........................................................................................................................<br>" +
+                   "...........................................................................................................................<br><br>" +
+                   "<table style='width: 100%; border: none; margin-top: 30px;'>" +
+                   "<tr><td style='width: 50%; vertical-align: top;'><b>Nơi nhận:</b><br>- Như trên;<br>- Lưu: VT, HS.</td>" +
+                   "<td style='width: 50%; text-align: center;'><b>VIỆN TRƯỞNG / KIỂM SÁT VIÊN</b><br><i>(Ký, đóng dấu, ghi rõ họ tên)</i><br><br><br><br><br></td></tr>" +
+                   "</table>" +
+                   "</div>";
+        }
+
         const knowledgeTree = [
             {
                 folder: "I. CẨM NANG NGHIỆP VỤ NỀN TẢNG",
@@ -176,46 +221,55 @@
                     {
                         title: "Mục I: Mục đích, Yêu cầu & Tính chất",
                         keywords: ["mục đích", "yêu cầu", "tính chất"],
+                        type: "none",
                         answer: "<b>Mục đích, yêu cầu và tính chất của Hướng dẫn:</b><br><br><ul><li><b>Hỗ trợ chủ động:</b> Giúp công chức, Kiểm sát viên VKSND hai cấp thành phố Cần Thơ chủ động nhận diện sớm các vụ việc có dấu hiệu xâm phạm lợi ích công, quyền dân sự của nhóm dễ bị tổn thương.</li><li><b>Áp dụng toàn diện:</b> Áp dụng trong quá trình thực hành quyền công tố, kiểm sát hoạt động tư pháp và các khâu công tác khác.</li><li><b>Tính chất tham khảo:</b> Đây là tài liệu gợi ý nghiệp vụ, đóng vai trò như một <b>“bảng nhận diện”</b> để đối chiếu thực tế.</li><li><b>Yêu cầu bắt buộc:</b> Vận dụng linh hoạt, thận trọng, có căn cứ, bảo đảm không suy diễn, không mở rộng tùy tiện phạm vi Nghị quyết số 205/2025/QH15.</li></ul>"
                     },
                     {
                         title: "Mục II: 5 Nguyên tắc nhận diện chung",
                         keywords: ["nguyên tắc chung", "nguyên tắc nhận diện", "5 nguyên tắc"],
+                        type: "none",
                         answer: "<b>5 Nguyên tắc nhận diện chung vụ việc dân sự công ích:</b><br><br><ul><li><b>Thứ nhất:</b> Chủ động phát hiện từ hồ sơ, tài liệu, hoạt động kiểm sát, tiếp công dân, giải quyết khiếu nại, tố cáo, kết luận thanh tra, kiểm tra, kiểm toán, dữ liệu quản lý nhà nước, thông tin báo chí, mạng xã hội và nguồn tin tại địa phương, không chỉ chờ đơn thư phản ánh.</li><li><b>Thứ hai:</b> Phân loại rõ nhóm vụ việc (bảo vệ quyền dân sự của chủ thể dễ bị tổn thương; bảo vệ lợi ích công; kết hợp cả hai; hoặc chuyển cơ quan thẩm quyền).</li><li><b>Thứ ba:</b> Mọi nhận định ban đầu phải được kiểm tra, xác minh, thu thập tài liệu, chứng cứ khách quan. Không kiến nghị khi chưa đủ căn cứ.</li><li><b>Thứ tư:</b> Coi trọng mục tiêu chấm dứt vi phạm, khắc phục hậu quả, phục hồi lợi ích thực chất cho công ích và người yếu thế.</li><li><b>Thứ năm:</b> Phòng 9 là đầu mối theo dõi, hướng dẫn; tuy nhiên trách nhiệm phát hiện, xác minh ban đầu là sự phối hợp của tất cả các đơn vị nghiệp vụ.</li></ul>"
                     },
                     {
                         title: "Mục III: Bảng nhận diện 4 yếu tố cốt lõi",
                         keywords: ["bảng kiểm chung", "4 yếu tố", "yếu tố cốt lõi"],
+                        type: "none",
                         answer: "<b>Bảng nhận diện chung trong mọi hồ sơ, vụ việc (4 Yếu tố cốt lõi):</b><br><br><ul><li><b>1. Chủ thể bị tác động:</b> Có trẻ em, người cao tuổi, người khuyết tật, phụ nữ mang thai hoặc nuôi con dưới 36 tháng tuổi, người mất hoặc khó khăn trong nhận thức hành vi... bị xâm phạm quyền dân sự, tài sản, nhân phẩm hay không?</li><li><b>2. Lợi ích công bị tác động:</b> Có dấu hiệu thiệt hại đến ngân sách, đất đai, tài nguyên, môi trường, hệ sinh thái, tài sản công, an toàn thực phẩm, dữ liệu cá nhân... vượt ra ngoài lợi ích cá nhân riêng lẻ không?</li><li><b>3. Hậu quả, thiệt hại:</b> Hậu quả chưa được khắc phục; có nguy cơ tiếp tục gây thiệt hại; đã được bồi thường, phục hồi, xin lỗi hay chưa?</li><li><b>4. Chủ thể có trách nhiệm:</b> Xác định rõ cá nhân, tổ chức vi phạm; cơ quan quản lý nhà nước nào lơ là, chưa xử lý triệt để?</li></ul>"
                     },
                     {
                         title: "Mục IV: Nhận diện theo từng khâu công tác",
                         keywords: ["khâu công tác", "hình sự", "dân sự", "hành chính", "thi hành án"],
-                        answer: "<b>Hướng dẫn nhận diện vi phạm theo từng khâu nghiệp vụ tư pháp:</b><br><br><ul><li><b>Thực hành quyền công tố, kiểm sát nguồn tin & điều tra:</b> Chũ ý tội phạm môi trường, đất đai, trốn thuế đất, thực phẩm bẩn, hàng giả, xâm hại trẻ em. Phải đặt câu hỏi ngoài xử lý hình sự thì hậu quả thiệt hại dân sự, công ích đã được khắc phục chưa?</li><li><b>Kiểm sát án Dân sự, Hôn nhân gia đình:</b> Trẻ em không được cấp dưỡng; tranh chấp tài sản ảnh hưởng quyền người chưa thành niên, người già bị cưỡng ép chuyển nhượng tài sản.</li><li><b>Kiểm sát án Hành chính & THADS:</b> Quyết định hành chính gây thất thoát đất công, ngân sách; chậm thi hành bản án thu hồi tài sản cho Nhà nước hoặc quyền lợi nhóm yếu thế.</li><li><b>Tiếp công dân & Giải quyết khiếu nại:</b> Tiếp nhận, phân loại đơn thư phản ánh ô nhiễm môi trường, lấn chiếm tài sản công cộng kéo dài mà cơ quan chức năng không giải quyết triệt để.</li></ul>"
+                        type: "none",
+                        answer: "<b>Hướng dẫn nhận diện vi phạm theo từng khâu nghiệp vụ tư pháp:</b><br><br><ul><li><b>Thực hành quyền công tố, kiểm sát nguồn tin & điều tra:</b> Chú ý tội phạm môi trường, đất đai, trốn thuế đất, thực phẩm bẩn, hàng giả, xâm hại trẻ em. Phải đặt câu hỏi ngoài xử lý hình sự thì hậu quả thiệt hại dân sự, công ích đã được khắc phục chưa?</li><li><b>Kiểm sát án Dân sự, Hôn nhân gia đình:</b> Trẻ em không được cấp dưỡng; tranh chấp tài sản ảnh hưởng quyền người chưa thành niên, người già bị cưỡng ép chuyển nhượng tài sản.</li><li><b>Kiểm sát án Hành chính & THADS:</b> Quyết định hành chính gây thất thoát đất công, ngân sách; chậm thi hành bản án thu hồi tài sản cho Nhà nước hoặc quyền lợi nhóm yếu thế.</li><li><b>Tiếp công dân & Giải quyết khiếu nại:</b> Tiếp nhận, phân loại đơn thư phản ánh ô nhiễm môi trường, lấn chiếm tài sản công cộng kéo dài mà cơ quan chức năng không giải quyết triệt để.</li></ul>"
                     },
                     {
-                        title: "Mục V: Gợi ý nhận diện theo nhóm vi phạm (Tài liệu)",
+                        title: "Mục V: Gợi ý nhận diện theo nhóm vi phạm",
                         keywords: ["nhóm vi phạm", "tài liệu cần thu thập", "thu thập chứng cứ"],
+                        type: "none",
                         answer: "<b>Gợi ý nhận diện theo nhóm vi phạm và Tài liệu cần thu thập:</b><br><br><ul><li><b>Thất thu ngân sách, nghĩa vụ tài chính:</b> Chuyển nhượng quyền sử dụng đất ghi giá thấp; trốn thuế. Tài liệu cần: Hợp đồng, chứng từ thanh toán, thông báo thuế, kết luận kiểm tra.</li><li><b>Đất đai, tài sản công:</b> Lấn chiếm đất công, sử dụng đất sai mục đích. Tài liệu cần: Hồ sơ địa chính, bản đồ, quyết định giao/thu hồi đất, phương án bồi thường.</li><li><b>Môi trường, hệ sinh thái:</b> Xả thải chưa xử lý, khai thác cát trái phép. Tài liệu cần: Biên bản kiểm tra, kết quả quan trắc, quyết định xử phạt, kết luận giám định.</li><li><b>Quyền của nhóm yếu thế (Trẻ em, người già, người khuyết tật):</b> Bị bạo lực, bỏ mặc, cưỡng ép tài sản. Tài liệu cần: Giấy tờ nhân thân, hồ sơ y tế, văn bản chứng nhận khuyết tật, giám hộ.</li></ul>"
                     },
                     {
                         title: "Mục VI: Kỹ năng nghiệp vụ cần áp dụng",
                         keywords: ["kỹ năng nghiệp vụ", "lăng kính công ích"],
+                        type: "none",
                         answer: "<b>Các kỹ năng nghiệp vụ đặc thù cốt lõi:</b><br><br><ul><li><b>Đọc hồ sơ theo “lăng kính công ích”:</b> Rà soát song song xem có nhóm yếu thế không, có lợi ích công không, hậu quả dân sự/ngân sách đã xử lý chưa.</li><li><b>Truy vết hậu quả dân sự trong án hình sự:</b> Xác định trách nhiệm bồi thường, phục hồi môi trường, tiêu hủy hàng hóa độc hại.</li><li><b>Khai thác nguồn tin từ kết luận thanh tra, kiểm toán:</b> Tập trung vào mục 'vi phạm chỉ ra nhưng chưa khắc phục', số tiền phải thu hồi.</li><li><b>Tư pháp phục hồi:</b> Hướng đến yêu cầu chấm dứt hành vi vi phạm, khôi phục lại hiện trạng ban đầu, bồi thường thiệt hại thực tế.</li></ul>"
                     },
                     {
                         title: "Mục VII: Quy trình xử lý hồ sơ 10 bước",
                         keywords: ["quy trình xử lý", "10 bước", "trình tự", "lập phiếu", "khởi kiện", "báo cáo"],
+                        type: "none",
                         answer: "<b>Quy trình xử lý chủ động gồm 10 bước tại VKSND TP. Cần Thơ:</b><br><br><ul><li><b>Bước 1:</b> Ghi nhận nguồn thông tin tài liệu vi phạm đầu vào.</li><li><b>Bước 2:</b> Đối chiếu phạm vi điều chỉnh của Nghị quyết số 205/2025/QH15.</li><li><b>Bước 3:</b> Đánh giá sơ bộ 4 yếu tố cốt lõi (Hành vi, Quyền lợi, Hậu quả, Trách nhiệm).</li><li><b>Bước 4:</b> Báo cáo ý kiến Lãnh đạo đơn vị phân công cán bộ xác minh ban đầu.</li><li><b>Bước 5:</b> Chủ động thông tin, liên hệ phối hợp với <b>Phòng 9</b> để theo dõi số liệu chung.</li><li><b>Bước 6:</b> Đơn vị phát hiện tiếp tục xác minh, thu thập tài liệu chứng cứ chuyên ngành.</li><li><b>Bước 7:</b> Lập <b>Phiếu thông tin vụ việc dân sự công ích</b> chuẩn biểu mẫu chuyển <b>Phòng 9</b>.</li><li><b>Bước 8:</b> Tham mưu ban hành văn bản xử lý (kiến nghị khắc phục, thông báo khởi kiện).</li><li><b>Bước 9:</b> Phối hợp <b>Phòng 9</b> hoàn thiện hồ sơ khi có đủ điều kiện khởi kiện ra Tòa.</li><li><b>Bước 10:</b> Theo dõi sát sao kết quả khắc phục hậu quả, phục hồi lợi ích công đến cùng.</li></ul>"
                     },
                     {
                         title: "Mục VIII: Cơ chế phối hợp nội bộ các phòng",
                         keywords: ["cơ chế phối hợp", "trách nhiệm phối hợp", "phòng 9", "thanh tra", "vks khu vực"],
+                        type: "none",
                         answer: "<b>Trách nhiệm phối hợp nội bộ trong VKSND hai cấp:</b><br><br><ul><li><b>Các phòng nghiệp vụ Viện thành phố & VKS khu vực:</b> Trực tiếp chủ động rà quét, phát hiện dấu hiệu vi phạm trong khâu công tác; tiến hành xác minh ban đầu, lập <b>phiếu thông tin</b> gửi <b>Phòng 9</b>.</li><li><b>Phòng 9:</b> Giữ vai trò đầu mối hướng dẫn nghiệp vụ, quản lý số liệu tổng hợp chung, hỗ trợ các đơn vị về căn cứ pháp lý, biểu mẫu và phối hợp xây dựng hồ sơ khởi kiện.</li><li><b>Văn phòng & Thanh tra:</b> Theo dõi tiến độ thi đua khen thưởng; thanh tra phát hiện kịp thời các trường hợp bỏ sót nguồn tin, chậm trễ xử lý thông tin.</li></ul>"
                     },
                     {
                         title: "Mục IX: Các lưu ý đặc biệt khi vận dụng",
                         keywords: ["lưu ý", "vận dụng", "lưu ý quan trọng"],
+                        type: "none",
                         answer: "<b>Một số lưu ý quan trọng khi vận dụng Hướng dẫn nội bộ:</b><br><br><ul><li><b>Tính chất tham khảo:</b> Danh mục nhận diện chỉ có tính chất gợi ý nghiệp vụ hỗ trợ phát hiện ban đầu. Khi xử lý, cán bộ phải căn cứ vào văn bản pháp luật chính thức.</li><li><b>Đặc biệt lưu ý:</b> Đối với các vụ việc đã bị xử phạt hành chính hoặc đã xử lý hình sự, <b>VẪN</b> phải tiếp tục rà soát xem hậu quả dân sự, thiệt hại môi trường, thất thoát ngân sách đã được khắc phục đầy đủ hay chưa.</li><li><b>Ưu tiên bảo vệ:</b> Đối với vụ việc liên quan đến nhóm dễ bị tổn thương, cần ưu tiên áp dụng các biện pháp bảo vệ kịp thời, tránh để quyền dân sự của trẻ em, người khuyết tật tiếp tục bị xâm phạm trong thời gian tiến hành xác minh.</li></ul>"
                     }
                 ]
@@ -226,32 +280,38 @@
                     {
                         title: "1. Tiêu chí đối với Trẻ em",
                         keywords: ["trẻ em", "vị thành niên", "bạo hành", "xâm hại", "tảo hôn"],
-                        answer: "<b>Tiêu chí nhận diện điển hình đối với Trẻ em [cite: 103]:</b><br><ul><li>(1) Cản trở trẻ em thực hiện quyền và bổn phận của mình (khai sinh, quốc tịch, chăm sóc y tế, sống chung với cha mẹ, nhận con nuôi...) [cite: 103].</li><li>(2) Tước đoạt quyền sống, mua bán, bắt cóc, đánh tráo, chiếm đoạt, xâm hại tình dục nhưng thiệt hại dân sự chưa được khắc phục [cite: 103].</li><li>(3) Bỏ rơi, bỏ mặc trẻ em [cite: 103].</li><li>(4) Tổ chức, hỗ trợ, xúi giục, ép buộc tảo hôn [cite: 103].</li><li>(5) Rủ rê, xúi giục, lợi dụng, dụ dỗ, ép buộc trẻ em vi phạm pháp luật, xúc phạm danh dự nhân phẩm người khác [cite: 103].</li><li>(6) Bạo lực, lạm dụng, bóc lột lao động trẻ em (lao động nặng, xin ăn, bỏ học); bạo lực gia đình [cite: 103].</li><li>(7) Xâm hại qua mạng: Nhắn tin đe dọa, xúc phạm, chế nhạo, bôi nhọ, phát tán link/video khiêu dâm, bạo lực [cite: 103].</li><li>(8) Kỳ thị, phân biệt đối xử vì hoàn cảnh, giới tính, dân tộc, tôn giáo [cite: 103].</li><li>(9) Bán/cho trẻ em sử dụng rượu, bia, thuốc lá, chất gây nghiện, thực phẩm độc hại [cite: 105].</li><li>(10) Cung cấp dịch vụ/sản phẩm, đồ chơi, xuất bản phẩm có nội dung ảnh hưởng sự phát triển lành mạnh của trẻ [cite: 105].</li><li>(11) Tiết lộ bí mật cá nhân, đời tư trẻ em khi chưa được sự đồng ý của trẻ từ 7 tuổi trở lên và người giám hộ [cite: 105].</li><li>(12) Lợi dụng chăm sóc thay thế hoặc chế độ chính sách nhà nước/tổ chức để trục lợi [cite: 105].</li><li>(13) Đặt cơ sở ô nhiễm, độc hại, nguy cơ cháy nổ gần khu vực của trẻ em, hoặc ngược lại [cite: 105].</li><li>(14) Từ chối/chậm trễ hỗ trợ, can thiệp, điều trị trẻ em đang trong tình trạng nguy hiểm, tổn hại thân thể/nhân phẩm[cite: 105].</li></ul>"
+                        type: "none",
+                        answer: "<b>Tiêu chí nhận diện điển hình đối với Trẻ em:</b><br><ul><li>(1) Cản trở trẻ em thực hiện quyền và bổn phận của mình (khai sinh, quốc tịch, chăm sóc y tế, sống chung với cha mẹ, nhận con nuôi...).</li><li>(2) Tước đoạt quyền sống, mua bán, bắt cóc, đánh tráo, chiếm đoạt, xâm hại tình dục nhưng thiệt hại dân sự chưa được khắc phục.</li><li>(3) Bỏ rơi, bỏ mặc trẻ em.</li><li>(4) Tổ chức, hỗ trợ, xúi giục, ép buộc tảo hôn.</li><li>(5) Rủ rê, xúi giục, lợi dụng, dụ dỗ, ép buộc trẻ em vi phạm pháp luật, xúc phạm danh dự nhân phẩm người khác.</li><li>(6) Bạo lực, lạm dụng, bóc lột lao động trẻ em (lao động nặng, xin ăn, bỏ học); bạo lực gia đình.</li><li>(7) Xâm hại qua mạng: Nhắn tin đe dọa, xúc phạm, chế nhạo, bôi nhọ, phát tán link/video khiêu dâm, bạo lực.</li><li>(8) Kỳ thị, phân biệt đối xử vì hoàn cảnh, giới tính, dân tộc, tôn giáo.</li><li>(9) Bán/cho trẻ em sử dụng rượu, bia, thuốc lá, chất gây nghiện, thực phẩm độc hại.</li><li>(10) Cung cấp dịch vụ/sản phẩm, đồ chơi, xuất bản phẩm có nội dung ảnh hưởng sự phát triển lành mạnh của trẻ.</li><li>(11) Tiết lộ bí mật cá nhân, đời tư trẻ em khi chưa được sự đồng ý của trẻ từ 7 tuổi trở lên và người giám hộ.</li><li>(12) Lợi dụng chăm sóc thay thế hoặc chế độ chính sách nhà nước/tổ chức để trục lợi.</li><li>(13) Đặt cơ sở ô nhiễm, độc hại, nguy cơ cháy nổ gần khu vực của trẻ em, hoặc ngược lại.</li><li>(14) Từ chối/chậm trễ hỗ trợ, can thiệp, điều trị trẻ em đang trong tình trạng nguy hiểm, tổn hại thân thể/nhân phẩm.</li></ul>"
                     },
                     {
                         title: "2. Tiêu chí đối với Người cao tuổi",
                         keywords: ["người cao tuổi", "người già", "phụng dưỡng", "lừa đảo"],
-                        answer: "<b>Tiêu chí nhận diện điển hình đối với Người cao tuổi [cite: 105]:</b><br><ul><li>(1) Bỏ mặc, không chăm sóc y tế, ép lao động khi yếu, cô lập xã hội, phân biệt đối xử; xúc phạm, hành hạ, gây thiệt hại tài sản/sức khỏe nhưng chưa bồi thường [cite: 105].</li><li>(2) Xâm phạm, cản trở quyền kết hôn, quyền sở hữu tài sản và các quyền hợp pháp khác [cite: 105].</li><li>(3) Không thực hiện nghĩa vụ phụng dưỡng [cite: 105].</li><li>(4) Lợi dụng việc chăm sóc, phụng dưỡng để vụ lợi [cite: 107].</li><li>(5) Ép buộc lao động hoặc làm việc trái pháp luật [cite: 107].</li><li>(6) Ép buộc, kích động, xúi giục, giúp người khác vi phạm pháp luật đối với người cao tuổi [cite: 107].</li><li>(7) Trả thù, đe dọa người giúp đỡ, người báo tin ngăn chặn hành vi vi phạm đối với người cao tuổi [cite: 107].</li><li>(8) Quảng cáo gian dối, bán sản phẩm kém chất lượng nhằm vào người cao tuổi (ví dụ: gây nhầm lẫn thực phẩm chức năng là thuốc chữa bệnh)[cite: 107].</li></ul>"
+                        type: "none",
+                        answer: "<b>Tiêu chí nhận diện điển hình đối với Người cao tuổi:</b><br><ul><li>(1) Bỏ mặc, không chăm sóc y tế, ép lao động khi yếu, cô lập xã hội, phân biệt đối xử; xúc phạm, hành hạ, gây thiệt hại tài sản/sức khỏe nhưng chưa bồi thường.</li><li>(2) Xâm phạm, cản trở quyền kết hôn, quyền sở hữu tài sản và các quyền hợp pháp khác.</li><li>(3) Không thực hiện nghĩa vụ phụng dưỡng.</li><li>(4) Lợi dụng việc chăm sóc, phụng dưỡng để vụ lợi.</li><li>(5) Ép buộc lao động hoặc làm việc trái pháp luật.</li><li>(6) Ép buộc, kích động, xúi giục, giúp người khác vi phạm pháp luật đối với người cao tuổi.</li><li>(7) Trả thù, đe dọa người giúp đỡ, người báo tin ngăn chặn hành vi vi phạm đối với người cao tuổi.</li><li>(8) Quảng cáo gian dối, bán sản phẩm kém chất lượng nhằm vào người cao tuổi (ví dụ: gây nhầm lẫn thực phẩm chức năng là thuốc chữa bệnh).</li></ul>"
                     },
                     {
                         title: "3. Tiêu chí đối với Người khuyết tật",
                         keywords: ["người khuyết tật", "khiếm khuyết", "kỳ thị"],
-                        answer: "<b>Tiêu chí nhận diện điển hình đối với Người khuyết tật [cite: 107]:</b><br><ul><li>(1) Kỳ thị, phân biệt đối xử người khuyết tật [cite: 107].</li><li>(2) Xâm phạm thân thể, nhân phẩm, danh dự, tài sản, quyền hợp pháp [cite: 107].</li><li>(3) Lôi kéo, dụ dỗ hoặc ép buộc người khuyết tật thực hiện hành vi vi phạm pháp luật, đạo đức xã hội [cite: 107].</li><li>(4) Lợi dụng người khuyết tật, hình ảnh, thông tin cá nhân, tổ chức của/vì người khuyết tật để trục lợi [cite: 107].</li><li>(5) Người có trách nhiệm không thực hiện đúng/đầy đủ trách nhiệm nuôi dưỡng, chăm sóc theo quy định [cite: 107].</li><li>(6) Cản trở quyền kết hôn, quyền nuôi con của người khuyết tật [cite: 107].</li><li>(7) Gian dối trong xác định mức độ khuyết tật, cấp giấy xác nhận khuyết tật [cite: 107].</li><li>(8) Công trình, dịch vụ không bảo đảm điều kiện tiếp cận, làm hạn chế quyền, từ chối dịch vụ công, phân biệt đối xử[cite: 107].</li></ul>"
+                        type: "none",
+                        answer: "<b>Tiêu chí nhận diện điển hình đối với Người khuyết tật:</b><br><ul><li>(1) Kỳ thị, phân biệt đối xử người khuyết tật.</li><li>(2) Xâm phạm thân thể, nhân phẩm, danh dự, tài sản, quyền hợp pháp.</li><li>(3) Lôi kéo, dụ dỗ hoặc ép buộc người khuyết tật thực hiện hành vi vi phạm pháp luật, đạo đức xã hội.</li><li>(4) Lợi dụng người khuyết tật, hình ảnh, thông tin cá nhân, tổ chức của/vì người khuyết tật để trục lợi.</li><li>(5) Người có trách nhiệm không thực hiện đúng/đầy đủ trách nhiệm nuôi dưỡng, chăm sóc theo quy định.</li><li>(6) Cản trở quyền kết hôn, quyền nuôi con của người khuyết tật.</li><li>(7) Gian dối trong xác định mức độ khuyết tật, cấp giấy xác nhận khuyết tật.</li><li>(8) Công trình, dịch vụ không bảo đảm điều kiện tiếp cận, làm hạn chế quyền, từ chối dịch vụ công, phân biệt đối xử.</li></ul>"
                     },
                     {
                         title: "4. Phụ nữ mang thai / Nuôi con nhỏ",
                         keywords: ["phụ nữ", "mang thai", "nuôi con", "lao động", "36 tháng"],
-                        answer: "<b>Tiêu chí nhận diện (Phụ nữ mang thai / Nuôi con dưới 36 tháng) [cite: 109]:</b><br><ul><li>(1) Xâm phạm quyền lao động: Sa thải, chuyển làm công việc nặng nhọc/độc hại, không cho nghỉ giải lao (60 phút/ngày) khi nuôi con dưới 12 tháng [cite: 109].</li><li>(2) Xâm phạm sức khỏe, tính mạng: Bạo lực, đe dọa, ngược đãi, ép buộc phụ nữ có thai phải bỏ thai [cite: 109].</li><li>(3) Xâm phạm quyền nuôi con: Cưỡng ép, bỏ mặc, ngăn cản người mẹ nuôi con dưới 36 tháng tuổi[cite: 109].</li></ul>"
+                        type: "none",
+                        answer: "<b>Tiêu chí nhận diện (Phụ nữ mang thai / Nuôi con dưới 36 tháng):</b><br><ul><li>(1) Xâm phạm quyền lao động: Sa thải, chuyển làm công việc nặng nhọc/độc hại, không cho nghỉ giải lao (60 phút/ngày) khi nuôi con dưới 12 tháng.</li><li>(2) Xâm phạm sức khỏe, tính mạng: Bạo lực, đe dọa, ngược đãi, ép buộc phụ nữ có thai phải bỏ thai.</li><li>(3) Xâm phạm quyền nuôi con: Cưỡng ép, bỏ mặc, ngăn cản người mẹ nuôi con dưới 36 tháng tuổi.</li></ul>"
                     },
                     {
                         title: "5. Khó khăn nhận thức / Mất NLHVDS",
                         keywords: ["nhận thức", "mất năng lực", "hành vi dân sự", "giám hộ"],
-                        answer: "<b>Tiêu chí nhận diện (Người có khó khăn nhận thức, mất NLHVDS) [cite: 109]:</b><br><ul><li>(1) Xâm phạm tài sản: Lừa dối, ép buộc, dụ dỗ thực hiện các giao dịch dân sự (mua bán, tặng cho, vay) nhằm chiếm đoạt tài sản do họ không đủ khả năng nhận thức [cite: 109].</li><li>(2) Xâm phạm qua giao dịch: Thực hiện giao dịch khi không có người đại diện hợp pháp xác lập, hoặc trái mục đích bảo vệ lợi ích của họ [cite: 109].</li><li>(3) Lợi dụng tình trạng: Ép buộc ký các văn bản pháp lý mà không hiểu rõ nội dung, trái ý chí của họ [cite: 109].</li><li>(4) Vi phạm nghĩa vụ giám hộ: Người giám hộ không thực hiện đúng trách nhiệm, quản lý tài sản sai, trục lợi từ tài sản người được giám hộ[cite: 109].</li></ul>"
+                        type: "none",
+                        answer: "<b>Tiêu chí nhận diện (Người có khó khăn nhận thức, mất NLHVDS):</b><br><ul><li>(1) Xâm phạm tài sản: Lừa dối, ép buộc, dụ dỗ thực hiện các giao dịch dân sự (mua bán, tặng cho, vay) nhằm chiếm đoạt tài sản do họ không đủ khả năng nhận thức.</li><li>(2) Xâm phạm qua giao dịch: Thực hiện giao dịch khi không có người đại diện hợp pháp xác lập, hoặc trái mục đích bảo vệ lợi ích của họ.</li><li>(3) Lợi dụng tình trạng: Ép buộc ký các văn bản pháp lý mà không hiểu rõ nội dung, trái ý chí của họ.</li><li>(4) Vi phạm nghĩa vụ giám hộ: Người giám hộ không thực hiện đúng trách nhiệm, quản lý tài sản sai, trục lợi từ tài sản người được giám hộ.</li></ul>"
                     },
                     {
                         title: "6. Người dân tộc thiểu số",
                         keywords: ["dân tộc thiểu số", "chính sách", "đặc biệt khó khăn"],
-                        answer: "<b>Tiêu chí nhận diện (Người dân tộc thiểu số ở vùng đặc biệt khó khăn)[cite: 109]:</b><br><br>Theo QĐ số 70/QĐ-UBND ngày 10/01/2026 của UBND TP. Cần Thơ, áp dụng tại các khu vực: Xã Kế Sách, Khánh Hòa; Phường Vĩnh Châu; Phường Vĩnh Phước; xã An Ninh; xã Lai Hòa; xã Lâm Tân; xã Lịch Hội Thượng; xã Liêu Tú; Xã Long Phú; xã Mỹ Hương; xã Tài Văn; xã Thới An Hội; Xã Thuận Hòa; Xã Vĩnh Hải; xã Vĩnh Lợi; xã Lương Tâm; xã Xà Phiên; xã Phú Lộc [cite: 109, 110].<br><br><b>Hành vi nhận diện điển hình [cite: 110]:</b><br>Xâm phạm quyền thụ hưởng chính sách về giáo dục, y tế, đất ở, nước sạch, an sinh xã hội (Gian lận chiếm đoạt, sử dụng sai mục đích, không thực hiện chính sách hỗ trợ của nhà nước dành cho người dân tộc thiểu số, đặc biệt trong lĩnh vực giáo dục và trợ giúp xã hội...)[cite: 110]."
+                        type: "none",
+                        answer: "<b>Tiêu chí nhận diện (Người dân tộc thiểu số ở vùng đặc biệt khó khăn):</b><br><br>Theo QĐ số 70/QĐ-UBND ngày 10/01/2026 của UBND TP. Cần Thơ, áp dụng tại các khu vực: Xã Kế Sách, Khánh Hòa; Phường Vĩnh Châu; Phường Vĩnh Phước; xã An Ninh; xã Lai Hòa; xã Lâm Tân; xã Lịch Hội Thượng; xã Liêu Tú; Xã Long Phú; xã Mỹ Hương; xã Tài Văn; xã Thới An Hội; Xã Thuận Hòa; Xã Vĩnh Hải; xã Vĩnh Lợi; xã Lương Tâm; xã Xà Phiên; xã Phú Lộc.<br><br><b>Hành vi nhận diện điển hình:</b><br>Xâm phạm quyền thụ hưởng chính sách về giáo dục, y tế, đất ở, nước sạch, an sinh xã hội (Gian lận chiếm đoạt, sử dụng sai mục đích, không thực hiện chính sách hỗ trợ của nhà nước dành cho người dân tộc thiểu số, đặc biệt trong lĩnh vực giáo dục và trợ giúp xã hội...)."
                     }
                 ]
             },
@@ -261,17 +321,20 @@
                     {
                         title: "1. Đất đai",
                         keywords: ["đất đai", "lấn chiếm", "công trình", "quy hoạch", "kênh rạch"],
-                        answer: "<b>Tiêu chí nhận diện về Đất đai [cite: 110]:</b><br><ul><li>(1) Lấn chiếm đất công để xây nhà, công trình, hàng quán [cite: 110].</li><li>(2) Lấn chiếm đất bãi bồi ven sông [cite: 110].</li><li>(3) Xây dựng nhà, quán trên lòng kênh, rạch [cite: 110].</li><li>(4) Xây dựng trong hành lang bảo vệ kênh rạch, sông, cống thoát nước gây ngập úng, cản trở [cite: 110].</li><li>(5) Tự ý xây cầu dân sinh/cầu tạm chiếm mặt kênh [cite: 110].</li><li>(6) Tự ý xây bờ kè/bờ bao lấn lòng kênh, thu hẹp dòng chảy [cite: 110].</li><li>(7) Lấp kênh, mương, cống thoát nước để xây nhà/công trình [cite: 110].</li><li>(8) Lấn chiếm hành lang ATGT đường bộ để buôn bán, xây dựng [cite: 110].</li><li>(9) Giao đất, cho thuê đất, thu hồi đất trái pháp luật [cite: 110].</li><li>(10) Khi có vi phạm không thu hồi đất sai phạm, không khởi kiện bồi thường [cite: 110].</li><li>(11) Lập/thực hiện quy hoạch sử dụng đất không minh bạch [cite: 110].</li><li>(12) Lấn chiếm, sử dụng sai mục đích đất công, đất rừng, đất bảo tồn [cite: 110].</li><li>(13) Hủy hoại đất, làm suy thoái tài nguyên, ô nhiễm [cite: 110].</li><li>(14) Lấn chiếm khuôn viên trường học, sân chơi công cộng, nhà thi đấu... vào mục đích thương mại trái phép[cite: 110, 113].</li></ul>"
+                        type: "none",
+                        answer: "<b>Tiêu chí nhận diện về Đất đai:</b><br><ul><li>(1) Lấn chiếm đất công để xây nhà, công trình, hàng quán.</li><li>(2) Lấn chiếm đất bãi bồi ven sông.</li><li>(3) Xây dựng nhà, quán trên lòng kênh, rạch.</li><li>(4) Xây dựng trong hành lang bảo vệ kênh rạch, sông, cống thoát nước gây ngập úng, cản trở.</li><li>(5) Tự ý xây cầu dân sinh/cầu tạm chiếm mặt kênh.</li><li>(6) Tự ý xây bờ kè/bờ bao lấn lòng kênh, thu hẹp dòng chảy.</li><li>(7) Lấp kênh, mương, cống thoát nước để xây nhà/công trình.</li><li>(8) Lấn chiếm hành lang ATGT đường bộ để buôn bán, xây dựng.</li><li>(9) Giao đất, cho thuê đất, thu hồi đất trái pháp luật.</li><li>(10) Khi có vi phạm không thu hồi đất sai phạm, không khởi kiện bồi thường.</li><li>(11) Lập/thực hiện quy hoạch sử dụng đất không minh bạch.</li><li>(12) Lấn chiếm, sử dụng sai mục đích đất công, đất rừng, đất bảo tồn.</li><li>(13) Hủy hoại đất, làm suy thoái tài nguyên, ô nhiễm.</li><li>(14) Lấn chiếm khuôn viên trường học, sân chơi công cộng, nhà thi đấu... vào mục đích thương mại trái phép.</li></ul>"
                     },
                     {
                         title: "2. Tài nguyên",
                         keywords: ["tài nguyên", "khoáng sản", "khai thác cát", "sạt lở"],
-                        answer: "<b>Tiêu chí nhận diện về Tài nguyên [cite: 113]:</b><br><ul><li>(1) Khai thác khoáng sản (cát, đất, đá...) không phép/sai phép gây sạt lở bờ sông, thay đổi dòng chảy, ảnh hưởng khu dân cư [cite: 113].</li><li>(2) Khai thác tài nguyên (nước, rừng, khoáng sản) vượt công suất, ngoài ranh giới cho phép [cite: 113].</li><li>(3) Khai thác trái phép hoặc cấp phép sai quy định gây ảnh hưởng đời sống người dân[cite: 113].</li></ul>"
+                        type: "none",
+                        answer: "<b>Tiêu chí nhận diện về Tài nguyên:</b><br><ul><li>(1) Khai thác khoáng sản (cát, đất, đá...) không phép/sai phép gây sạt lở bờ sông, thay đổi dòng chảy, ảnh hưởng khu dân cư.</li><li>(2) Khai thác tài nguyên (nước, rừng, khoáng sản) vượt công suất, ngoài ranh giới cho phép.</li><li>(3) Khai thác trái phép hoặc cấp phép sai quy định gây ảnh hưởng đời sống người dân.</li></ul>"
                     },
                     {
                         title: "3. Đầu tư công, Tài sản & Ngân sách",
                         keywords: ["đầu tư công", "ngân sách", "đấu thầu", "thất thoát", "thuế", "trốn thuế"],
-                        answer: "<b>Tiêu chí nhận diện về Đầu tư công, Tài sản công & Tài chính [cite: 113]:</b><br><ul><li>(1) Sử dụng vốn không đúng mục đích, đối tượng, vượt định mức (cho thuê, cho mượn trái quy định) [cite: 113].</li><li>(2) Làm thất thoát, lãng phí vốn, tài sản Nhà nước trong thực hiện dự án [cite: 113].</li><li>(3) Vi phạm đấu thầu: Thông thầu, gian lận, cản trở để trục lợi [cite: 113].</li><li>(4) Chuyển nhượng cổ phần, vốn góp sai quy định Luật Đầu tư công [cite: 113].</li><li>(5) Từ chối cung cấp sản phẩm/dịch vụ công không lý do chính đáng [cite: 113].</li><li>(6) Chiếm dụng trụ sở, đất, công trình công cộng (công viên, trường học) phục vụ cá nhân hoặc sai mục đích [cite: 113].</li><li>(7) Để tài sản công bỏ hoang, xuống cấp, không khai thác hiệu quả [cite: 113].</li><li>(8) Dự án cầu đường, trường học, trạm y tế chậm tiến độ, đội vốn, lãng phí [cite: 113].</li><li>(9) Phê duyệt dự án trái quy định, chọn nhà thầu thiếu minh bạch [cite: 113].</li><li>(10) Gây thất thoát, lãng phí trong chuẩn bị, triển khai, nghiệm thu, quyết toán dự án [cite: 115].</li><li>(11) Dự án gây thất thoát ngân sách nhưng cơ quan quản lý chưa khởi kiện đòi bồi thường [cite: 115].</li><li>(12) Quản lý, cho thuê, liên doanh, liên kết tài sản công trái quy định gây thất thoát [cite: 115].</li><li>(13) Nghĩa vụ tài chính: Trốn thuế, khai giá bất động sản sai lệch làm giảm nghĩa vụ tài chính, nợ tiền thuê đất... [cite: 115]</li></ul>"
+                        type: "none",
+                        answer: "<b>Tiêu chí nhận diện về Đầu tư công, Tài sản công & Tài chính:</b><br><ul><li>(1) Sử dụng vốn không đúng mục đích, đối tượng, vượt định mức (cho thuê, cho mượn trái quy định).</li><li>(2) Làm thất thoát, lãng phí vốn, tài sản Nhà nước trong thực hiện dự án.</li><li>(3) Vi phạm đấu thầu: Thông thầu, gian lận, cản trở để trục lợi.</li><li>(4) Chuyển nhượng cổ phần, vốn góp sai quy định Luật Đầu tư công.</li><li>(5) Từ chối cung cấp sản phẩm/dịch vụ công không lý do chính đáng.</li><li>(6) Chiếm dụng trụ sở, đất, công trình công cộng (công viên, trường học) phục vụ cá nhân hoặc sai mục đích.</li><li>(7) Để tài sản công bỏ hoang, xuống cấp, không khai thác hiệu quả.</li><li>(8) Dự án cầu đường, trường học, trạm y tế chậm tiến độ, đội vốn, lãng phí.</li><li>(9) Phê duyệt dự án trái quy định, chọn nhà thầu thiếu minh bạch.</li><li>(10) Gây thất thoát, lãng phí trong chuẩn bị, triển khai, nghiệm thu, quyết toán dự án.</li><li>(11) Dự án gây thất thoát ngân sách nhưng cơ quan quản lý chưa khởi kiện đòi bồi thường.</li><li>(12) Quản lý, cho thuê, liên doanh, liên kết tài sản công trái quy định gây thất thoát.</li><li>(13) Nghĩa vụ tài chính: Trốn thuế, khai giá bất động sản sai lệch làm giảm nghĩa vụ tài chính, nợ tiền thuê đất...</li></ul>"
                     }
                 ]
             },
@@ -281,12 +344,14 @@
                     {
                         title: "1. Vi phạm Môi trường sinh thái",
                         keywords: ["môi trường", "rác thải", "khí thải", "ô nhiễm", "rừng", "động vật"],
-                        answer: "<b>Tiêu chí nhận diện về Môi trường (21 hành vi) [cite: 115]:</b><br><ul><li>(1) Tập kết rác, xả nước thải gây mùi hôi quanh di tích [cite: 115].</li><li>(2) Không thu gom, xử lý rác trong khu vực di tích [cite: 115].</li><li>(3) Vứt rác sinh hoạt, xác động vật xuống sông, kênh rạch [cite: 115].</li><li>(4) Tập kết/xử lý rác sai quy định gây ô nhiễm tại khu dân cư, nơi công cộng [cite: 115].</li><li>(5) Chăn nuôi không xử lý chất thải gây ô nhiễm [cite: 115].</li><li>(6) Doanh nghiệp/cơ sở xả nước thải, khí thải chưa xử lý [cite: 115].</li><li>(7) Gây ô nhiễm tiếng ồn [cite: 115].</li><li>(8) Nuôi dắt chó, vật nuôi mất vệ sinh/an toàn nơi công cộng [cite: 115].</li><li>(9) Sử dụng phân chăn nuôi chưa ủ hoai bón trực tiếp gây mùi hôi thối, ruồi nhặng [cite: 115].</li><li>(10) Trộn lẫn rác nguy hại (dầu, pin) với rác sinh hoạt [cite: 117].</li><li>(11) Vứt/chôn lấp túi nilon, chai nhựa xuống dòng chảy/lòng đất [cite: 117].</li><li>(12) Xả chất thải công nghiệp, làng nghề vào hệ thống thủy lợi gây ảnh hưởng nuôi trồng thủy sản [cite: 117].</li><li>(13) Xả thải vượt quy chuẩn, xử lý chất thải trái phép [cite: 117].</li><li>(14) Hủy hoại rừng, khai thác gỗ trái phép trong rừng đặc dụng/phòng hộ [cite: 117].</li><li>(15) Gây cháy rừng do thiếu trách nhiệm hoặc cố ý [cite: 117].</li><li>(16) Tự ý san lấp, xây dựng trên đất rừng khi chưa được phê duyệt [cite: 117].</li><li>(17) Săn bắt, giết hại động vật hoang dã, đặc biệt loài nguy cấp (hổ, tê tê...) [cite: 117].</li><li>(18) Thu giữ, buôn bán cây dược liệu quý trong khu bảo tồn [cite: 117].</li><li>(19) Phát tán sinh vật ngoại lai xâm hại (ốc bươu vàng, rùa tai đỏ...) [cite: 117].</li><li>(20) Ô nhiễm ảnh hưởng trực tiếp đến nuôi trồng thủy sản của dân [cite: 117].</li><li>(21) Triển khai dự án không tuân thủ đánh giá tác động môi trường[cite: 117].</li></ul>"
+                        type: "none",
+                        answer: "<b>Tiêu chí nhận diện về Môi trường (21 hành vi):</b><br><ul><li>(1) Tập kết rác, xả nước thải gây mùi hôi quanh di tích.</li><li>(2) Không thu gom, xử lý rác trong khu vực di tích.</li><li>(3) Vứt rác sinh hoạt, xác động vật xuống sông, kênh rạch.</li><li>(4) Tập kết/xử lý rác sai quy định gây ô nhiễm tại khu dân cư, nơi công cộng.</li><li>(5) Chăn nuôi không xử lý chất thải gây ô nhiễm.</li><li>(6) Doanh nghiệp/cơ sở xả nước thải, khí thải chưa xử lý.</li><li>(7) Gây ô nhiễm tiếng ồn.</li><li>(8) Nuôi dắt chó, vật nuôi mất vệ sinh/an toàn nơi công cộng.</li><li>(9) Sử dụng phân chăn nuôi chưa ủ hoai bón trực tiếp gây mùi hôi thối, ruồi nhặng.</li><li>(10) Trộn lẫn rác nguy hại (dầu, pin) với rác sinh hoạt.</li><li>(11) Vứt/chôn lấp túi nilon, chai nhựa xuống dòng chảy/lòng đất.</li><li>(12) Xả chất thải công nghiệp, làng nghề vào hệ thống thủy lợi gây ảnh hưởng nuôi trồng thủy sản.</li><li>(13) Xả thải vượt quy chuẩn, xử lý chất thải trái phép.</li><li>(14) Hủy hoại rừng, khai thác gỗ trái phép trong rừng đặc dụng/phòng hộ.</li><li>(15) Gây cháy rừng do thiếu trách nhiệm hoặc cố ý.</li><li>(16) Tự ý san lấp, xây dựng trên đất rừng khi chưa được phê duyệt.</li><li>(17) Săn bắt, giết hại động vật hoang dã, đặc biệt loài nguy cấp (hổ, tê tê...).</li><li>(18) Thu giữ, buôn bán cây dược liệu quý trong khu bảo tồn.</li><li>(19) Phát tán sinh vật ngoại lai xâm hại (ốc bươu vàng, rùa tai đỏ...).</li><li>(20) Ô nhiễm ảnh hưởng trực tiếp đến nuôi trồng thủy sản của dân.</li><li>(21) Triển khai dự án không tuân thủ đánh giá tác động môi trường.</li></ul>"
                     },
                     {
                         title: "2. Thủ tục ĐTM & Sức khỏe cộng đồng",
                         keywords: ["đtm", "giấy phép", "thiệt hại sức khỏe", "tiếng ồn", "y tế"],
-                        answer: "<b>Hành vi vi phạm thủ tục ĐTM & Thiệt hại sức khỏe cộng đồng [cite: 118]:</b><br><ul><li><b>Vi phạm thủ tục ĐTM/Giấy phép môi trường [cite: 118]:</b><br>- Xây dựng khi chưa có Quyết định phê duyệt ĐTM [cite: 118].<br>- Vận hành dự án không có Giấy phép môi trường [cite: 118].<br>- Thực hiện sai nội dung ĐTM (thay đổi quy mô, công nghệ, phương án xử lý chất thải mà chưa được chấp thuận) [cite: 118].</li><li><b>Hành vi gây thiệt hại sức khỏe và lợi ích công cộng [cite: 118]:</b><br>- Đổ thải trực tiếp nước thải, khí thải vượt quy chuẩn vào nguồn nước/không khí [cite: 118].<br>- Quản lý chất thải y tế/nguy hại sai quy trình gây dịch bệnh hoặc nhiễm độc mãn tính [cite: 118].<br>- Gây ô nhiễm tiếng ồn, độ rung, mùi hôi vượt mức chịu đựng gây bệnh lý cho dân xung quanh[cite: 118].</li></ul>"
+                        type: "none",
+                        answer: "<b>Hành vi vi phạm thủ tục ĐTM & Thiệt hại sức khỏe cộng đồng:</b><br><ul><li><b>Vi phạm thủ tục ĐTM/Giấy phép môi trường:</b><br>- Xây dựng khi chưa có Quyết định phê duyệt ĐTM.<br>- Vận hành dự án không có Giấy phép môi trường.<br>- Thực hiện sai nội dung ĐTM (thay đổi quy mô, công nghệ, phương án xử lý chất thải mà chưa được chấp thuận).</li><li><b>Hành vi gây thiệt hại sức khỏe và lợi ích công cộng:</b><br>- Đổ thải trực tiếp nước thải, khí thải vượt quy chuẩn vào nguồn nước/không khí.<br>- Quản lý chất thải y tế/nguy hại sai quy trình gây dịch bệnh hoặc nhiễm độc mãn tính.<br>- Gây ô nhiễm tiếng ồn, độ rung, mùi hôi vượt mức chịu đựng gây bệnh lý cho dân xung quanh.</li></ul>"
                     }
                 ]
             },
@@ -296,39 +361,301 @@
                     {
                         title: "1. Di sản văn hóa",
                         keywords: ["di sản", "văn hóa", "di tích", "trùng tu", "tôn tạo"],
-                        answer: "<b>Tiêu chí nhận diện về Di sản văn hóa [cite: 118]:</b><br><ul><li>(1) Trùng tu, tôn tạo di tích không đúng thiết kế, hồ sơ khoa học được duyệt [cite: 118].</li><li>(2) Thực hiện trùng tu khi chưa được cơ quan thẩm quyền cho phép [cite: 118].</li><li>(3) Thay đổi kết cấu, vật liệu, kiến trúc, màu sắc không phù hợp giá trị gốc [cite: 118].</li><li>(4) Đập phá, tháo dỡ, làm mất hoặc làm biến dạng kiến trúc gốc [cite: 118].</li><li>(5) Phá bỏ, thay thế các hạng mục gốc (mái, cột, tường, nền...) [cite: 120].</li><li>(6) Xây dựng mới làm mất dấu tích nguyên trạng [cite: 120].</li><li>(7) Cơi nới, xây trái phép trong khu vực bảo vệ di tích [cite: 120].</li><li>(8) Xây nhà ở, hàng quán, công trình phụ trong khu vực bảo vệ di tích [cite: 120].</li><li>(9) Làm thay đổi cảnh quan, không gian văn hóa di tích [cite: 120].</li><li>(10) Sử dụng, khai thác di tích sai mục đích hoặc kinh doanh trái quy định [cite: 120].</li><li>(11) Làm mất tính tôn nghiêm, giá trị lịch sử của di tích [cite: 120].</li><li>(12) Gây ô nhiễm môi trường, xâm hại cảnh quan di tích [cite: 120].</li><li>(13) Xâm phạm không gian văn hóa, tín ngưỡng, lễ hội truyền thống[cite: 120].</li></ul>"
+                        type: "none",
+                        answer: "<b>Tiêu chí nhận diện về Di sản văn hóa:</b><br><ul><li>(1) Trùng tu, tôn tạo di tích không đúng thiết kế, hồ sơ khoa học được duyệt.</li><li>(2) Thực hiện trùng tu khi chưa được cơ quan thẩm quyền cho phép.</li><li>(3) Thay đổi kết cấu, vật liệu, kiến trúc, màu sắc không phù hợp giá trị gốc.</li><li>(4) Đập phá, tháo dỡ, làm mất hoặc làm biến dạng kiến trúc gốc.</li><li>(5) Phá bỏ, thay thế các hạng mục gốc (mái, cột, tường, nền...).</li><li>(6) Xây dựng mới làm mất dấu tích nguyên trạng.</li><li>(7) Cơi nới, xây trái phép trong khu vực bảo vệ di tích.</li><li>(8) Xây nhà ở, hàng quán, công trình phụ trong khu vực bảo vệ di tích.</li><li>(9) Làm thay đổi cảnh quan, không gian văn hóa di tích.</li><li>(10) Sử dụng, khai thác di tích sai mục đích hoặc kinh doanh trái quy định.</li><li>(11) Làm mất tính tôn nghiêm, giá trị lịch sử của di tích.</li><li>(12) Gây ô nhiễm môi trường, xâm hại cảnh quan di tích.</li><li>(13) Xâm phạm không gian văn hóa, tín ngưỡng, lễ hội truyền thống.</li></ul>"
                     },
                     {
                         title: "2. An toàn thực phẩm",
                         keywords: ["thực phẩm", "an toàn", "vệ sinh", "bếp ăn", "thực phẩm bẩn"],
-                        answer: "<b>Tiêu chí nhận diện về An toàn thực phẩm [cite: 120]:</b><br><ul><li>(1) Chất lượng không bảo đảm (thực phẩm bẩn, ôi thiu, hết hạn, chứa phụ gia cấm, ghi sai công dụng) gây ảnh hưởng sức khỏe [cite: 120].</li><li>(2) Điều kiện kinh doanh/chế biến kém (bếp ăn tập thể không vệ sinh, giết mổ không kiểm dịch) [cite: 120].</li><li>(3) Quảng cáo, công bố sai sự thật (thổi phồng công dụng TPCN, che giấu chất cấm) [cite: 120].</li><li>(4) Gian lận nhãn mác, nguồn gốc (giả mạo nhập khẩu, nhãn mác gây hiểu nhầm) [cite: 120].</li><li>(5) Làm giả báo cáo kiểm nghiệm, giả hồ sơ truy xuất, giả giấy phép [cite: 122].</li><li>(6) Cung cấp thực phẩm mất an toàn cho bếp ăn trường học/bệnh viện; ghi cảnh báo quá nhỏ không rõ [cite: 122].</li><li>(7) Sai phạm quản lý nhà nước (cấp phép trái quy định, bao che vi phạm)[cite: 122].</li></ul>"
+                        type: "none",
+                        answer: "<b>Tiêu chí nhận diện về An toàn thực phẩm:</b><br><ul><li>(1) Chất lượng không bảo đảm (thực phẩm bẩn, ôi thiu, hết hạn, chứa phụ gia cấm, ghi sai công dụng) gây ảnh hưởng sức khỏe.</li><li>(2) Điều kiện kinh doanh/chế biến kém (bếp ăn tập thể không vệ sinh, giết mổ không kiểm dịch).</li><li>(3) Quảng cáo, công bố sai sự thật (thổi phồng công dụng TPCN, che giấu chất cấm).</li><li>(4) Gian lận nhãn mác, nguồn gốc (giả mạo nhập khẩu, nhãn mác gây hiểu nhầm).</li><li>(5) Làm giả báo cáo kiểm nghiệm, giả hồ sơ truy xuất, giả giấy phép.</li><li>(6) Cung cấp thực phẩm mất an toàn cho bếp ăn trường học/bệnh viện; ghi cảnh báo quá nhỏ không rõ.</li><li>(7) Sai phạm quản lý nhà nước (cấp phép trái quy định, bao che vi phạm).</li></ul>"
                     },
                     {
                         title: "3. An toàn dược phẩm",
                         keywords: ["dược phẩm", "thuốc", "bảo hiểm", "khám chữa bệnh", "bhyt"],
-                        answer: "<b>Tiêu chí nhận diện về An toàn dược phẩm [cite: 122]:</b><br><ul><li>(1) Vi phạm chất lượng thuốc (giả, kém chất lượng, hết hạn, nhập lậu) gây thiệt hại người bệnh [cite: 122].</li><li>(2) Kinh doanh & bảo quản sai (bán không phép, sai điều kiện bảo quản) [cite: 122].</li><li>(3) Quảng cáo sai sự thật (thổi phồng công dụng TPCN thành thuốc chữa bệnh) [cite: 122].</li><li>(4) Trục lợi Bảo hiểm y tế (kê đơn/xét nghiệm không cần thiết, giả hóa đơn, xâm hại quỹ BHYT) [cite: 122].</li><li>(5) Vi phạm đạo đức nghề nghiệp (kê đơn thuốc lấy hoa hồng, chỉ định xét nghiệm thừa) [cite: 122].</li><li>(6) Tài chính & Thuế (lập hóa đơn khống, hợp thức hóa chi phí trục lợi) [cite: 122].</li><li>(7) Sản xuất thuốc khi chưa được cấp phép hoặc bán thuốc kê đơn không có đơn [cite: 122].</li><li>(8) Buông lỏng quản lý nhà nước dẫn đến thuốc giả lưu hành, chậm thu hồi gây hậu quả[cite: 122].</li></ul>"
+                        type: "none",
+                        answer: "<b>Tiêu chí nhận diện về An toàn dược phẩm:</b><br><ul><li>(1) Vi phạm chất lượng thuốc (giả, kém chất lượng, hết hạn, nhập lậu) gây thiệt hại người bệnh.</li><li>(2) Kinh doanh & bảo quản sai (bán không phép, sai điều kiện bảo quản).</li><li>(3) Quảng cáo sai sự thật (thổi phồng công dụng TPCN thành thuốc chữa bệnh).</li><li>(4) Trục lợi Bảo hiểm y tế (kê đơn/xét nghiệm không cần thiết, giả hóa đơn, xâm hại quỹ BHYT).</li><li>(5) Vi phạm đạo đức nghề nghiệp (kê đơn thuốc lấy hoa hồng, chỉ định xét nghiệm thừa).</li><li>(6) Tài chính & Thuế (lập hóa đơn khống, hợp thức hóa chi phí trục lợi).</li><li>(7) Sản xuất thuốc khi chưa được cấp phép hoặc bán thuốc kê đơn không có đơn.</li><li>(8) Buông lỏng quản lý nhà nước dẫn đến thuốc giả lưu hành, chậm thu hồi gây hậu quả.</li></ul>"
                     },
                     {
                         title: "4. Bảo vệ người tiêu dùng",
                         keywords: ["người tiêu dùng", "khách hàng", "quảng cáo", "đa cấp", "shopee", "lazada"],
-                        answer: "<b>Tiêu chí nhận diện Bảo vệ quyền lợi người tiêu dùng [cite: 122]:</b><br><ul><li>(1) Cung cấp thông tin gian dối, quảng cáo gian dối gây nhầm lẫn xuất xứ, công dụng [cite: 122].</li><li>(2) Hợp đồng bất lợi (bẫy phí, ép mua kèm kiểu 'bia kèm lạc', loại trừ trách nhiệm doanh nghiệp) [cite: 124].</li><li>(3) Bán hàng giả/kém chất lượng, không cảnh báo nguy cơ, không thu hồi hàng lỗi [cite: 124].</li><li>(4) Lừa đảo thương mại, bán hàng đa cấp bất chính [cite: 124].</li><li>(5) Vi phạm bảo mật dữ liệu cá nhân (thu thập không phép, bán data cho bên thứ ba) [cite: 124].</li><li>(6) Dịch vụ & thanh toán sai (thu phí trái phép, tự ý tăng giá, không hoàn tiền) [cite: 124].</li><li>(7) Né tránh, kéo dài thời gian giải quyết khiếu nại và bồi thường [cite: 124].</li><li>(8) Cạnh tranh không lành mạnh (gièm pha, so sánh gian dối, bán phá giá kèm chất lượng kém) [cite: 124].</li><li>(9) Quảng cáo sai sự thật qua Livestream/KOLs (người nổi tiếng thổi phồng công dụng) [cite: 124].</li><li>(10) Sàn TMĐT buông lỏng quản lý để hàng giả tràn lan trên Shopee, Lazada, TikTok Shop[cite: 124].</li></ul>"
+                        type: "none",
+                        answer: "<b>Tiêu chí nhận diện Bảo vệ quyền lợi người tiêu dùng:</b><br><ul><li>(1) Cung cấp thông tin gian dối, quảng cáo gian dối gây nhầm lẫn xuất xứ, công dụng.</li><li>(2) Hợp đồng bất lợi (bẫy phí, ép mua kèm kiểu 'bia kèm lạc', loại trừ trách nhiệm doanh nghiệp).</li><li>(3) Bán hàng giả/kém chất lượng, không cảnh báo nguy cơ, không thu hồi hàng lỗi.</li><li>(4) Lừa đảo thương mại, bán hàng đa cấp bất chính.</li><li>(5) Vi phạm bảo mật dữ liệu cá nhân (thu thập không phép, bán data cho bên thứ ba).</li><li>(6) Dịch vụ & thanh toán sai (thu phí trái phép, tự ý tăng giá, không hoàn tiền).</li><li>(7) Né tránh, kéo dài thời gian giải quyết khiếu nại và bồi thường.</li><li>(8) Cạnh tranh không lành mạnh (gièm pha, so sánh gian dối, bán phá giá kèm chất lượng kém).</li><li>(9) Quảng cáo sai sự thật qua Livestream/KOLs (người nổi tiếng thổi phồng công dụng).</li><li>(10) Sàn TMĐT buông lỏng quản lý để hàng giả tràn lan trên Shopee, Lazada, TikTok Shop.</li></ul>"
                     },
                     {
                         title: "5. Nguồn thông tin ưu tiên",
                         keywords: ["nguồn tin", "ưu tiên", "thanh tra", "kiểm toán"],
-                        answer: "<b>Nguồn thông tin ưu tiên phát hiện vi phạm [cite: 124]:</b><br><ul><li>(1) Các vụ việc đã có Kết luận thanh tra, kiểm toán, xử phạt nhưng chưa khắc phục hậu quả [cite: 124].</li><li>(2) Đối tượng vi phạm đã chấp hành phạt tiền nhưng chưa thực hiện hậu quả dân sự (không bồi thường, không khôi phục tình trạng ban đầu) [cite: 124].</li><li>(3) Cơ quan, tổ chức có thẩm quyền không tổ chức thi hành hoặc thi hành không đầy đủ [cite: 124].</li><li>(4) Kéo dài, né tránh trách nhiệm gây thiệt hại tiếp diễn đối với lợi ích công[cite: 124].</li></ul>"
+                        type: "none",
+                        answer: "<b>Nguồn thông tin ưu tiên phát hiện vi phạm:</b><br><ul><li>(1) Các vụ việc đã có Kết luận thanh tra, kiểm toán, xử phạt nhưng chưa khắc phục hậu quả.</li><li>(2) Đối tượng vi phạm đã chấp hành phạt tiền nhưng chưa thực hiện hậu quả dân sự (không bồi thường, không khôi phục tình trạng ban đầu).</li><li>(3) Cơ quan, tổ chức có thẩm quyền không tổ chức thi hành hoặc thi hành không đầy đủ.</li><li>(4) Kéo dài, né tránh trách nhiệm gây thiệt hại tiếp diễn đối với lợi ích công.</li></ul>"
                     }
+                ]
+            },
+            {
+                folder: "VI. THAM KHẢO QUỐC TẾ (VỤ ÁN CÔNG ÍCH)",
+                items: [
+                    {
+                        title: "1. Vụ án Ô nhiễm môi trường sinh thái lưu vực sông lớn",
+                        keywords: ["trung hoa", "quốc tế", "ô nhiễm sông", "phục hồi sinh thái", "bồi thường"],
+                        type: "none",
+                        answer: "<b>Tóm tắt vụ án điển hình đăng trên trang web VKSND Tối cao Trung Quốc:</b><br><br>" +
+                               "<ul><li><b>Hành vi vi phạm:</b> Một doanh nghiệp hóa chất liên tục xả trái phép nước thải công nghiệp chứa kim loại nặng vượt quy chuẩn xuống nhánh sông lớn, làm chết hàng loạt thủy sản và đe dọa trực tiếp nguồn nước sinh hoạt của cư dân vùng hạ lưu.</li>" +
+                               "<li><b>Hoạt động của Kiểm sát hành chính trước khởi kiện:</b> Kiểm sát viện địa phương phát hiện nguồn tin, lập tức ban hành Kiến nghị kiểm sát buộc cơ quan quản lý môi trường hành động dứt điểm. Cơ quan quản lý đã phạt hành chính doanh nghiệp nhưng hậu quả ô nhiễm sinh thái nguồn nước vẫn kéo dài, chưa được khắc phục thực chất.</li>" +
+                               "<li><b>Xử lý của Viện kiểm sát:</b> Nhận thấy lợi ích công cộng tiếp tục bị xâm phạm nghiêm trọng, Kiểm sát viện chính thức khởi kiện vụ án dân sự công ích ra Tòa án chuyên trách.</li>" +
+                               "<li><b>Kết quả phán quyết:</b> Tòa án chấp nhận toàn bộ đơn khởi kiện của Kiểm sát viện, buộc doanh nghiệp vi phạm phải bồi thường toàn bộ chi phí khôi phục lại hiện trạng môi trường sinh thái, chi phí giám định độc lập, đồng thời phải thực hiện xin lỗi công khai trước toàn thể nhân dân trên phương tiện thông tin đại chúng đại diện.</li></ul>"
+                    },
+                    {
+                        title: "2. Vụ án Đòi bồi thường thiệt hại mang tính trừng phạt về ATTP trên sàn TMĐT",
+                        keywords: ["trung hoa", "quốc tế", "bồi thường trừng phạt", "thực phẩm bẩn", "tmdt", "người tiêu dùng"],
+                        type: "none",
+                        answer: "<b>Tóm tắt vụ án điển hình đăng trên trang web VKSND Tối cao Trung Quốc:</b><br><br>" +
+                               "<ul><li><b>Hành vi vi phạm:</b> Một nhóm đối tượng tổ chức sản xuất, livestream và phân phối số lượng lớn thực phẩm chức năng giảm cân có chứa chất cấm Sibutramine độc hại thông qua các gian hàng trên sàn thương mại điện tử lớn, gây hại nghiêm trọng đến sức khỏe của hàng chục vạn người tiêu dùng đại chúng.</li>" +
+                               "<li><b>Xử lý của Viện kiểm sát:</b> Song song với việc truy cứu trách nhiệm hình sự về tội sản xuất, kinh doanh thực phẩm độc hại, Kiểm sát viện đã rà soát dưới góc độ bảo vệ người tiêu dùng (lợi ích công cộng) và quyết định khởi kiện dân sự công ích.</li>" +
+                               "<li><b>Điểm đặc thù áp dụng luật:</b> Kiểm sát viện chủ động đưa ra yêu cầu áp dụng hình phạt <b>Bồi thường thiệt hại mang tính trừng phạt gấp 10 lần</b> tổng doanh thu bất chính thu được dựa trên quy định pháp luật chuyên ngành bảo vệ ATTP.</li>" +
+                               "<li><b>Kết quả:</b> Tòa án tuyên phạt nhóm đối tượng phải nộp số tiền bồi thường trừng phạt khổng lồ vào ngân sách công ích, phối hợp với sàn TMĐT gỡ bỏ triệt để toàn bộ thông tin độc hại, bảo vệ quyền lợi diện rộng cho người tiêu dùng trên môi trường số.</li></ul>"
+                    },
+                    {
+                        title: "3. Vụ án Bảo mật thông tin dữ liệu cá nhân diện rộng trên ứng dụng di động",
+                        keywords: ["trung hoa", "quốc tế", "bảo mật dữ liệu", "thông tin cá nhân", "big data", "app mobile"],
+                        type: "none",
+                        answer: "<b>Tóm tắt vụ án điển hình đăng trên trang web VKSND Tối cao Trung Quốc:</b><br><br>" +
+                               "<ul><li><b>Hành vi vi phạm:</b> Một công ty công nghệ phát triển ứng dụng giao hàng phổ biến đã tự ý kích hoạt ngầm tính năng thu thập vị trí định vị, danh bạ, tin nhắn riêng tư của hơn 5 triệu người dùng khi chưa có sự đồng ý, sau đó phân tích và chuyển giao trái phép tệp dữ liệu này cho bên thứ ba để chạy quảng cáo trục lợi.</li>" +
+                               "<li><b>Xử lý của Viện kiểm sát:</b> Xác định hành vi này xâm phạm nghiêm trọng đến an ninh dữ liệu công cộng và quyền riêng tư dân sự của số đông người dân, Kiểm sát viện đã tiến hành lập hồ sơ, trưng cầu giám định kỹ thuật số.</li>" +
+                               "<li><b>Yêu cầu khởi kiện công ích:</b> Kiểm sát viện khởi kiện buộc công ty công nghệ phải lập tức chấm dứt hành vi thu thập thông tin trái phép, tiến hành xóa bỏ toàn bộ kho dữ liệu đã thu thập ngầm trên hệ thống máy chủ, đồng thời phải nâng cấp lỗ hổng bảo mật ứng dụng dưới sự giám sát độc lập.</li>" +
+                               "<li><b>Ý nghĩa thực tiễn:</b> Vụ án tạo tiền lệ lớn, buộc các nhà phát triển công nghệ phải tuân thủ nghiêm ngặt ranh giới bảo mật thông tin cá nhân diện rộng của cộng đồng.</li></ul>"
+                    }
+                ]
+            },
+            {
+                folder: "VII. NGHỊ QUYẾT 205 VÀ VĂN BẢN HƯỚNG DẪN",
+                items: [
+                    {
+                        title: "1. Nghị quyết số 205/2025/QH15",
+                        keywords: ["nghị quyết 205", "qh15", "phạm vi", "hiệu lực", "thí điểm"],
+                        type: "pdf",
+                        answer: "<b>Tóm tắt nội dung Nghị quyết số 205/2025/QH15:</b><br><br>" +
+                               "<ul><li><b>Mục đích:</b> Quy định việc thí điểm VKSND khởi kiện vụ án dân sự để bảo vệ quyền dân sự của chủ thể là nhóm dễ bị tổn thương hoặc bảo vệ lợi ích công khi không có người khởi kiện.</li>" +
+                               "<li><b>Hiệu lực thi hành:</b> Có hiệu lực từ ngày 01/01/2026 và được thực hiện thí điểm trong 03 năm tại các địa phương: Hà Nội, TP. Hồ Chí Minh, Đà Nẵng, Cần Thơ, Quảng Ninh và Đắk Lắk.</li>" +
+                               "<li><b>Nguyên tắc thực hiện:</b> VKS chỉ khởi kiện khi đã thông báo, kiến nghị cơ quan, tổ chức, cá nhân thực hiện quyền khởi kiện nhưng không có người khởi kiện. Đặc biệt, vụ án do VKS khởi kiện bảo vệ lợi ích công thì <b>không được hòa giải</b> và bị đơn <b>không được đưa ra yêu cầu phản tố</b>.</li>" +
+                               "<li><b>Thẩm quyền giải quyết:</b> Tòa án khu vực nơi bị đơn cư trú/có trụ sở, nơi xảy ra hành vi vi phạm, hoặc nơi xảy ra hậu quả thiệt hại có thẩm quyền giải quyết sơ thẩm.</li></ul>"
+                    },
+                    {
+                        title: "2. Thông tư liên tịch số 09/2025/TTLT",
+                        keywords: ["thông tư 09", "ttlt", "hướng dẫn 205", "viện tối cao", "tòa án"],
+                        type: "pdf",
+                        answer: "<b>Tóm tắt nội dung Thông tư liên tịch số 09/2025/TTLT...:</b><br><br>" +
+                               "<ul><li><b>Phạm vi:</b> Hướng dẫn chi tiết thi hành NQ 205 về nguyên tắc, thẩm quyền, thủ tục tiếp nhận, xác minh, thu thập chứng cứ, khởi kiện và thi hành án.</li>" +
+                               "<li><b>Các lĩnh vực trọng tâm bảo vệ:</b> Đầu tư công; Quản lý đất đai; Tài nguyên, Môi trường, Hệ sinh thái; Di sản văn hóa; An toàn thực phẩm, dược phẩm; Bảo vệ quyền lợi người tiêu dùng.</li>" +
+                               "<li><b>Trách nhiệm cung cấp thông tin:</b> Các cơ quan thanh tra, kiểm toán, kiểm tra chuyên ngành có trách nhiệm gửi cho VKS nội dung kết luận vi phạm khi được công khai, đặc biệt là các vi phạm chưa được khắc phục triệt để.</li>" +
+                               "<li><b>Quyền hạn xác minh của VKS:</b> VKS có quyền yêu cầu cung cấp tài liệu, trưng cầu giám định, định giá tài sản, lấy lời khai, đối chất, xem xét thẩm định tại chỗ và kiểm tra đánh giá hiện trường.</li></ul>"
+                    }
+                ]
+            },
+            {
+                folder: "VIII. HỆ THỐNG BIỂU MẪU TỐ TỤNG (TẢI VỀ)",
+                items: [
+                    {
+                        title: "Danh mục 32 Mẫu văn bản tố tụng",
+                        keywords: ["danh mục", "biểu mẫu", "32 mẫu", "văn bản tố tụng"],
+                        type: "none",
+                        answer: "<b>Danh mục 32 Mẫu văn bản sử dụng trong việc khởi kiện vụ án dân sự công ích (Kèm theo TTLT số 09/2025):</b><br><br>" +
+                               "<b>Nhóm Tiếp nhận thông tin:</b><br>" +
+                               "- Mẫu 01/DSCI: Biên bản tiếp nhận thông tin về vụ án dân sự công ích.<br>" +
+                               "- Mẫu 02/DSCI: Thông báo việc tiếp nhận thông tin về vụ án dân sự công ích.<br><br>" +
+                               "<b>Nhóm Xác minh, Thu thập chứng cứ:</b><br>" +
+                               "- Mẫu 03/DSCI: Quyết định yêu cầu cung cấp tài liệu, chứng cứ.<br>" +
+                               "- Mẫu 04/DSCI: Quyết định trưng cầu giám định (giám định bổ sung, giám định lại).<br>" +
+                               "- Mẫu 05/DSCI: Quyết định định giá tài sản và thành lập Hội đồng định giá tài sản.<br>" +
+                               "- Mẫu 06/DSCI: Công văn đề nghị cơ quan, tổ chức, cá nhân định giá tài sản.<br>" +
+                               "- Mẫu 07/DSCI: Công văn trưng cầu ý kiến cơ quan, tổ chức, cá nhân có chuyên môn.<br>" +
+                               "- Mẫu 08/DSCI: Quyết định xem xét, thẩm định tại chỗ.<br>" +
+                               "- Mẫu 09/DSCI: Quyết định kiểm tra, đánh giá hiện trường.<br>" +
+                               "- Mẫu 10/DSCI: Biên bản làm việc.<br>" +
+                               "- Mẫu 11/DSCI: Biên bản định giá tài sản.<br>" +
+                               "- Mẫu 12/DSCI: Biên bản xem xét, thẩm định tại chỗ.<br>" +
+                               "- Mẫu 13/DSCI: Biên bản kiểm tra, đánh giá hiện trường.<br>" +
+                               "- Mẫu 14/DSCI: Biên bản ghi lời khai.<br>" +
+                               "- Mẫu 15/DSCI: Biên bản đối chất.<br>" +
+                               "- Mẫu 16/DSCI: Biên bản xác minh.<br>" +
+                               "- Mẫu 17/DSCI: Biên bản giao, nhận tài liệu, chứng cứ.<br>" +
+                               "- Mẫu 18/DSCI: Quyết định uỷ thác, kiểm tra, xác minh, thu thập tài liệu, chứng cứ.<br><br>" +
+                               "<b>Nhóm Xử lý vi phạm & Kiến nghị:</b><br>" +
+                               "- Mẫu 19/DSCI: Quyết định yêu cầu chấm dứt hành vi vi phạm, áp dụng biện pháp để ngăn chặn, khắc phục hậu quả.<br>" +
+                               "- Mẫu 20/DSCI: Quyết định đình chỉ việc kiểm tra, xác minh.<br>" +
+                               "- Mẫu 21/DSCI: Quyết định chấm dứt việc kiểm tra, xác minh.<br>" +
+                               "- Mẫu 22/DSCI: Quyết định phục hồi việc kiểm tra, xác minh.<br>" +
+                               "- Mẫu 23/DSCI: Thông báo khởi kiện.<br>" +
+                               "- Mẫu 24/DSCI: Kiến nghị khởi kiện.<br>" +
+                               "- Mẫu 25/DSCI: Công văn đề nghị hỗ trợ khởi kiện.<br>" +
+                               "- Mẫu 26/DSCI: Công văn trả lời đề nghị hỗ trợ khởi kiện.<br><br>" +
+                               "<b>Nhóm Khởi kiện & Tham gia Tố tụng:</b><br>" +
+                               "- Mẫu 27/DSCI: Quyết định khởi kiện vụ án dân sự công ích.<br>" +
+                               "- Mẫu 28/DSCI: Quyết định phân công Viện kiểm sát khởi kiện vụ án dân sự công ích.<br>" +
+                               "- Mẫu 29/DSCI: Quyết định yêu cầu Toà án áp dụng (thay đổi, huỷ bỏ) biện pháp khẩn cấp tạm thời.<br>" +
+                               "- Mẫu 30/DSCI: Quyết định phân công Kiểm sát viên tham gia phiên toà.<br>" +
+                               "- Mẫu 31/DSCI: Quyết định thay đổi Kiểm sát viên tham gia phiên toà.<br>" +
+                               "- Mẫu 32/DSCI: Quyết định thay đổi, rút (một phần, toàn bộ) yêu cầu khởi kiện."
+                    },
+                    {
+                        title: "Mẫu 01: Biên bản tiếp nhận thông tin",
+                        keywords: ["mẫu 01", "tiếp nhận", "biên bản"],
+                        type: "doc",
+                        answer: "<div class='word-form'>" +
+                                "<div style='text-align: center; font-weight: bold;'>" +
+                                "CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM<br>Độc lập - Tự do - Hạnh phúc<br>---------<br><br>" +
+                                "BIÊN BẢN<br>TIẾP NHẬN THÔNG TIN VỀ VỤ ÁN DÂN SỰ CÔNG ÍCH" +
+                                "</div><br>" +
+                                "Vào hồi ..... giờ ..... phút, ngày ..... tháng ..... năm ........, tại trụ sở Viện kiểm sát nhân dân ...................................................<br>" +
+                                "Chúng tôi gồm:<br>" +
+                                "1. Ông/Bà: ................................................., chức vụ: .......................................<br>" +
+                                "2. Ông/Bà: ................................................., chức vụ: .......................................<br><br>" +
+                                "Tiến hành tiếp nhận thông tin về vụ án dân sự công ích của:<br>" +
+                                "Ông/Bà (hoặc cơ quan, tổ chức): ....................................................................<br>" +
+                                "Địa chỉ: ...............................................................................................................<br><br>" +
+                                "<b>I. NỘI DUNG THÔNG TIN CUNG CẤP:</b><br>" +
+                                "...........................................................................................................................<br>" +
+                                "...........................................................................................................................<br><br>" +
+                                "<b>II. TÀI LIỆU, ĐỒ VẬT GIAO NỘP KÈM THEO:</b><br>" +
+                                "1. ........................................................................................................................<br>" +
+                                "2. ........................................................................................................................<br><br>" +
+                                "Biên bản lập xong hồi ..... giờ ..... phút cùng ngày, đã đọc lại cho người cung cấp thông tin nghe, công nhận đúng sự thật và ký tên.<br><br>" +
+                                "<table style='width: 100%; border: none; text-align: center; margin-top: 20px;'>" +
+                                "<tr><td style='width: 50%;'><b>NGƯỜI CUNG CẤP THÔNG TIN</b><br>(Ký, ghi rõ họ tên)</td>" +
+                                "<td style='width: 50%;'><b>NGƯỜI TIẾP NHẬN THÔNG TIN</b><br>(Ký, ghi rõ họ tên)</td></tr>" +
+                                "</table>" +
+                                "</div>"
+                    },
+                    { title: "Mẫu 02: Thông báo việc tiếp nhận thông tin", keywords: ["mẫu 02", "thông báo tiếp nhận"], type: "doc", answer: generateStandardForm("02", "THÔNG BÁO<br>VIỆC TIẾP NHẬN THÔNG TIN VỀ VỤ ÁN DÂN SỰ CÔNG ÍCH") },
+                    {
+                        title: "Mẫu 03: Quyết định yêu cầu cung cấp tài liệu",
+                        keywords: ["mẫu 03", "cung cấp tài liệu", "chứng cứ"],
+                        type: "doc",
+                        answer: "<div class='word-form'>" +
+                                "<table style='width: 100%; border: none; text-align: center;'>" +
+                                "<tr><td style='width: 40%;'><b>VIỆN KIỂM SÁT NHÂN DÂN...</b><br>-------</td>" +
+                                "<td style='width: 60%;'><b>CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM<br>Độc lập - Tự do - Hạnh phúc</b><br>-------</td></tr>" +
+                                "<tr><td style='width: 40%;'>Số: ......./QĐ-VKS</td>" +
+                                "<td style='width: 60%; font-style: italic;'>........, ngày ..... tháng ..... năm ........</td></tr>" +
+                                "</table><br>" +
+                                "<div style='text-align: center; font-weight: bold; margin-bottom: 20px;'>" +
+                                "QUYẾT ĐỊNH<br>YÊU CẦU CUNG CẤP TÀI LIỆU, CHỨNG CỨ" +
+                                "</div>" +
+                                "<b>VIỆN TRƯỞNG VIỆN KIỂM SÁT NHÂN DÂN ......................</b><br><br>" +
+                                "Căn cứ khoản 2 Điều 10 Nghị quyết số 205/2025/QH15;<br>" +
+                                "Căn cứ khoản 1 Điều 13 Thông tư liên tịch số 09/2025/TTLT...;<br>" +
+                                "Xét thấy cần thiết phải thu thập tài liệu, chứng cứ để giải quyết vụ việc dân sự công ích;<br><br>" +
+                                "<div style='text-align: center; font-weight: bold; margin-bottom: 10px;'>QUYẾT ĐỊNH:</div>" +
+                                "<b>Điều 1.</b> Yêu cầu cơ quan/tổ chức/cá nhân: ......................................................<br>" +
+                                "Địa chỉ: ...............................................................................................................<br>" +
+                                "Cung cấp cho Viện kiểm sát nhân dân .................... các tài liệu, chứng cứ sau đây:<br>" +
+                                "1. ........................................................................................................................<br>" +
+                                "2. ........................................................................................................................<br><br>" +
+                                "<b>Điều 2.</b> Trong thời hạn 15 ngày, kể từ ngày nhận được Quyết định này, yêu cầu cơ quan/tổ chức/cá nhân có tên tại Điều 1 phải cung cấp đầy đủ tài liệu, chứng cứ cho Viện kiểm sát nhân dân ...................... theo quy định của pháp luật.<br><br>" +
+                                "<table style='width: 100%; border: none; margin-top: 20px;'>" +
+                                "<tr><td style='width: 50%; vertical-align: top;'><b>Nơi nhận:</b><br>- Như Điều 1;<br>- Lưu: VT, HS.</td>" +
+                                "<td style='width: 50%; text-align: center;'><b>VIỆN TRƯỞNG</b><br><i>(Ký, đóng dấu, ghi rõ họ tên)</i></td></tr>" +
+                                "</table>" +
+                                "</div>"
+                    },
+                    { title: "Mẫu 04: Quyết định trưng cầu giám định", keywords: ["mẫu 04", "trưng cầu", "giám định"], type: "doc", answer: generateStandardForm("04", "QUYẾT ĐỊNH<br>TRƯNG CẦU GIÁM ĐỊNH (GIÁM ĐỊNH BỔ SUNG, GIÁM ĐỊNH LẠI)") },
+                    { title: "Mẫu 05: Quyết định định giá tài sản", keywords: ["mẫu 05", "định giá"], type: "doc", answer: generateStandardForm("05", "QUYẾT ĐỊNH<br>ĐỊNH GIÁ TÀI SẢN VÀ THÀNH LẬP HỘI ĐỒNG ĐỊNH GIÁ TÀI SẢN") },
+                    { title: "Mẫu 06: Công văn đề nghị định giá tài sản", keywords: ["mẫu 06", "đề nghị", "định giá"], type: "doc", answer: generateStandardForm("06", "YÊU CẦU ĐỊNH GIÁ TÀI SẢN") },
+                    { title: "Mẫu 07: Công văn trưng cầu ý kiến chuyên môn", keywords: ["mẫu 07", "chuyên môn", "ý kiến"], type: "doc", answer: generateStandardForm("07", "CÔNG VÂN<br>TRƯNG CẦU Ý KIẾN CƠ QUAN, TỔ CHỨC, CÁ NHÂN CÓ CHUYÊN MÔN") },
+                    { title: "Mẫu 08: Quyết định xem xét, thẩm định tại chỗ", keywords: ["mẫu 08", "xem xét", "thẩm định"], type: "doc", answer: generateStandardForm("08", "QUYẾT ĐỊNH<br>XEM XÉT, THẨM ĐỊNH TẠI CHỖ") },
+                    { title: "Mẫu 09: Quyết định kiểm tra, đánh giá hiện trường", keywords: ["mẫu 09", "kiểm tra", "hiện trường"], type: "doc", answer: generateStandardForm("09", "QUYẾT ĐỊNH<br>KIỂM TRA, ĐÁNH GIÁ HIỆN TRƯỜNG") },
+                    { title: "Mẫu 10: Biên bản làm việc", keywords: ["mẫu 10", "biên bản", "làm việc"], type: "doc", answer: generateStandardForm("10", "BIÊN BẢN LÀM VIỆC") },
+                    { title: "Mẫu 11: Biên bản định giá tài sản", keywords: ["mẫu 11", "biên bản", "định giá"], type: "doc", answer: generateStandardForm("11", "BIÊN BẢN<br>ĐỊNH GIÁ TÀI SẢN") },
+                    { title: "Mẫu 12: Biên bản xem xét, thẩm định tại chỗ", keywords: ["mẫu 12", "biên bản", "thẩm định"], type: "doc", answer: generateStandardForm("12", "BIÊN BẢN<br>XEM XÉT, THẨM ĐỊNH TẠI CHỖ") },
+                    { title: "Mẫu 13: Biên bản kiểm tra, đánh giá hiện trường", keywords: ["mẫu 13", "biên bản", "hiện trường"], type: "doc", answer: generateStandardForm("13", "BIÊN BẢN<br>KIỂM TRA, ĐÁNH GIÁ HIỆN TRƯỜNG") },
+                    { title: "Mẫu 14: Biên bản ghi lời khai", keywords: ["mẫu 14", "biên bản", "lời khai"], type: "doc", answer: generateStandardForm("14", "BIÊN BẢN GHI LỜI KHAI") },
+                    { title: "Mẫu 15: Biên bản đối chất", keywords: ["mẫu 15", "biên bản", "đối chất"], type: "doc", answer: generateStandardForm("15", "BIÊN BẢN ĐỐI CHẤT") },
+                    { title: "Mẫu 16: Biên bản xác minh", keywords: ["mẫu 16", "biên bản", "xác minh"], type: "doc", answer: generateStandardForm("16", "BIÊN BẢN XÁC MINH") },
+                    { title: "Mẫu 17: Biên bản giao, nhận tài liệu, chứng cứ", keywords: ["mẫu 17", "giao nhận", "chứng cứ"], type: "doc", answer: generateStandardForm("17", "BIÊN BẢN<br>GIAO, NHẬN TÀI LIỆU, CHỨNG CỨ") },
+                    { title: "Mẫu 18: Quyết định uỷ thác xác minh, thu thập chứng cứ", keywords: ["mẫu 18", "uỷ thác"], type: "doc", answer: generateStandardForm("18", "QUYẾT ĐỊNH<br>UỶ THÁC KIỂM TRA, XÁC MINH, THU THẬP TÀI LIỆU, CHỨNG CỨ") },
+                    { title: "Mẫu 19: Quyết định yêu cầu chấm dứt vi phạm, khắc phục", keywords: ["mẫu 19", "chấm dứt", "khắc phục"], type: "doc", answer: generateStandardForm("19", "QUYẾT ĐỊNH<br>YÊU CẦU CHẤM DỨT HÀNH VI VI PHẠM, ÁP DỤNG BIỆN PHÁP ĐỂ NGĂN CHẶN, KHẮC PHỤC HẬU QUẢ") },
+                    { title: "Mẫu 20: Quyết định đình chỉ việc kiểm tra, xác minh", keywords: ["mẫu 20", "đình chỉ"], type: "doc", answer: generateStandardForm("20", "QUYẾT ĐỊNH<br>ĐÌNH CHỈ VIỆC KIỂM TRA, XÁC MINH") },
+                    { title: "Mẫu 21: Quyết định chấm dứt việc kiểm tra, xác minh", keywords: ["mẫu 21", "chấm dứt"], type: "doc", answer: generateStandardForm("21", "QUYẾT ĐỊNH<br>CHẤM DỨT VIỆC KIỂM TRA, XÁC MINH") },
+                    { title: "Mẫu 22: Quyết định phục hồi việc kiểm tra, xác minh", keywords: ["mẫu 22", "phục hồi"], type: "doc", answer: generateStandardForm("22", "QUYẾT ĐỊNH<br>PHỤC HỒI VIỆC KIỂM TRA, XÁC MINH") },
+                    { title: "Mẫu 23: Thông báo khởi kiện", keywords: ["mẫu 23", "thông báo khởi kiện"], type: "doc", answer: generateStandardForm("23", "THÔNG BÁO KHỞI KIỆN") },
+                    {
+                        title: "Mẫu 24: Kiến nghị khởi kiện",
+                        keywords: ["mẫu 24", "kiến nghị", "khởi kiện"],
+                        type: "doc",
+                        answer: "<div class='word-form'>" +
+                                "<table style='width: 100%; border: none; text-align: center;'>" +
+                                "<tr><td style='width: 40%;'><b>VIỆN KIỂM SÁT NHÂN DÂN...</b><br>-------</td>" +
+                                "<td style='width: 60%;'><b>CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM<br>Độc lập - Tự do - Hạnh phúc</b><br>-------</td></tr>" +
+                                "<tr><td style='width: 40%;'>Số: ......./KN-VKS</td>" +
+                                "<td style='width: 60%; font-style: italic;'>........, ngày ..... tháng ..... năm ........</td></tr>" +
+                                "</table><br>" +
+                                "<div style='text-align: center; font-weight: bold; margin-bottom: 20px;'>" +
+                                "KIẾN NGHỊ KHỞI KIỆN<br>VỤ ÁN DÂN SỰ CÔNG ÍCH" +
+                                "</div>" +
+                                "<b>Kính gửi:</b> .......................................................................................................<br><br>" +
+                                "Qua công tác kiểm sát, Viện kiểm sát nhân dân ........................ nhận thấy:<br>" +
+                                "(Nêu tóm tắt hành vi vi phạm, hậu quả thiệt hại đối với lợi ích công hoặc nhóm dễ bị tổn thương)...<br>" +
+                                "...........................................................................................................................<br>" +
+                                "...........................................................................................................................<br><br>" +
+                                "Những vi phạm nêu trên đã xâm phạm nghiêm trọng đến quyền, lợi ích hợp pháp của (cá nhân/nhóm người/Nhà nước). Căn cứ Điều ... Nghị quyết 205/2025/QH15, Viện kiểm sát nhân dân ........................ kiến nghị Quý cơ quan/tổ chức:<br>" +
+                                "<b>1.</b> Thực hiện quyền khởi kiện vụ án dân sự để yêu cầu Tòa án giải quyết bồi thường thiệt hại, khắc phục hậu quả do hành vi vi phạm gây ra.<br>" +
+                                "<b>2.</b> Trong thời hạn 30 ngày, kể từ ngày nhận được văn bản kiến nghị này, đề nghị Quý cơ quan/tổ chức thông báo bằng văn bản cho Viện kiểm sát nhân dân ........................ biết về việc thực hiện quyền khởi kiện.<br><br>" +
+                                "Nếu quá thời hạn trên mà Quý cơ quan/tổ chức không khởi kiện, Viện kiểm sát sẽ xem xét trực tiếp khởi kiện theo quy định của pháp luật.<br><br>" +
+                                "<table style='width: 100%; border: none; margin-top: 20px;'>" +
+                                "<tr><td style='width: 50%; vertical-align: top;'><b>Nơi nhận:</b><br>- Như trên;<br>- Lưu: VT, HS.</td>" +
+                                "<td style='width: 50%; text-align: center;'><b>VIỆN TRƯỞNG</b><br><i>(Ký, đóng dấu, ghi rõ họ tên)</i></td></tr>" +
+                                "</table>" +
+                                "</div>"
+                    },
+                    { title: "Mẫu 25: Công văn đề nghị hỗ trợ khởi kiện", keywords: ["mẫu 25", "đề nghị hỗ trợ"], type: "doc", answer: generateStandardForm("25", "CÔNG VĂN ĐỀ NGHỊ HỖ TRỢ KHỞI KIỆN") },
+                    { title: "Mẫu 26: Công văn trả lời đề nghị hỗ trợ khởi kiện", keywords: ["mẫu 26", "trả lời hỗ trợ"], type: "doc", answer: generateStandardForm("26", "CÔNG VĂN TRẢ LỜI ĐỀ NGHỊ HỖ TRỢ KHỞI KIỆN") },
+                    {
+                        title: "Mẫu 27: Quyết định khởi kiện vụ án dân sự công ích",
+                        keywords: ["mẫu 27", "quyết định khởi kiện"],
+                        type: "doc",
+                        answer: "<div class='word-form'>" +
+                                "<table style='width: 100%; border: none; text-align: center;'>" +
+                                "<tr><td style='width: 40%;'><b>VIỆN KIỂM SÁT NHÂN DÂN...</b><br>-------</td>" +
+                                "<td style='width: 60%;'><b>CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM<br>Độc lập - Tự do - Hạnh phúc</b><br>-------</td></tr>" +
+                                "<tr><td style='width: 40%;'>Số: ......./QĐ-VKS</td>" +
+                                "<td style='width: 60%; font-style: italic;'>........, ngày ..... tháng ..... năm ........</td></tr>" +
+                                "</table><br>" +
+                                "<div style='text-align: center; font-weight: bold; margin-bottom: 20px;'>" +
+                                "QUYẾT ĐỊNH<br>KHỞI KIỆN VỤ ÁN DÂN SỰ CÔNG ÍCH" +
+                                "</div>" +
+                                "<b>VIỆN TRƯỞNG VIỆN KIỂM SÁT NHÂN DÂN ......................</b><br><br>" +
+                                "Căn cứ Điều 27 Luật Tổ chức Viện kiểm sát nhân dân năm 2014;<br>" +
+                                "Căn cứ khoản 1 Điều 4, Điều 12 Nghị quyết số 205/2025/QH15;<br>" +
+                                "Xét thấy hành vi vi phạm của .............................................................. đã xâm phạm nghiêm trọng đến (lợi ích công/quyền của nhóm dễ bị tổn thương) mà không có cơ quan, tổ chức, cá nhân nào khởi kiện;<br><br>" +
+                                "<div style='text-align: center; font-weight: bold; margin-bottom: 10px;'>QUYẾT ĐỊNH:</div>" +
+                                "<b>Điều 1.</b> Viện kiểm sát nhân dân ...................... khởi kiện vụ án dân sự công ích về việc: ............................................................................<br>" +
+                                "Đối với người bị khởi kiện: ...............................................................................<br>" +
+                                "Địa chỉ: ...............................................................................................................<br><br>" +
+                                "<b>Điều 2. Yêu cầu khởi kiện:</b><br>" +
+                                "1. Yêu cầu Tòa án buộc người bị khởi kiện chấm dứt hành vi vi phạm...<br>" +
+                                "2. Buộc người bị khởi kiện bồi thường thiệt hại số tiền: ...................... đồng.<br>" +
+                                "3. Khôi phục lại tình trạng ban đầu...<br><br>" +
+                                "<b>Điều 3.</b> Đề nghị Tòa án nhân dân ...................... thụ lý giải quyết vụ án theo thủ tục tố tụng dân sự. Kèm theo Quyết định này là hồ sơ, tài liệu, chứng cứ gồm có: (Bản kê chi tiết kèm theo).<br><br>" +
+                                "<table style='width: 100%; border: none; margin-top: 20px;'>" +
+                                "<tr><td style='width: 50%; vertical-align: top;'><b>Nơi nhận:</b><br>- Tòa án nhân dân...;<br>- Người bị khởi kiện;<br>- Lưu: VT, HS.</td>" +
+                                "<td style='width: 50%; text-align: center;'><b>VIỆN TRƯỞNG</b><br><i>(Ký, đóng dấu, ghi rõ họ tên)</i></td></tr>" +
+                                "</table>" +
+                                "</div>"
+                    },
+                    { title: "Mẫu 28: Quyết định phân công VKS khởi kiện", keywords: ["mẫu 28", "phân công khởi kiện"], type: "doc", answer: generateStandardForm("28", "QUYẾT ĐỊNH<br>PHÂN CÔNG VIỆN KIỂM SÁT KHỞI KIỆN VỤ ÁN DÂN SỰ CÔNG ÍCH") },
+                    { title: "Mẫu 29: Quyết định yêu cầu áp dụng BPKCTT", keywords: ["mẫu 29", "khẩn cấp tạm thời", "bpkctt"], type: "doc", answer: generateStandardForm("29", "QUYẾT ĐỊNH<br>YÊU CẦU TOÀ ÁN ÁP DỤNG (THAY ĐỔI, HUỶ BỎ) BIỆN PHÁP KHẨN CẤP TẠM THỜI") },
+                    { title: "Mẫu 30: Quyết định phân công Kiểm sát viên", keywords: ["mẫu 30", "phân công kiểm sát viên"], type: "doc", answer: generateStandardForm("30", "QUYẾT ĐỊNH<br>PHÂN CÔNG KIỂM SÁT VIÊN THAM GIA PHIÊN TÒA") },
+                    { title: "Mẫu 31: Quyết định thay đổi Kiểm sát viên", keywords: ["mẫu 31", "thay đổi kiểm sát viên"], type: "doc", answer: generateStandardForm("31", "QUYẾT ĐỊNH<br>THAY ĐỔI KIỂM SÁT VIÊN THAM GIA PHIÊN TÒA") },
+                    { title: "Mẫu 32: Quyết định thay đổi, rút yêu cầu khởi kiện", keywords: ["mẫu 32", "rút yêu cầu"], type: "doc", answer: generateStandardForm("32", "QUYẾT ĐỊNH<br>THAY ĐỔI, RÚT (MỘT PHẦN, TOÀN BỘ) YÊU CẦU KHỞI KIỆN") }
                 ]
             }
         ];
 
-        // HÀM XỬ LÝ KHI BẤM NÚT GỢI Ý NHANH
+        let currentHtmlContent = ""; // Biến lưu tạm nội dung form để tải về
+
         function quickChat(text) {
             document.getElementById("user-input").value = text;
             sendMessage();
         }
 
-        // LOGIC AI PHỤ TRỢ (SOẠN THẢO VĂN BẢN ĐỘNG)
         const generalAiExtension = {
             process: function(query) {
                 const lower = query.toLowerCase();
@@ -345,18 +672,20 @@
                            "</div>";
                 }
                 
-                if (lower.includes("kiến nghị")) {
-                    return "<b>[Trợ lý Soạn thảo]:</b> Kính gửi ngài khung mẫu Kiến nghị yêu cầu cơ quan quản lý nhà nước khắc phục hậu quả:<br><br>" +
-                           "<div style='background:var(--bg-color); padding:10px; border-left:4px solid var(--accent-color); margin-top:5px; border-radius:4px;'>" +
-                           "<b>VIỆN KIỂM SÁT NHÂN DÂN...</b><br>" +
-                           "Số: .../KN-VKS<br><br>" +
-                           "<center><b>KIẾN NGHỊ</b><br><b>Áp dụng biện pháp phòng ngừa, khắc phục vi phạm</b></center><br>" +
-                           "<b>Kính gửi:</b> [Tên cơ quan quản lý]<br><br>" +
-                           "- Căn cứ Luật Tổ chức VKSND năm 2014;<br>" +
-                           "- Căn cứ Nghị quyết 205/2025/QH15;<br>" +
-                           "Qua công tác kiểm sát, VKSND... nhận thấy: [Nêu hành vi vi phạm...]<br><br>" +
-                           "<b>Yêu cầu:</b> [Chấm dứt vi phạm / Khôi phục hiện trạng / Xử lý trách nhiệm...]" +
-                           "</div>";
+                if (lower.includes("mẫu 01") || lower.includes("tiếp nhận")) {
+                    return "<b>[Trợ lý Soạn thảo]:</b> Mời Ngài xem nhanh <b>Mẫu 01 (Biên bản tiếp nhận)</b> bên dưới. Để <b>tải file Word chuẩn</b>, Ngài vui lòng nhìn sang thanh menu bên trái, mở thư mục <b>VIII</b> và nhấp vào biểu mẫu tương ứng, hệ thống sẽ hiện nút tải về cho Ngài ạ.";
+                }
+
+                if (lower.includes("mẫu 03") || lower.includes("thu thập") || lower.includes("cung cấp tài liệu")) {
+                    return "<b>[Trợ lý Soạn thảo]:</b> Mời Ngài xem nhanh <b>Mẫu 03 (Yêu cầu cung cấp tài liệu)</b> bên dưới. Để <b>tải file Word chuẩn</b>, Ngài vui lòng mở menu bên trái phần <b>VIII</b> để bấm nút tải về máy nhé.";
+                }
+
+                if (lower.includes("kiến nghị") || lower.includes("mẫu 24")) {
+                    return "<b>[Trợ lý Soạn thảo]:</b> Mời Ngài xem nhanh <b>Mẫu 24 (Kiến nghị khởi kiện)</b> bên dưới. Để <b>tải file Word chuẩn</b>, Ngài hãy nhấp vào Mẫu 24 ở cây danh mục bên trái để hiện nút Download ạ.";
+                }
+
+                if (lower.includes("khởi kiện") || lower.includes("mẫu 27")) {
+                    return "<b>[Trợ lý Soạn thảo]:</b> Mời Ngài xem nhanh <b>Mẫu 27 (Quyết định khởi kiện)</b> bên dưới. Hãy nhấp vào cây thư mục mục số <b>VIII</b> để lấy file Word tải về nha.";
                 }
 
                 if (lower.includes("phiếu") || lower.includes("chuyển tin")) {
@@ -389,33 +718,28 @@
                     return "<b>[Hỗ trợ Kỹ thuật]:</b> Nếu phần mềm gặp sự cố hiển thị, ngài vui lòng chụp ảnh màn hình và liên hệ bộ phận IT (Phòng Thống kê - CNTT) hoặc Phòng 9 để được hỗ trợ kịp thời nhé.";
                 }
 
-                return "<b>[Trợ lý AI]:</b> Mình đã nhận thông tin. Ngài có thể dùng các phím gợi ý bên trên hoặc nhập rõ từ khóa như <b>'Soạn mẫu tờ trình'</b>, <b>'Mẫu kiến nghị'</b> để mình xuất biểu mẫu chính xác nhất nhé.";
+                return "<b>[Trợ lý AI]:</b> Mình đã nhận thông tin. Hệ thống đã cập nhật <b>toàn bộ 32 Mẫu văn bản</b>. Ngài có thể tìm kiếm ở cây thư mục hoặc bấm các nút phía trên để xem và Tải file Word nhé.";
             }
         };
 
-        // KẾT XUẤT CÂY THƯ MỤC RA SIDEBAR BÊN TRÁI
         const menuItemsBox = document.getElementById("menu-items-box");
         function buildMenu() {
             menuItemsBox.innerHTML = "";
             knowledgeTree.forEach((folderObj, fIndex) => {
-                // Tạo tiêu đề thư mục lớn
                 const folderTitle = document.createElement("div");
                 folderTitle.classList.add("folder-title", "collapsed");
                 folderTitle.id = "folder-title-" + fIndex;
                 folderTitle.innerText = folderObj.folder;
                 
-                // Tạo khung chứa nội dung con bên trong
                 const folderContent = document.createElement("div");
                 folderContent.classList.add("folder-content", "collapsed");
                 folderContent.id = "folder-content-" + fIndex;
 
-                // Sự kiện Đóng/Mở thư mục khi nhấn
                 folderTitle.onclick = function() {
                     folderTitle.classList.toggle("collapsed");
                     folderContent.classList.toggle("collapsed");
                 };
 
-                // Đổ các bài viết chi tiết vào thư mục tương ứng
                 folderObj.items.forEach((item, iIndex) => {
                     const menuItem = document.createElement("div");
                     menuItem.classList.add("menu-item");
@@ -426,9 +750,26 @@
                         document.querySelectorAll('.menu-item').forEach(el => el.classList.remove('active'));
                         menuItem.classList.add('active');
                         
-                        // HIỂN THỊ NỘI DUNG VĂN BẢN VÀO KHU CHÍNH GIỮA
                         document.getElementById("render-title-text").innerHTML = item.title;
                         document.getElementById("render-body-text").innerHTML = item.answer;
+                        
+                        // HIỆN/ẨN CÁC NÚT TẢI VỀ DỰA VÀO LOẠI TÀI LIỆU
+                        const downloadBtnDoc = document.getElementById("btn-download");
+                        const downloadBtnPdf = document.getElementById("btn-download-pdf");
+                        
+                        if(item.type === 'doc') {
+                            downloadBtnDoc.style.display = "inline-block";
+                            downloadBtnPdf.style.display = "none";
+                            currentHtmlContent = item.answer; // Lưu content để hàm export doc xài
+                        } else if (item.type === 'pdf') {
+                            downloadBtnPdf.style.display = "inline-block";
+                            downloadBtnDoc.style.display = "none";
+                            currentHtmlContent = item.answer; 
+                        } else {
+                            downloadBtnDoc.style.display = "none";
+                            downloadBtnPdf.style.display = "none";
+                            currentHtmlContent = "";
+                        }
                         
                         document.getElementById("sidebar-panel").classList.remove("active-mobile");
                     };
@@ -440,7 +781,46 @@
             });
         }
 
-        // TÌM KIẾM TỰ ĐỘNG BUNG MỞ THƯ MỤC CHỨA TỪ KHÓA
+        // HÀM XUẤT FILE WORD TỪ JAVASCRIPT
+        function exportToWord() {
+            if(!currentHtmlContent) {
+                alert("Không có nội dung biểu mẫu để tải về.");
+                return;
+            }
+            
+            // Xóa thẻ bọc word-form để Word render chuẩn hơn
+            let cleanHtml = currentHtmlContent.replace(/<div class='word-form'>/g, "").replace(/<\/div>$/, "");
+            
+            const preHtml = "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><title>Export HTML To Doc</title></head><body>";
+            const postHtml = "</body></html>";
+            const html = preHtml + cleanHtml + postHtml;
+
+            const blob = new Blob(['\ufeff', html], {
+                type: 'application/msword'
+            });
+            
+            const url = 'data:application/vnd.ms-word;charset=utf-8,' + encodeURIComponent(html);
+            const filename = 'Bieu_mau_Kiem_sat_NQ205.doc';
+            
+            const downloadLink = document.createElement("a");
+            document.body.appendChild(downloadLink);
+            
+            if(navigator.msSaveOrOpenBlob){
+                navigator.msSaveOrOpenBlob(blob, filename);
+            } else {
+                downloadLink.href = url;
+                downloadLink.download = filename;
+                downloadLink.click();
+            }
+            document.body.removeChild(downloadLink);
+        }
+
+        // HÀM MÔ PHỎNG XUẤT PDF TRỰC TIẾP
+        function exportToPDF() {
+            alert("Hệ thống sẽ chuyển sang chế độ in tài liệu.\nNgài vui lòng chọn mục 'Lưu dưới dạng PDF' (Save as PDF) tại phần 'Máy in' (Destination) để tải văn bản về máy.");
+            window.print();
+        }
+
         function filterMenu() {
             const val = document.getElementById("search-input").value.toLowerCase();
             
@@ -471,7 +851,6 @@
             });
         }
 
-        // XỬ LÝ SỰ KIỆN CHATBOT
         const userInput = document.getElementById("user-input");
         const chatBox = document.getElementById("chat-box");
         
@@ -481,7 +860,15 @@
                 for (const item of folderObj.items) {
                     for (const keyword of item.keywords) {
                         if (lowerQuery.includes(keyword)) {
-                            return "<b>[Hệ thống Tri thức]:</b> Trích xuất nhanh dữ liệu từ hệ thống cho Ngài: <br><br>" + item.answer;
+                            // Cải tiến: Nhắc Tải PDF hoặc Word tùy loại
+                            let extraText = "";
+                            if (item.type === 'doc') {
+                                extraText = "<br><br><i>💡 Gợi ý: Hãy nhấp vào thư mục VIII bên trái để xem bản đầy đủ và bấm nút <b>📥 Tải file Word</b>.</i>";
+                            } else if (item.type === 'pdf') {
+                                extraText = "<br><br><i>💡 Gợi ý: Hãy nhấp vào thư mục VII bên trái để xem bản đầy đủ và bấm nút <b>📥 Tải về máy (.pdf)</b>.</i>";
+                            }
+                            
+                            return "<b>[Hệ thống Tri thức]:</b> Trích xuất nhanh dữ liệu từ hệ thống cho Ngài: <br><br>" + item.answer + extraText;
                         }
                     }
                 }
